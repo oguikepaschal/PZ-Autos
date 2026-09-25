@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-25T00:00:00Z",
+  "title": "Design System: PZ Autos",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Ink", "canonical": "#141414" },
+      "signal-red": { "role": "secondary", "displayName": "Signal Red", "canonical": "#d0121b" },
+      "bg-base": { "role": "neutral", "displayName": "White", "canonical": "#ffffff" },
+      "body-text": { "role": "neutral", "displayName": "Body Text", "canonical": "#1b222c" },
+      "text-on-dark": { "role": "neutral", "displayName": "Text on Dark", "canonical": "#8b95a6" },
+      "text-muted": { "role": "neutral", "displayName": "Text Muted", "canonical": "#5b6470" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e4e7ec" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display (Archivo)", "purpose": "Wordmark and per-make styling only." },
+      "body": { "displayName": "Body (Barlow)", "purpose": "All running copy, labels, and controls." }
+    },
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "The only easing curve used anywhere in the UI, per CLAUDE.md Animation timing." },
+      { "name": "duration-default-max", "value": "300ms", "purpose": "Ceiling for all UI animation: hover, press, toggles, modals, menus, lists, navigation." },
+      { "name": "duration-focal-entrance", "value": "500-800ms", "purpose": "Exception for a rare focal entrance on a marketing surface only (e.g. listing-page hero). Never on repeated interactions." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The site's one CTA treatment: signal red fill, used once per screen.",
+      "html": "<button class=\"ds-btn-primary\">Enquire</button>",
+      "css": ".ds-btn-primary { background: var(--color-signal-red); color: #ffffff; padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; transition: background 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-primary:hover, .ds-btn-primary:focus-visible { background: #a80e17; } .ds-btn-primary:disabled { opacity: 0.6; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "The repeated form-field pattern used across every scanned admin and public form.",
+      "html": "<input class=\"ds-input\" type=\"text\" />",
+      "css": ".ds-input { border: 1px solid var(--color-hairline); border-radius: 8px; padding: 8px 12px; font-size: 0.875rem; color: var(--color-ink); background: var(--color-bg-base); } .ds-input:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 1px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": null,
+    "overview": "A functional car-dealership inventory site: ink-black type on a white base, with signal red reserved for exactly one call-to-action or accent per screen. The codebase enforces this itself in comments rejecting red fills at several call sites, and status badges deliberately never use red.",
+    "keyCharacteristics": [
+      "Two typefaces, one role each: Archivo for display/wordmark, Barlow for everything else.",
+      "One accent color (signal red), applied narrowly by convention.",
+      "Flat surfaces, hairline borders, rounded-lg as the default corner radius."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Signal red is the only accent color and appears on at most one primary action or emphasis per screen. Status indicators never use it.", "section": "colors" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat. A shadow appears only on a floating/overlay element, never as general card or button styling.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do reserve signal red (#d0121b) for one primary action or emphasis per screen.",
+      "Do use border-hairline for separation instead of shadows.",
+      "Do use rounded-lg as the default corner radius for buttons, inputs, and cards.",
+      "Do keep all UI animation at or under 300ms using cubic-bezier(0.23, 1, 0.32, 1); reserve 500-800ms only for a rare focal entrance on a marketing surface, never on hover, press, toggles, modals, menus, lists, or navigation."
+    ],
+    "donts": [
+      "Don't use signal red for status indicators (Reserved/Sold) -- both use ink or muted text instead.",
+      "Don't introduce a third typeface; Archivo and Barlow cover every documented use.",
+      "Don't add shadows to cards or buttons as a default treatment; shadows are reserved for floating/overlay elements only."
+    ]
+  }
+}
