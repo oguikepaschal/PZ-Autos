@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNGN, formatCarTitle, formatDate } from '@/lib/formatters'
 import type { CarWithSupplier } from '@/lib/supabase/types'
+import { updateCarStatus } from '../actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,13 +67,25 @@ export default async function ArchivePage() {
                 <td className="px-4 py-3 font-body text-sm text-text-muted">
                   {formatDate(car.status_changed_at)}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/inventory/${car.id}/edit`}
-                    className="font-body text-sm font-semibold text-ink hover:underline"
-                  >
-                    View
-                  </Link>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                    {/* The explicit undefined fills archiveReason so the form's
+                        FormData argument lands past it instead of in it. */}
+                    <form action={updateCarStatus.bind(null, car.id, 'available', undefined)}>
+                      <button
+                        type="submit"
+                        className="font-body text-xs text-text-muted hover:text-ink underline"
+                      >
+                        Restore
+                      </button>
+                    </form>
+                    <Link
+                      href={`/admin/inventory/${car.id}/edit`}
+                      className="font-body text-sm font-semibold text-ink hover:underline"
+                    >
+                      View
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}
