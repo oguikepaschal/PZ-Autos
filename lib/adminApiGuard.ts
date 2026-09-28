@@ -4,7 +4,7 @@ import { isRateLimited } from '@/lib/showcase/rateLimiter'
 
 // The proxy matcher (proxy.ts) only covers /admin/** and /login — /api/** is
 // deliberately outside it so the public enquiry endpoint can stay
-// unauthenticated. Any admin-only API route therefore has to check the session
+// unauthenticated. Any admin-only API route therefore has to check the caller
 // itself; skipping this leaves the route, and the Anthropic key behind it,
 // world-callable.
 //
@@ -21,6 +21,13 @@ export async function refuseUnlessAdmin(scope: string): Promise<NextResponse | n
 
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+  }
+
+  // A session alone isn't enough: is_owner() is the single place the owner's
+  // identity lives, the same check every RLS policy uses.
+  const { data: isOwner, error: ownerError } = await supabase.rpc('is_owner')
+  if (ownerError || isOwner !== true) {
+    return NextResponse.json({ error: 'Not authorised' }, { status: 403 })
   }
 
   // Keyed on the signed-in user rather than the IP: these routes are only
