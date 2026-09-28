@@ -15,3 +15,7 @@ Where two installed skills disagree with each other (not with these tokens), sto
 - Exception: 500–800ms is allowed only for a rare focal entrance on a marketing surface, such as a listing page hero. It is never allowed on repeated interactions: hover, press, toggles, modals, menus, lists, or navigation.
 - A single easing curve applies everywhere: `cubic-bezier(0.23, 1, 0.32, 1)`.
 - This rule overrides any skill's timing guidance, including `impeccable/reference/animate.md`.
+
+## Git
+
+Never add attribution to commit messages or PR descriptions. No Co-Authored-By trailer, no 'Generated with Claude Code' line, no Claude-Session trailer and no claude.ai session links. Commit messages and PR bodies contain only the description of the change.
