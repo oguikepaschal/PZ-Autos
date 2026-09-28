@@ -236,7 +236,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           description: (form.get('description') as string) || null,
           key_features: keyFeaturesRaw
             ? keyFeaturesRaw.split(',').map((s) => s.trim()).filter(Boolean)
-            : null,
+            : undefined,
           location_area: (form.get('location_area') as string) || null,
           vin: (form.get('vin') as string) || null,
           registration_plate: (form.get('registration_plate') as string) || null,
