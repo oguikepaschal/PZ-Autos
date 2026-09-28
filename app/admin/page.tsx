@@ -3,7 +3,13 @@ import { ChevronUp, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { StaleIndicator } from '@/components/admin/StaleIndicator'
 import { formatNGN, formatCarTitle } from '@/lib/formatters'
-import { setCarFeatured, moveFeaturedUp, moveFeaturedDown, markVerified } from './actions'
+import {
+  setCarFeatured,
+  moveFeaturedUp,
+  moveFeaturedDown,
+  markVerified,
+  updateCarStatus,
+} from './actions'
 import { cn } from '@/lib/utils'
 import type { CarWithSupplier } from '@/lib/supabase/types'
 
@@ -159,13 +165,33 @@ export default async function AdminInventoryPage() {
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/inventory/${car.id}/edit`}
-                    className="font-body text-sm font-semibold text-ink hover:underline"
-                  >
-                    Edit
-                  </Link>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-3 whitespace-nowrap">
+                    {/* The explicit undefined fills archiveReason so the form's
+                        FormData argument lands past it instead of in it. */}
+                    <form action={updateCarStatus.bind(null, car.id, 'sold', undefined)}>
+                      <button
+                        type="submit"
+                        className="font-body text-xs text-text-muted hover:text-ink underline"
+                      >
+                        Mark sold
+                      </button>
+                    </form>
+                    <form action={updateCarStatus.bind(null, car.id, 'withdrawn', undefined)}>
+                      <button
+                        type="submit"
+                        className="font-body text-xs text-text-muted hover:text-ink underline"
+                      >
+                        Withdraw
+                      </button>
+                    </form>
+                    <Link
+                      href={`/admin/inventory/${car.id}/edit`}
+                      className="font-body text-sm font-semibold text-ink hover:underline"
+                    >
+                      Edit
+                    </Link>
+                  </div>
                 </td>
               </tr>
               )
