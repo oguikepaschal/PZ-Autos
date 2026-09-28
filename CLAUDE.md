@@ -19,3 +19,5 @@ Where two installed skills disagree with each other (not with these tokens), sto
 ## Git
 
 Never add attribution to commit messages or PR descriptions. No Co-Authored-By trailer, no 'Generated with Claude Code' line, no Claude-Session trailer and no claude.ai session links. Commit messages and PR bodies contain only the description of the change.
+
+Keep PR descriptions short: a simple description of what the PR is about. No test plan section, no code snippets.
