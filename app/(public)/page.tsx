@@ -3,9 +3,9 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicCarCard } from '@/components/showcase/PublicCarCard'
+import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
 import { getFeaturedCars } from '@/lib/showcase/queries'
 import { generateWhatsAppLink, getOwnerPhone } from '@/lib/whatsapp'
-import { cn } from '@/lib/utils'
 
 const OWNER_PHONE = getOwnerPhone()
 
@@ -79,7 +79,8 @@ export default async function LandingPage() {
 
       {/* ── Featured (owner-curated, at most 6) ─────────────────────── */}
       {/* Adapts to the count: 0 hides the section, 1 is a wide single
-          feature, 2 is two-up, 3 or more is the grid. */}
+          feature, 2 is two-up, 3 or more is a swipe row on phones and the
+          grid from md up. */}
       {featured.length > 0 && (
         <section className="container-page py-section">
           <div className="mb-8 flex items-end justify-between gap-4">
@@ -100,22 +101,17 @@ export default async function LandingPage() {
               layout="wide"
               sizes="(min-width: 1200px) 600px, (min-width: 768px) 50vw, 100vw"
             />
-          ) : (
-            <ul
-              className={cn(
-                'grid gap-4 md:gap-6',
-                featured.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'
-              )}
-            >
+          ) : featured.length === 2 ? (
+            <ul className="grid gap-4 sm:grid-cols-2 md:gap-6">
               {featured.map((car) => (
                 <li key={car.id}>
-                  <PublicCarCard
-                    car={car}
-                    sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
-                  />
+                  <PublicCarCard car={car} sizes="(min-width: 640px) 50vw, 100vw" />
                 </li>
               ))}
             </ul>
+          ) : (
+            // 3 or more: the same swipe row as /cars below md, grid from md up.
+            <PublicCarGrid cars={featured} />
           )}
 
           <Link
