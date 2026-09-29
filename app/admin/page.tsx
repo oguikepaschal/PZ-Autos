@@ -15,12 +15,14 @@ import type { CarWithSupplier } from '@/lib/supabase/types'
 
 export const dynamic = 'force-dynamic'
 
+type AdminListCar = CarWithSupplier & { car_images: { count: number }[] }
+
 export default async function AdminInventoryPage() {
   const supabase = await createClient()
 
   const { data: cars, error } = await supabase
     .from('cars')
-    .select('*, supplier:suppliers(id, name, supplier_type), whatsapp_clicks(count)')
+    .select('*, supplier:suppliers(id, name, supplier_type), whatsapp_clicks(count), car_images(count)')
     .in('status', ['draft', 'available', 'reserved'])
     .order('is_featured', { ascending: false })
     .order('featured_order', { ascending: true })
@@ -28,7 +30,7 @@ export default async function AdminInventoryPage() {
 
   if (error) throw error
 
-  const typedCars = (cars ?? []) as unknown as CarWithSupplier[]
+  const typedCars = (cars ?? []) as unknown as AdminListCar[]
   const featuredIds = typedCars.filter((c) => c.is_featured).map((c) => c.id)
   const featuredCount = featuredIds.length
 
@@ -83,6 +85,8 @@ export default async function AdminInventoryPage() {
             {typedCars.map((car) => {
               const featuredIndex = car.is_featured ? featuredIds.indexOf(car.id) : -1
               const canFeature = ['available', 'reserved'].includes(car.status)
+              const isDraft = car.status === 'draft'
+              const hasPhoto = (car.car_images[0]?.count ?? 0) > 0
 
               return (
               <tr key={car.id}>
@@ -113,6 +117,7 @@ export default async function AdminInventoryPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3">
+                  {!isDraft && (
                   <div className="flex items-center gap-1">
                     <form action={setCarFeatured.bind(null, car.id, !car.is_featured)}>
                       <button
@@ -170,27 +175,50 @@ export default async function AdminInventoryPage() {
                       </>
                     )}
                   </div>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-3 whitespace-nowrap">
                     {/* The explicit undefined fills archiveReason so the form's
                         FormData argument lands past it instead of in it. */}
-                    <form action={updateCarStatus.bind(null, car.id, 'sold', undefined)}>
-                      <button
-                        type="submit"
-                        className="font-body text-xs text-text-muted hover:text-ink underline"
-                      >
-                        Mark sold
-                      </button>
-                    </form>
-                    <form action={updateCarStatus.bind(null, car.id, 'withdrawn', undefined)}>
-                      <button
-                        type="submit"
-                        className="font-body text-xs text-text-muted hover:text-ink underline"
-                      >
-                        Withdraw
-                      </button>
-                    </form>
+                    {isDraft ? (
+                      hasPhoto ? (
+                        <form action={updateCarStatus.bind(null, car.id, 'available', undefined)}>
+                          <button
+                            type="submit"
+                            className="font-body text-xs text-text-muted hover:text-ink underline"
+                          >
+                            Publish
+                          </button>
+                        </form>
+                      ) : (
+                        <Link
+                          href={`/admin/inventory/${car.id}/edit`}
+                          className="font-body text-xs text-text-muted hover:text-ink underline"
+                        >
+                          Add a photo to publish
+                        </Link>
+                      )
+                    ) : (
+                      <>
+                        <form action={updateCarStatus.bind(null, car.id, 'sold', undefined)}>
+                          <button
+                            type="submit"
+                            className="font-body text-xs text-text-muted hover:text-ink underline"
+                          >
+                            Mark sold
+                          </button>
+                        </form>
+                        <form action={updateCarStatus.bind(null, car.id, 'withdrawn', undefined)}>
+                          <button
+                            type="submit"
+                            className="font-body text-xs text-text-muted hover:text-ink underline"
+                          >
+                            Withdraw
+                          </button>
+                        </form>
+                      </>
+                    )}
                     <Link
                       href={`/admin/inventory/${car.id}/edit`}
                       className="font-body text-sm font-semibold text-ink hover:underline"
