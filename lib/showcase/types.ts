@@ -1,41 +1,32 @@
-// Mirrors public_cars_view's column list exactly. If you add a column to
-// that view, add it here too (or better, regenerate types from the DB).
-export interface PublicCar {
-  id: string
-  slug: string
-  make: string
-  model: string
-  year: number
-  trim: string | null
-  body_type: string | null
-  transmission: string | null
-  fuel_type: string | null
-  mileage_km: number | null
-  exterior_colour: string | null
-  interior_colour: string | null
-  engine_layout: string | null
-  drivetrain: string | null
-  condition: string | null
-  description: string | null
-  key_features: string[] | null
-  location_area: string | null
-  asking_price_ngn: string // numeric columns arrive as strings over PostgREST
-  status: 'available' | 'reserved' | 'sold'
-  status_changed_at: string
-  last_verified_at: string
-  is_featured: boolean
-  featured_order: number | null
-  created_at: string
-  updated_at: string
-}
+import type { Tables } from '@/lib/supabase/database.types'
 
-export interface PublicCarImage {
-  id: string
-  car_id: string
-  storage_path: string
-  alt_text: string | null
-  is_cover: boolean
-  sort_order: number
+// Derived from the generated view row types (lib/supabase/database.types.ts).
+// Postgres reports every view column as nullable, so the columns that can
+// never be null (they come straight from non-null cars columns, or the view's
+// own filter guarantees them) are narrowed here, along with status.
+type PublicCarRow = Tables<'public_cars_view'>
+type NonNullCarKeys =
+  | 'id'
+  | 'slug'
+  | 'make'
+  | 'model'
+  | 'year'
+  | 'asking_price_ngn'
+  | 'status_changed_at'
+  | 'last_verified_at'
+  | 'is_featured'
+  | 'created_at'
+  | 'updated_at'
+
+export type PublicCar = Omit<PublicCarRow, NonNullCarKeys | 'status'> & {
+  [K in NonNullCarKeys]: NonNullable<PublicCarRow[K]>
+} & { status: 'available' | 'reserved' | 'sold' }
+
+type PublicCarImageRow = Tables<'public_car_images_view'>
+type NonNullImageKeys = 'id' | 'car_id' | 'storage_path' | 'is_cover' | 'sort_order'
+
+export type PublicCarImage = Omit<PublicCarImageRow, NonNullImageKeys> & {
+  [K in NonNullImageKeys]: NonNullable<PublicCarImageRow[K]>
 }
 
 export interface PublicCarWithImages extends PublicCar {

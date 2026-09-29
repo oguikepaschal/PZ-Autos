@@ -75,7 +75,7 @@ export function SupplierPicker({
       return
     }
 
-    onSupplierCreated(data)
+    onSupplierCreated(data as Pick<Supplier, 'id' | 'name' | 'supplier_type'>)
     onChange(data.id)
     setCreating(false)
     setName('')

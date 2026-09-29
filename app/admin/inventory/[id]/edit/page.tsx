@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { CarEditForm } from '@/components/admin/CarEditForm'
 import { formatCarTitle } from '@/lib/formatters'
-import type { Car, CarImage } from '@/lib/supabase/types'
+import type { Car, CarImage, Supplier } from '@/lib/supabase/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,7 +36,11 @@ export default async function EditCarPage({ params }: PageProps) {
       <h1 className="font-display font-black text-2xl text-ink mb-6">
         Edit {formatCarTitle(typedCar.make, typedCar.model, typedCar.year)}
       </h1>
-      <CarEditForm car={typedCar} images={(images ?? []) as CarImage[]} suppliers={suppliers ?? []} />
+      <CarEditForm
+        car={typedCar}
+        images={(images ?? []) as CarImage[]}
+        suppliers={(suppliers ?? []) as Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]}
+      />
     </div>
   )
 }

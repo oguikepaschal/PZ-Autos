@@ -81,7 +81,7 @@ export async function deleteCarImagesByPrefix(folderId: string): Promise<void> {
   }
 }
 
-export interface NewCarPayload {
+export type NewCarPayload = {
   slug: string
   supplier_id: string
   make: string
@@ -108,7 +108,7 @@ export interface NewCarPayload {
   acquisition_notes?: string | null
 }
 
-export interface NewCarImagePayload {
+export type NewCarImagePayload = {
   storage_path: string
   alt_text?: string | null
   is_cover: boolean
