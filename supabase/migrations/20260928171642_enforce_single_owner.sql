@@ -10,6 +10,8 @@
 -- car_images_public_read storage policy, and the service-role enquiry path
 -- (service role bypasses RLS).
 
+-- coalesce in the body: auth.uid() is null for anon, and callers want a plain
+-- false.
 create function public.is_owner()
 returns boolean
 language sql
@@ -17,7 +19,6 @@ stable
 security invoker
 set search_path = ''
 as $$
-  -- coalesce: auth.uid() is null for anon, and callers want a plain false.
   select coalesce(auth.uid() = 'bdf8c376-dbec-42c9-96d3-731aff1ce4f6'::uuid, false)
 $$;
 
