@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SupplierPicker } from './SupplierPicker'
+import { CUSTOM_SUPPLIER, SupplierPicker, createOneOffSupplier } from './SupplierPicker'
 import { ImageUploader, type PendingImage } from './ImageUploader'
 import { MakeModelFields } from './MakeModelFields'
 import { ConstrainedSelect } from './ConstrainedSelect'
@@ -67,6 +67,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   const [folderId] = useState(() => crypto.randomUUID())
   const [suppliers, setSuppliers] = useState(initialSuppliers)
   const [supplierId, setSupplierId] = useState('')
+  const [customSupplierName, setCustomSupplierName] = useState('')
   const [images, setImages] = useState<PendingImage[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -198,6 +199,10 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       setError('Select or create a supplier')
       return
     }
+    if (supplierId === CUSTOM_SUPPLIER && !customSupplierName.trim()) {
+      setError('Enter a supplier name')
+      return
+    }
 
     const parsed = buildCarFormSchema().safeParse({
       make,
@@ -229,11 +234,14 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
     try {
       const slug = generateCarSlug(parsed.data.year, parsed.data.make, parsed.data.model)
 
+      const resolvedSupplierId =
+        supplierId === CUSTOM_SUPPLIER ? await createOneOffSupplier(customSupplierName) : supplierId
+
       const carId = await createCarWithImages(
         folderId,
         {
           slug,
-          supplier_id: supplierId,
+          supplier_id: resolvedSupplierId,
           make: parsed.data.make,
           model: parsed.data.model,
           year: parsed.data.year,
@@ -294,6 +302,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           value={supplierId}
           onChange={setSupplierId}
           onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
+          customName={customSupplierName}
+          onCustomNameChange={setCustomSupplierName}
         />
       </Field>
 

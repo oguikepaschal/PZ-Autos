@@ -10,6 +10,23 @@ interface SupplierPickerProps {
   value: string
   onChange: (supplierId: string) => void
   onSupplierCreated: (supplier: Pick<Supplier, 'id' | 'name' | 'supplier_type'>) => void
+  customName: string
+  onCustomNameChange: (name: string) => void
+}
+
+// Select value meaning "a name for this car only". It is never a real id.
+export const CUSTOM_SUPPLIER = '__custom__'
+
+// A one-off supplier still needs a row (cars.supplier_id is required), but it
+// is created inactive so no supplier dropdown ever lists it for another car.
+export async function createOneOffSupplier(name: string): Promise<string> {
+  const { data, error } = await createClient()
+    .from('suppliers')
+    .insert({ name: name.trim(), supplier_type: 'individual', is_active: false })
+    .select('id')
+    .single()
+  if (error || !data) throw error ?? new Error('Could not create supplier')
+  return data.id
 }
 
 // A one-off individual seller doesn't deserve the friction of a separate
@@ -17,7 +34,14 @@ interface SupplierPickerProps {
 // through the real suppliers table (never a free-text field on cars), which
 // is what keeps supplier identity structurally excludable from every public
 // view (see the schema migration's note on why this is a separate table).
-export function SupplierPicker({ suppliers, value, onChange, onSupplierCreated }: SupplierPickerProps) {
+export function SupplierPicker({
+  suppliers,
+  value,
+  onChange,
+  onSupplierCreated,
+  customName,
+  onCustomNameChange,
+}: SupplierPickerProps) {
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
   const [type, setType] = useState<'dealership' | 'individual'>('individual')
@@ -108,27 +132,39 @@ export function SupplierPicker({ suppliers, value, onChange, onSupplierCreated }
   }
 
   return (
-    <div className="flex gap-2">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required
-        className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
-      >
-        <option value="">Select a supplier…</option>
-        {suppliers.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name} ({s.supplier_type})
-          </option>
-        ))}
-      </select>
-      <button
-        type="button"
-        onClick={() => setCreating(true)}
-        className="rounded-lg border border-hairline font-body text-sm px-3 py-2 text-ink"
-      >
-        + New
-      </button>
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required
+          className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+        >
+          <option value="">Select a supplier…</option>
+          {suppliers.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name} ({s.supplier_type})
+            </option>
+          ))}
+          <option value={CUSTOM_SUPPLIER}>Custom name (this car only)…</option>
+        </select>
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
+          className="rounded-lg border border-hairline font-body text-sm px-3 py-2 text-ink"
+        >
+          + New
+        </button>
+      </div>
+      {value === CUSTOM_SUPPLIER && (
+        <input
+          type="text"
+          placeholder="Supplier name for this car"
+          value={customName}
+          onChange={(e) => onCustomNameChange(e.target.value)}
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+        />
+      )}
     </div>
   )
 }
