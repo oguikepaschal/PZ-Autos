@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { Phone } from 'lucide-react'
 import { Wordmark } from '@/components/theme/Logo'
-import { normalizeNigerianPhone, formatPhoneDisplay } from '@/lib/formatters'
+import { formatPhoneDisplay } from '@/lib/formatters'
+import { getOwnerPhone } from '@/lib/whatsapp'
 
-const OWNER_PHONE = normalizeNigerianPhone(process.env.NEXT_PUBLIC_OWNER_PHONE ?? '+2348116563757')
+const OWNER_PHONE = getOwnerPhone()
 
 interface PublicHeaderProps {
   showBackButton?: boolean

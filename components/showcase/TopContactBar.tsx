@@ -1,6 +1,7 @@
-import { normalizeNigerianPhone, formatPhoneDisplay } from '@/lib/formatters'
+import { formatPhoneDisplay } from '@/lib/formatters'
+import { getOwnerPhone } from '@/lib/whatsapp'
 
-const OWNER_PHONE = normalizeNigerianPhone(process.env.NEXT_PUBLIC_OWNER_PHONE ?? '+2348116563757')
+const OWNER_PHONE = getOwnerPhone()
 const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'pzautomobiles@gmail.com'
 
 // Landing-page-only slim strip above the main nav. Deliberately carries no

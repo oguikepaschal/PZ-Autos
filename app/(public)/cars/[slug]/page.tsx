@@ -1,16 +1,22 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { CarGallery } from '@/components/showcase/CarGallery'
 import { StatusBadge } from '@/components/showcase/StatusBadge'
 import { FreshnessBadge } from '@/components/showcase/FreshnessBadge'
 import { SpecList } from '@/components/showcase/SpecList'
-import { EnquiryForm } from '@/components/showcase/EnquiryForm'
+import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
 import { getPublicCarBySlug } from '@/lib/showcase/queries'
 import { getCarImagePublicUrl } from '@/lib/images'
 import { formatNGN, formatCarTitle, formatMileage } from '@/lib/formatters'
+import { generateCarEnquiryMessage } from '@/lib/whatsapp'
 
 export const revalidate = 0
+
+// Lets the mobile WhatsApp bar clear the iPhone home indicator; without
+// viewport-fit=cover, env(safe-area-inset-bottom) is always 0 on iOS.
+export const viewport: Viewport = { viewportFit: 'cover' }
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -44,6 +50,13 @@ export default async function CarDetailPage({ params }: PageProps) {
   if (!car) notFound()
 
   const title = formatCarTitle(car.make, car.model, car.year)
+  const canEnquire = car.status !== 'sold'
+
+  const requestHeaders = await headers()
+  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host')
+  const protocol = requestHeaders.get('x-forwarded-proto') ?? 'https'
+  const pageUrl = `${protocol}://${host}/cars/${car.slug}`
+
   const galleryImages = car.images.map((img) => ({
     url: getCarImagePublicUrl(img.storage_path),
     sort_order: img.sort_order,
@@ -53,7 +66,11 @@ export default async function CarDetailPage({ params }: PageProps) {
   return (
     <>
       <PublicHeader showBackButton />
-      <div className="mx-auto max-w-[1280px] px-4 md:px-10 py-8 md:py-12 grid lg:grid-cols-[1fr_380px] gap-10">
+      <div
+        className={`mx-auto max-w-[1280px] px-4 md:px-10 pt-8 md:py-12 grid lg:grid-cols-[1fr_380px] gap-10 ${
+          canEnquire ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-12' : 'pb-8'
+        }`}
+      >
         <div>
           <CarGallery images={galleryImages} carName={title} />
         </div>
@@ -71,6 +88,11 @@ export default async function CarDetailPage({ params }: PageProps) {
           <div className="mt-1">
             <FreshnessBadge lastVerifiedAt={car.last_verified_at} />
           </div>
+          {canEnquire && (
+            <WhatsAppButton
+              message={generateCarEnquiryMessage(title, formatNGN(car.asking_price_ngn), pageUrl)}
+            />
+          )}
 
           {car.description && (
             <p className="font-body text-sm text-body-text mt-4 leading-relaxed">
@@ -90,12 +112,6 @@ export default async function CarDetailPage({ params }: PageProps) {
                 </li>
               ))}
             </ul>
-          )}
-
-          {car.status !== 'sold' && (
-            <div className="mt-8">
-              <EnquiryForm carId={car.id} carTitle={title} />
-            </div>
           )}
         </div>
       </div>
