@@ -2,8 +2,8 @@ import { formatDistanceToNow, format } from 'date-fns'
 
 // --- Price formatting ---
 // PZ Autos runs one currency, one price. PostgREST returns `numeric` columns
-// as strings (to avoid float precision loss), so every formatter here
-// accepts either.
+// as JSON numbers; strings are still accepted for values read from form
+// inputs or other sources.
 
 export function formatNGN(amount: number | string): string {
   const value = typeof amount === 'string' ? Number(amount) : amount
