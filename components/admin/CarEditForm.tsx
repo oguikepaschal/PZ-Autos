@@ -5,21 +5,23 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ImageUploader, type PendingImage } from './ImageUploader'
 import { MakeModelFields } from './MakeModelFields'
+import { SupplierPicker } from './SupplierPicker'
 import { ConstrainedSelect } from './ConstrainedSelect'
 import { Field } from './FormField'
 import { getCarImagePublicUrl } from '@/lib/images'
 import { buildCarFormSchema, formatCarFormErrors } from '@/lib/carFormSchema'
 import { BODY_TYPES, CONDITIONS, DRIVETRAINS, ENGINE_LAYOUTS, FUEL_TYPES, TRANSMISSIONS, getYearOptions } from '@/lib/carOptions'
-import type { Car, CarImage } from '@/lib/supabase/types'
+import type { Car, CarImage, Supplier } from '@/lib/supabase/types'
 
 interface CarEditFormProps {
   car: Car
   images: CarImage[]
+  suppliers: Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]
 }
 
 const YEAR_OPTIONS = getYearOptions()
 
-export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
+export function CarEditForm({ car, images: initialImages, suppliers: initialSuppliers }: CarEditFormProps) {
   const router = useRouter()
   const [images, setImages] = useState<PendingImage[]>(
     initialImages.map((img) => ({
@@ -30,6 +32,8 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [suppliers, setSuppliers] = useState(initialSuppliers)
+  const [supplierId, setSupplierId] = useState(car.supplier_id)
   const [status, setStatus] = useState(car.status)
   const [archiveReason, setArchiveReason] = useState(car.archive_reason ?? '')
 
@@ -50,6 +54,12 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
     e.preventDefault()
     setSaving(true)
     setError(null)
+
+    if (!supplierId) {
+      setError('Select or create a supplier')
+      setSaving(false)
+      return
+    }
 
     const form = new FormData(e.currentTarget)
     const keyFeatures = String(form.get('key_features') ?? '')
@@ -87,6 +97,7 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
     const { error: updateError } = await supabase
       .from('cars')
       .update({
+        supplier_id: supplierId,
         make: parsed.data.make,
         model: parsed.data.model,
         year: parsed.data.year,
@@ -163,6 +174,15 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      <Field label="Supplier">
+        <SupplierPicker
+          suppliers={suppliers}
+          value={supplierId}
+          onChange={setSupplierId}
+          onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
+        />
+      </Field>
+
       <Field label="Photos">
         <ImageUploader
           folderId={`car-${car.id}`}
