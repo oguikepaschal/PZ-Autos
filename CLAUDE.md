@@ -24,3 +24,4 @@ Keep PR descriptions short: a simple description of what the PR is about. No tes
 
 - Every new table, view or function in `public` must include explicit grants in its migration, because default privileges grant nothing to anon or authenticated. New functions must also `revoke execute ... from public, anon`, since PUBLIC execute cannot be removed by default privileges.
 - Any migration applied with `apply_migration` must be saved in the repo under the exact version live history records.
+- After any migration, regenerate `lib/supabase/database.types.ts` from the live project with `generate_typescript_types` and commit it in the same PR.
