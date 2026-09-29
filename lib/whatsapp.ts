@@ -9,6 +9,12 @@ export function generateWhatsAppLink(phone: string, message: string): string {
   return `https://wa.me/${e164}?text=${encodeURIComponent(message)}`
 }
 
-export function generateCarEnquiryMessage(carTitle: string): string {
-  return `Hi, I'm interested in the ${carTitle} listed on PZ Autos. Is it still available?`
+// NEXT_PUBLIC_OWNER_PHONE overrides the fallback number; every public
+// surface (links, contact bars, WhatsApp) reads the number through this.
+export function getOwnerPhone(): string {
+  return normalizeNigerianPhone(process.env.NEXT_PUBLIC_OWNER_PHONE ?? '+2348116563757')
+}
+
+export function generateCarEnquiryMessage(carTitle: string, price: string, pageUrl: string): string {
+  return `Hi, I'm interested in the ${carTitle} listed at ${price}. Is it still available? ${pageUrl}`
 }

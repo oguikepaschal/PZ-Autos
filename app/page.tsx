@@ -6,9 +6,9 @@ import { PublicFooter } from '@/components/showcase/PublicFooter'
 import { PublicCarCard } from '@/components/showcase/PublicCarCard'
 import { SectionLabel } from '@/components/showcase/SectionLabel'
 import { getFeaturedCars } from '@/lib/showcase/queries'
-import { generateWhatsAppLink } from '@/lib/whatsapp'
+import { generateWhatsAppLink, getOwnerPhone } from '@/lib/whatsapp'
 
-const OWNER_PHONE = process.env.NEXT_PUBLIC_OWNER_PHONE ?? '+2348116563757'
+const OWNER_PHONE = getOwnerPhone()
 
 export const metadata: Metadata = {
   title: 'Pazogu Automobiles — Verified cars, direct from the owner',
