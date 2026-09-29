@@ -218,8 +218,9 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       setError('Asking price is required')
       return
     }
-    if (images.length === 0) {
-      setError('Add at least one photo')
+    // A draft can be saved before the photos are taken; anything public needs one.
+    if (status !== 'draft' && images.length === 0) {
+      setError('Add at least one photo to publish')
       return
     }
 
