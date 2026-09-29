@@ -23,6 +23,12 @@ export default async function EditCarPage({ params }: PageProps) {
     .eq('car_id', id)
     .order('sort_order', { ascending: true })
 
+  const { data: suppliers } = await supabase
+    .from('suppliers')
+    .select('id, name, supplier_type')
+    .or(`is_active.eq.true,id.eq.${car.supplier_id}`)
+    .order('name')
+
   const typedCar = car as Car
 
   return (
@@ -30,7 +36,7 @@ export default async function EditCarPage({ params }: PageProps) {
       <h1 className="font-display font-black text-2xl text-ink mb-6">
         Edit {formatCarTitle(typedCar.make, typedCar.model, typedCar.year)}
       </h1>
-      <CarEditForm car={typedCar} images={(images ?? []) as CarImage[]} />
+      <CarEditForm car={typedCar} images={(images ?? []) as CarImage[]} suppliers={suppliers ?? []} />
     </div>
   )
 }
