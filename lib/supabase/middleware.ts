@@ -6,7 +6,7 @@ const LOGIN_PATH = '/login'
 
 // Gates only /admin/**, plus the redirect-away-if-already-signed-in check on
 // /login itself. The public showcase (/, /cars, /cars/[slug]) and the
-// enquiry API route never touch this — they run unauthenticated against the
+// WhatsApp click API route never touch this — they run unauthenticated against the
 // anon-key views by design.
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })

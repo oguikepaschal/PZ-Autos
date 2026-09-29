@@ -14,7 +14,7 @@ export default async function ArchivePage() {
 
   const { data: cars, error } = await supabase
     .from('cars')
-    .select('*, supplier:suppliers(id, name, supplier_type)')
+    .select('*, supplier:suppliers(id, name, supplier_type), whatsapp_clicks(count)')
     .in('status', ['sold', 'withdrawn'])
     .order('status_changed_at', { ascending: false })
 
@@ -37,6 +37,9 @@ export default async function ArchivePage() {
               </th>
               <th className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3">
                 Price
+              </th>
+              <th className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3">
+                WhatsApp taps
               </th>
               <th className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3">
                 Date
@@ -63,6 +66,9 @@ export default async function ArchivePage() {
                 </td>
                 <td className="px-4 py-3 font-body text-sm text-ink tabular-nums">
                   {formatNGN(car.asking_price_ngn)}
+                </td>
+                <td className="px-4 py-3 font-body text-sm text-ink tabular-nums">
+                  {car.whatsapp_clicks[0]?.count ?? 0}
                 </td>
                 <td className="px-4 py-3 font-body text-sm text-text-muted">
                   {formatDate(car.status_changed_at)}
@@ -91,7 +97,7 @@ export default async function ArchivePage() {
             ))}
             {typedCars.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center font-body text-text-muted">
+                <td colSpan={6} className="px-4 py-8 text-center font-body text-text-muted">
                   Nothing archived yet.
                 </td>
               </tr>
