@@ -21,3 +21,5 @@ Where two installed skills disagree with each other (not with these tokens), sto
 Never add attribution to commit messages or PR descriptions. No Co-Authored-By trailer, no 'Generated with Claude Code' line, no Claude-Session trailer and no claude.ai session links. Commit messages and PR bodies contain only the description of the change.
 
 Keep PR descriptions short: a simple description of what the PR is about. No test plan section, no code snippets.
+
+- Every new table, view or function in `public` must include explicit grants in its migration, because default privileges grant nothing to anon or authenticated. New functions must also `revoke execute ... from public, anon`, since PUBLIC execute cannot be removed by default privileges.
