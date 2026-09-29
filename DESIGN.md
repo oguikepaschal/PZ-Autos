@@ -5,10 +5,10 @@ colors:
   ink: "#141414"
   signal-red: "#d0121b"
   bg-base: "#ffffff"
-  body-text: "#1b222c"
-  text-on-dark: "#8b95a6"
-  text-muted: "#5b6470"
-  hairline: "#e4e7ec"
+  body-text: "#262626"
+  text-on-dark: "#a3a3a3"
+  text-muted: "#5c5c5c"
+  hairline: "#e5e5e5"
 typography:
   display:
     fontFamily: "Archivo, Helvetica, Arial, sans-serif"
@@ -45,17 +45,19 @@ A functional car-dealership inventory site: ink-black type on a white base, with
 Three intentional colors plus a neutral scale for text and borders.
 
 ### Primary
-- **Ink** (`#141414`): default text and body copy color source (`--ink`, `--body-text` is a slightly softened `#1b222c` for running copy); also the default status-badge color for "Reserved" listings, standing in for a color specifically so status never reads as red.
+- **Ink** (`#141414`): default text and body copy color source (`--ink`, `--body-text` is a slightly softened `#262626` for running copy); also the default status-badge color for "Reserved" listings, standing in for a color specifically so status never reads as red.
 
 ### Secondary
-- **Signal Red** (`#d0121b`): the single accent. Used only on primary CTA buttons (submit/enquire/save actions) and matching inline text emphasis (error messages, one emphasized word in hero copy, section eyebrows). Never used for status or decoration.
+- **Signal Red** (`#d0121b`): the single accent. Used only on primary CTA buttons (submit/enquire/save actions) and matching inline text emphasis (error messages). Never used for status or decoration.
 
 ### Neutral
+Every grey is neutral (equal R, G and B), never blue-tinted.
+
 - **White** (`#ffffff`): page background (`--bg-base`).
-- **Body Text** (`#1b222c`): running copy, slightly softer than pure ink.
-- **Text on Dark** (`#8b95a6`): muted text for dark surfaces.
-- **Text Muted** (`#5b6470`): secondary/disabled text, also the "Sold" status color.
-- **Hairline** (`#e4e7ec`): borders and dividers — the dominant border treatment (35 of 38 `border` usages).
+- **Body Text** (`#262626`): running copy, slightly softer than pure ink.
+- **Text on Dark** (`#a3a3a3`): muted text for dark surfaces.
+- **Text Muted** (`#5c5c5c`): secondary/disabled text, also the "Sold" status color.
+- **Hairline** (`#e5e5e5`): borders and dividers — the dominant border treatment (35 of 38 `border` usages).
 
 ### Named Rules
 **The One Accent Rule.** Signal red is the only accent color and appears on at most one primary action or emphasis per screen. Status indicators never use it, even where a system might default an urgent/negative state to red — "Sold" and "Reserved" both render in ink or muted tones instead.
@@ -65,11 +67,11 @@ Three intentional colors plus a neutral scale for text and borders.
 **Display Font:** Archivo (with Helvetica, Arial, sans-serif fallback)
 **Body Font:** Barlow (with Helvetica, Arial, sans-serif fallback)
 
-**Character:** Both are loaded via `next/font/google` with no other typeface in the codebase. Archivo also drives a per-make "wordmark-evoking" style map (`lib/showcase/makeTypography.ts`) that varies weight/tracking/case per car manufacturer using only these two families — no third typeface is introduced even for brand-mimicry styling.
+**Character:** Both are loaded via `next/font/google` with no other typeface in the codebase.
 
 ## Layout
 
-Content is generally width-constrained (`max-w-md`/`max-w-sm`/`max-w-2xl` on forms and narrow copy blocks); no single dominant page container width was found, so this is set per-surface rather than a fixed grid. Standard control padding is `px-3 py-2` (inputs) and `px-4 py-2` to `px-6 py-3.5` (buttons, scaling with prominence).
+Public pages align to one container, the `container-page` utility in `app/globals.css` (1200px max, 20px gutters, 32px from 768px up). Type, spacing and motion steps live in the `@theme` block there: fluid `text-h1`/`text-h2`/`text-h3`, `text-lead`, `text-body`, `text-small`, `text-caption`, `tracking-display`, `max-w-measure` (65ch) and `py-section`. Standard control padding is `px-3 py-2` (inputs) and `px-4 py-2` to `px-6 py-3.5` (buttons, scaling with prominence).
 
 ## Elevation & Depth
 

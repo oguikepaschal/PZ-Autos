@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Archivo, Barlow } from 'next/font/google'
 import './globals.css'
 
@@ -11,9 +11,7 @@ const archivo = Archivo({
 
 const barlow = Barlow({
   subsets: ['latin'],
-  // 300 is used only by MakeTypography's brand-wordmark styling in
-  // MakesTicker — the site's default body copy stays 400/600.
-  weight: ['300', '400', '600'],
+  weight: ['400', '600'],
   variable: '--font-barlow',
   display: 'swap',
 })
@@ -21,10 +19,10 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   title: {
     default: 'Pazogu Automobiles',
-    template: '%s · Pazogu Automobiles',
+    template: '%s | Pazogu Automobiles',
   },
   description:
-    'Verified cars sourced from vetted dealerships and individuals across Lagos — direct WhatsApp access to the owner.',
+    'Verified cars sourced from vetted dealerships and individuals across Lagos, with direct WhatsApp access to the owner.',
   icons: {
     // No media query = default/fallback, also matches light mode explicitly.
     // Dark-mode browsers (tab bar, bookmarks, PWA icon) get the dark-bg mark
@@ -38,6 +36,17 @@ export const metadata: Metadata = {
       },
     ],
   },
+}
+
+// viewport-fit=cover lets fixed bars pad themselves clear of the notch and
+// home indicator with env(safe-area-inset-*). One theme-color is enough: the
+// site is light-only (color-scheme: light) and every page opens on the ink
+// header, so the browser chrome matches it in either OS scheme.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#141414',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

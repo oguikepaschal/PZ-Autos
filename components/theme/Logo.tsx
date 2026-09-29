@@ -11,6 +11,8 @@ interface WordmarkProps {
   priority?: boolean
 }
 
+// The PNGs are cropped to the artwork (no transparent padding), so the
+// height class is the mark's real visible height.
 // tone describes the wordmark's text color, matching call sites written
 // before this swapped to real assets: tone="dark" (default) is dark ink on
 // a light background (logo-light.png), tone="light" is white text on the
@@ -21,10 +23,10 @@ export function Wordmark({ className, tone = 'dark', priority = false }: Wordmar
     <Image
       src={src}
       alt="Pazogu Automobiles"
-      width={1000}
-      height={180}
-      priority={priority}
-      className={cn('h-8 w-auto', className)}
+      width={405}
+      height={59}
+      preload={priority}
+      className={cn('h-6 w-auto', className)}
     />
   )
 }

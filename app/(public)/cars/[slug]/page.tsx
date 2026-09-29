@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
@@ -14,10 +14,6 @@ import { generateCarEnquiryMessage } from '@/lib/whatsapp'
 
 export const revalidate = 0
 
-// Lets the mobile WhatsApp bar clear the iPhone home indicator; without
-// viewport-fit=cover, env(safe-area-inset-bottom) is always 0 on iOS.
-export const viewport: Viewport = { viewportFit: 'cover' }
-
 interface PageProps {
   params: Promise<{ slug: string }>
 }
@@ -31,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // The cover image, never images[0] — sort_order and is_cover are
   // independent, so the first-by-order photo is not reliably the cover.
   const cover = car.images.find((img) => img.is_cover) ?? car.images[0]
-  const description = `${formatMileage(car.mileage_km)} · ${formatNGN(car.asking_price_ngn)}`
+  const description = `${formatMileage(car.mileage_km)}, ${formatNGN(car.asking_price_ngn)}`
 
   return {
     title,
@@ -66,26 +62,27 @@ export default async function CarDetailPage({ params }: PageProps) {
   return (
     <>
       <PublicHeader showBackButton />
+      {/* The mobile WhatsApp bar is fixed to the bottom, so the page reserves
+          its height plus the home-indicator inset (viewport-fit=cover is set
+          in the root layout, which is what makes env() non-zero on iOS). */}
       <div
-        className={`mx-auto max-w-[1280px] px-4 md:px-10 pt-8 md:py-12 grid lg:grid-cols-[1fr_380px] gap-10 ${
-          canEnquire ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-12' : 'pb-8'
+        className={`container-page pt-6 md:pt-12 grid gap-8 lg:grid-cols-5 lg:gap-12 ${
+          canEnquire ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-section' : 'pb-12 md:pb-section'
         }`}
       >
-        <div>
+        <div className="min-w-0 lg:col-span-3 lg:sticky lg:top-24 lg:self-start">
           <CarGallery images={galleryImages} carName={title} />
         </div>
 
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <StatusBadge status={car.status} size="lg" />
-          </div>
-          <h1 className="font-display font-black text-2xl md:text-3xl text-ink leading-tight">
+        <div className="min-w-0 lg:col-span-2">
+          <StatusBadge status={car.status} size="lg" />
+          <h1 className="mt-3 font-display font-black text-h2 tracking-display text-ink">
             {title}
           </h1>
-          <p className="font-body font-semibold text-2xl text-ink tabular-nums mt-2">
+          <p className="mt-3 font-body font-semibold text-h2 text-ink tabular-nums">
             {formatNGN(car.asking_price_ngn)}
           </p>
-          <div className="mt-1">
+          <div className="mt-2">
             <FreshnessBadge lastVerifiedAt={car.last_verified_at} />
           </div>
           {canEnquire && (
@@ -96,23 +93,28 @@ export default async function CarDetailPage({ params }: PageProps) {
           )}
 
           {car.description && (
-            <p className="font-body text-sm text-body-text mt-4 leading-relaxed">
+            <p className="mt-6 max-w-measure font-body text-body text-body-text">
               {car.description}
             </p>
           )}
 
-          <div className="mt-6">
+          <div className="mt-8">
             <SpecList car={car} />
           </div>
 
           {car.key_features && car.key_features.length > 0 && (
-            <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-1.5">
-              {car.key_features.map((feature) => (
-                <li key={feature} className="font-body text-sm text-body-text">
-                  · {feature}
-                </li>
-              ))}
-            </ul>
+            <>
+              <h2 className="mt-8 font-display font-bold text-h3 tracking-display text-ink">
+                Features
+              </h2>
+              <ul className="mt-3 grid list-disc gap-x-6 gap-y-2 pl-5 marker:text-text-muted sm:grid-cols-2">
+                {car.key_features.map((feature) => (
+                  <li key={feature} className="font-body text-body text-body-text">
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       </div>

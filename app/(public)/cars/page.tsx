@@ -4,7 +4,7 @@ import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
 import { getPublicCars } from '@/lib/showcase/queries'
 
 export const metadata: Metadata = {
-  title: 'Inventory',
+  title: 'All cars',
   description: 'Verified cars sourced from vetted dealerships and individuals across Lagos.',
 }
 
@@ -16,14 +16,20 @@ export default async function CarsPage() {
   return (
     <>
       <PublicHeader />
-      <div className="mx-auto max-w-[1280px] px-4 md:px-10 py-10 md:py-14">
-        <p className="font-body text-xs font-semibold uppercase tracking-[0.3em] text-signal-red mb-2">
-          Inventory
-        </p>
-        <h1 className="font-display font-black text-3xl md:text-4xl text-ink mb-8">
+      <div className="container-page py-12 md:py-section">
+        <h1 className="font-display font-black text-h2 tracking-display text-ink">
           Every car currently on offer
         </h1>
-        <PublicCarGrid cars={cars} />
+        {/* The count matters most below md, where the list is a swipe row
+            and the total isn't visible at a glance. */}
+        {cars.length > 0 && (
+          <p className="mt-2 font-body text-body text-text-muted">
+            {cars.length === 1 ? '1 car' : `${cars.length} cars`}
+          </p>
+        )}
+        <div className="mt-8">
+          <PublicCarGrid cars={cars} />
+        </div>
       </div>
     </>
   )
