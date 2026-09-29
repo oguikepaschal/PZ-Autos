@@ -201,6 +201,16 @@ export default async function AdminInventoryPage() {
                       )
                     ) : (
                       <>
+                        {car.status === 'available' && (
+                          <form action={updateCarStatus.bind(null, car.id, 'reserved', undefined)}>
+                            <button
+                              type="submit"
+                              className="font-body text-xs text-text-muted hover:text-ink underline"
+                            >
+                              Reserve
+                            </button>
+                          </form>
+                        )}
                         <form action={updateCarStatus.bind(null, car.id, 'sold', undefined)}>
                           <button
                             type="submit"

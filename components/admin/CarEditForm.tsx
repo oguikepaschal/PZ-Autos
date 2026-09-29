@@ -61,6 +61,12 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
       return
     }
 
+    if ((status === 'available' || status === 'reserved') && images.length === 0) {
+      setError('Add at least one photo to publish')
+      setSaving(false)
+      return
+    }
+
     const form = new FormData(e.currentTarget)
     const keyFeatures = String(form.get('key_features') ?? '')
       .split(',')
