@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ImageUploader, type PendingImage } from './ImageUploader'
 import { MakeModelFields } from './MakeModelFields'
-import { SupplierPicker } from './SupplierPicker'
+import { CUSTOM_SUPPLIER, SupplierPicker, createOneOffSupplier } from './SupplierPicker'
 import { ConstrainedSelect } from './ConstrainedSelect'
 import { Field } from './FormField'
 import { getCarImagePublicUrl } from '@/lib/images'
@@ -34,6 +34,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
   const [error, setError] = useState<string | null>(null)
   const [suppliers, setSuppliers] = useState(initialSuppliers)
   const [supplierId, setSupplierId] = useState(car.supplier_id)
+  const [customSupplierName, setCustomSupplierName] = useState('')
   const [status, setStatus] = useState(car.status)
   const [archiveReason, setArchiveReason] = useState(car.archive_reason ?? '')
 
@@ -57,6 +58,11 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
 
     if (!supplierId) {
       setError('Select or create a supplier')
+      setSaving(false)
+      return
+    }
+    if (supplierId === CUSTOM_SUPPLIER && !customSupplierName.trim()) {
+      setError('Enter a supplier name')
       setSaving(false)
       return
     }
@@ -94,10 +100,21 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
 
     const supabase = createClient()
 
+    let resolvedSupplierId = supplierId
+    if (supplierId === CUSTOM_SUPPLIER) {
+      try {
+        resolvedSupplierId = await createOneOffSupplier(customSupplierName)
+      } catch {
+        setError('Could not save changes.')
+        setSaving(false)
+        return
+      }
+    }
+
     const { error: updateError } = await supabase
       .from('cars')
       .update({
-        supplier_id: supplierId,
+        supplier_id: resolvedSupplierId,
         make: parsed.data.make,
         model: parsed.data.model,
         year: parsed.data.year,
@@ -180,6 +197,8 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
           value={supplierId}
           onChange={setSupplierId}
           onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
+          customName={customSupplierName}
+          onCustomNameChange={setCustomSupplierName}
         />
       </Field>
 
