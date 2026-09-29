@@ -52,6 +52,10 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
     setError(null)
 
     const form = new FormData(e.currentTarget)
+    const keyFeatures = String(form.get('key_features') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
 
     const parsed = buildCarFormSchema({
       body_type: car.body_type,
@@ -96,6 +100,7 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
         drivetrain: parsed.data.drivetrain,
         condition: parsed.data.condition,
         description: (form.get('description') as string) || null,
+        key_features: keyFeatures.length > 0 ? keyFeatures : null,
         location_area: (form.get('location_area') as string) || null,
         vin: (form.get('vin') as string) || null,
         registration_plate: (form.get('registration_plate') as string) || null,
@@ -273,6 +278,14 @@ export function CarEditForm({ car, images: initialImages }: CarEditFormProps) {
         </Field>
         <Field label="Location (LGA)"><Input name="location_area" defaultValue={car.location_area ?? ''} /></Field>
       </div>
+
+      <Field label="Key features (comma-separated)">
+        <Input
+          name="key_features"
+          defaultValue={(car.key_features ?? []).join(', ')}
+          placeholder="Reverse camera, Leather seats, Sunroof"
+        />
+      </Field>
 
       <Field label="Description">
         <textarea
