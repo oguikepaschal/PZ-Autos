@@ -21,6 +21,7 @@ export const DEFAULT_FUEL_TYPE: FuelType = 'Petrol'
 
 export const TRANSMISSIONS = ['Automatic', 'Manual', 'CVT'] as const
 export type Transmission = (typeof TRANSMISSIONS)[number]
+export const DEFAULT_TRANSMISSION: Transmission = 'Automatic'
 
 export const DRIVETRAINS = ['FWD', 'RWD', 'AWD', '4WD'] as const
 export type Drivetrain = (typeof DRIVETRAINS)[number]
@@ -29,12 +30,14 @@ export type Drivetrain = (typeof DRIVETRAINS)[number]
 // via migration 20260902000006) rather than sitting alongside it.
 export const ENGINE_LAYOUTS = ['I3', 'I4', 'I5', 'I6', 'V6', 'V8', 'V10', 'V12', 'Electric'] as const
 export type EngineLayout = (typeof ENGINE_LAYOUTS)[number]
+export const DEFAULT_ENGINE_LAYOUT: EngineLayout = 'V6'
 
 export const BODY_TYPES = ['Sedan', 'SUV', 'Coupe', 'Hatchback', 'Truck', 'Bus'] as const
 export type BodyType = (typeof BODY_TYPES)[number]
 
 export const CONDITIONS = ['New', 'Foreign Used', 'Local Used'] as const
 export type Condition = (typeof CONDITIONS)[number]
+export const DEFAULT_CONDITION: Condition = 'Foreign Used'
 
 // Starter list of common Nigerian-market makes/models — not exhaustive.
 // Inventory is broker-sourced and not limited to these brands, so the

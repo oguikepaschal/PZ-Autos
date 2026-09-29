@@ -12,7 +12,19 @@ import { createCarWithImages } from '@/lib/supabase/storage'
 import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
 import { buildCarFormSchema, formatCarFormErrors } from '@/lib/carFormSchema'
-import { BODY_TYPES, CONDITIONS, DEFAULT_FUEL_TYPE, DRIVETRAINS, ENGINE_LAYOUTS, FUEL_TYPES, TRANSMISSIONS, getYearOptions } from '@/lib/carOptions'
+import {
+  BODY_TYPES,
+  CONDITIONS,
+  DEFAULT_CONDITION,
+  DEFAULT_ENGINE_LAYOUT,
+  DEFAULT_FUEL_TYPE,
+  DEFAULT_TRANSMISSION,
+  DRIVETRAINS,
+  ENGINE_LAYOUTS,
+  FUEL_TYPES,
+  TRANSMISSIONS,
+  getYearOptions,
+} from '@/lib/carOptions'
 import type { Supplier } from '@/lib/supabase/types'
 
 interface CarFormProps {
@@ -63,11 +75,11 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   const [model, setModel] = useState('')
   const [year, setYear] = useState('')
   const [bodyType, setBodyType] = useState('')
-  const [transmission, setTransmission] = useState('')
+  const [transmission, setTransmission] = useState<string>(DEFAULT_TRANSMISSION)
   const [fuelType, setFuelType] = useState<string>(DEFAULT_FUEL_TYPE)
   const [drivetrain, setDrivetrain] = useState('')
-  const [engineLayout, setEngineLayout] = useState('')
-  const [condition, setCondition] = useState('')
+  const [engineLayout, setEngineLayout] = useState<string>(DEFAULT_ENGINE_LAYOUT)
+  const [condition, setCondition] = useState<string>(DEFAULT_CONDITION)
   // Controlled like every other suggestible field. These two were read out of
   // FormData at submit time, which is fine for typing but leaves nothing for a
   // suggestion to write into. Empty string still submits as null, exactly as
