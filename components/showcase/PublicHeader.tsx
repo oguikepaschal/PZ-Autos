@@ -24,7 +24,7 @@ export function PublicHeader({ showBackButton = false }: PublicHeaderProps) {
               <ChevronLeft size={24} aria-hidden="true" />
             </Link>
           )}
-          <Link href="/" className="rounded-sm">
+          <Link href="/" className="flex h-11 items-center rounded-sm">
             <Wordmark tone="light" priority className="h-6 md:h-7" />
           </Link>
         </div>
