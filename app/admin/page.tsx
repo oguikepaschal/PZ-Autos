@@ -63,8 +63,10 @@ export default async function AdminInventoryPage() {
         </p>
       ) : (
         <>
-          {/* Below md: one card per car with every control at 44px. */}
-          <ul className="space-y-3 md:hidden">
+          {/* Below xl: one card per car with every control at 44px, two
+              columns on tablets. The 8-column table only fits without
+              sideways scrolling from 1280px up. */}
+          <ul className="grid gap-3 md:grid-cols-2 xl:hidden">
             {typedCars.map((car) => {
               const row = rowState(car, featuredIds)
               return (
@@ -113,9 +115,9 @@ export default async function AdminInventoryPage() {
             })}
           </ul>
 
-          {/* md up: the table. Actions wrap inside their cell instead of
+          {/* xl up: the table. Actions wrap inside their cell instead of
               forcing the table wider. */}
-          <div className="relative hidden overflow-x-auto rounded-lg border border-hairline md:block">
+          <div className="relative hidden overflow-x-auto rounded-lg border border-hairline xl:block">
             <table className="w-full text-left">
               <thead className="bg-surface">
                 <tr>
