@@ -14,7 +14,7 @@ export default async function NewCarPage() {
 
   return (
     <div>
-      <h1 className="font-display font-black text-2xl text-ink mb-6">Add a car</h1>
+      <h1 className="mb-6 font-display font-black text-h3 tracking-display text-ink">Add a car</h1>
       <CarForm suppliers={(suppliers ?? []) as Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]} />
     </div>
   )

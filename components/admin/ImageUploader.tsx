@@ -73,7 +73,7 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
         {images.map((image, index) => (
           <div
             key={image.storagePath}
-            className="relative w-24 h-24 rounded-lg overflow-hidden border border-hairline"
+            className="relative size-28 rounded-lg overflow-hidden border border-hairline"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image.publicUrl} alt="" className="w-full h-full object-cover" />
@@ -81,20 +81,27 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
               type="button"
               onClick={() => handleSetCover(index)}
               aria-label="Set as cover photo"
-              className={cn(
-                'absolute top-1 left-1 rounded-full p-1',
-                image.isCover ? 'bg-signal-red text-white' : 'bg-black/50 text-white'
-              )}
+              className="absolute top-0 left-0 flex size-11 items-center justify-center text-white"
             >
-              <Star size={12} fill={image.isCover ? 'currentColor' : 'none'} />
+              {/* The 44px button is the tap target; the circle is only the visual. */}
+              <span
+                className={cn(
+                  'flex size-7 items-center justify-center rounded-full',
+                  image.isCover ? 'bg-signal-red' : 'bg-black/50'
+                )}
+              >
+                <Star size={14} fill={image.isCover ? 'currentColor' : 'none'} />
+              </span>
             </button>
             <button
               type="button"
               onClick={() => handleRemove(index)}
               aria-label="Remove photo"
-              className="absolute top-1 right-1 rounded-full bg-black/50 text-white p-1"
+              className="absolute top-0 right-0 flex size-11 items-center justify-center text-white"
             >
-              <X size={12} />
+              <span className="flex size-7 items-center justify-center rounded-full bg-black/50">
+                <X size={14} />
+              </span>
             </button>
           </div>
         ))}
@@ -103,7 +110,8 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="w-24 h-24 rounded-lg border border-dashed border-hairline flex items-center justify-center text-text-muted disabled:opacity-50"
+          aria-label="Add photos"
+          className="size-28 rounded-lg border border-dashed border-hairline flex items-center justify-center text-text-muted disabled:opacity-50"
         >
           {uploading ? '…' : <Plus size={20} />}
         </button>
@@ -116,9 +124,9 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
           onChange={(e) => handleFiles(e.target.files)}
         />
       </div>
-      {error && <p className="font-body text-xs text-signal-red mt-2">{error}</p>}
-      <p className="font-body text-xs text-text-muted mt-2">
-        Click the star to set the cover photo. Photos are compressed and stripped of location
+      {error && <p className="font-body text-small text-signal-red mt-2">{error}</p>}
+      <p className="font-body text-small text-text-muted mt-2">
+        Tap the star to set the cover photo. Photos are compressed and stripped of location
         metadata automatically.
       </p>
     </div>

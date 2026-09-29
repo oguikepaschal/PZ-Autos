@@ -196,7 +196,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
   const hasLegacyYear = !YEAR_OPTIONS.includes(car.year)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
       <Field label="Supplier">
         <SupplierPicker
           suppliers={suppliers}
@@ -216,7 +216,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         />
       </Field>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
         <Field label="Year">
           <select
@@ -224,7 +224,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
             value={year}
             onChange={(e) => setYear(e.target.value)}
             required
-            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+            className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
           >
             <option value="">Select year…</option>
             {hasLegacyYear && (
@@ -239,7 +239,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Asking price (₦)">
           <Input name="asking_price_ngn" type="number" defaultValue={car.asking_price_ngn} required />
         </Field>
@@ -248,7 +248,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Body type">
           <ConstrainedSelect
             name="body_type"
@@ -271,7 +271,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         </Field>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Transmission">
           <ConstrainedSelect
             name="transmission"
@@ -295,7 +295,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         <Field label="Mileage (km)"><Input name="mileage_km" type="number" defaultValue={car.mileage_km ?? ''} /></Field>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Exterior colour"><Input name="exterior_colour" defaultValue={car.exterior_colour ?? ''} /></Field>
         <Field label="Interior colour"><Input name="interior_colour" defaultValue={car.interior_colour ?? ''} /></Field>
         <Field label="Drivetrain">
@@ -310,7 +310,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Engine layout">
           <ConstrainedSelect
             name="engine_layout"
@@ -337,14 +337,14 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
           name="description"
           rows={4}
           defaultValue={car.description ?? ''}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         />
       </Field>
 
       <Field label="VIN (admin only)"><Input name="vin" defaultValue={car.vin ?? ''} /></Field>
 
-      <details className="rounded-lg border border-hairline px-3 py-2" open={Boolean(car.registration_plate)}>
-        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer">
+      <details className="rounded-lg border border-hairline px-3 pb-3" open={Boolean(car.registration_plate)}>
+        <summary className="flex min-h-11 cursor-pointer items-center font-body text-small font-semibold text-ink">
           Registration plate (optional, admin only)
         </summary>
         <div className="mt-2">
@@ -357,7 +357,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
           name="acquisition_notes"
           rows={2}
           defaultValue={car.acquisition_notes ?? ''}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         />
       </Field>
 
@@ -365,7 +365,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as Car['status'])}
-          className="border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full sm:w-auto border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         >
           <option value="draft">Draft</option>
           <option value="available">Available</option>
@@ -385,12 +385,12 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         </Field>
       )}
 
-      {error && <p className="font-body text-sm text-signal-red">{error}</p>}
+      {error && <p className="font-body text-body text-signal-red">{error}</p>}
 
       <button
         type="submit"
         disabled={saving}
-        className="rounded-lg bg-signal-red text-white font-body font-semibold text-sm px-6 py-3 disabled:opacity-60"
+        className="rounded-lg bg-signal-red text-white font-body font-semibold text-body h-12 px-6 w-full sm:w-auto disabled:opacity-60"
       >
         {saving ? 'Saving…' : 'Save changes'}
       </button>
@@ -402,7 +402,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+      className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
     />
   )
 }

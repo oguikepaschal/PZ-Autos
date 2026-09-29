@@ -13,8 +13,8 @@ export function StaleIndicator({ lastVerifiedAt }: { lastVerifiedAt: string }) {
     <span
       className={
         tier === 'critical'
-          ? 'inline-flex items-center rounded-full bg-ink text-white px-2.5 py-0.5 text-[10px] font-body font-semibold uppercase tracking-wide'
-          : 'inline-flex items-center rounded-full border border-ink text-ink px-2.5 py-0.5 text-[10px] font-body font-semibold uppercase tracking-wide'
+          ? 'inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-ink text-white px-2.5 py-0.5 text-caption font-body font-semibold'
+          : 'inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-ink text-ink px-2.5 py-0.5 text-caption font-body font-semibold'
       }
       title={`Last verified ${formatRelativeDate(lastVerifiedAt)}`}
     >

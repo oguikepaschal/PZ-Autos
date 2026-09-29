@@ -40,17 +40,17 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-base px-4">
+    <div className="min-h-svh flex items-center justify-center bg-bg-base px-5">
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-8">
           <Wordmark priority />
         </div>
         <form
           onSubmit={handleSubmit}
-          className="border border-hairline rounded-xl p-6 space-y-4"
+          className="border border-hairline rounded-lg p-6 space-y-4"
         >
           <div>
-            <label className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted">
+            <label className="font-body text-small font-semibold text-ink">
               Email
             </label>
             <input
@@ -58,11 +58,11 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+              className="w-full mt-2 border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
             />
           </div>
           <div>
-            <label className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted">
+            <label className="font-body text-small font-semibold text-ink">
               Password
             </label>
             <input
@@ -70,14 +70,14 @@ function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+              className="w-full mt-2 border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
             />
           </div>
-          {error && <p className="font-body text-sm text-signal-red">{error}</p>}
+          {error && <p className="font-body text-body text-signal-red">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-ink text-white font-body font-semibold text-sm py-3 disabled:opacity-60"
+            className="w-full h-12 rounded-lg bg-ink text-white font-body font-semibold text-body disabled:opacity-60"
           >
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>

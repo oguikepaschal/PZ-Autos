@@ -78,13 +78,13 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+        className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
       />
       {open && (filtered.length > 0 || emptyHint) && (
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-hairline bg-white shadow-lg"
+          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto overscroll-contain rounded-lg border border-hairline bg-white shadow-lg"
         >
           {filtered.map((option, index) => (
             <li
@@ -95,15 +95,15 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
                 e.preventDefault()
                 selectOption(option)
               }}
-              className={`px-3 py-2 font-body text-sm cursor-pointer ${
-                index === highlighted ? 'bg-hairline/60 text-ink' : 'text-ink'
+              className={`min-h-11 px-3 py-2 font-body text-body cursor-pointer ${
+                index === highlighted ? 'bg-surface text-ink' : 'text-ink'
               }`}
             >
               {option}
             </li>
           ))}
           {filtered.length === 0 && emptyHint && (
-            <li className="px-3 py-2 font-body text-xs text-text-muted">{emptyHint}</li>
+            <li className="px-3 py-3 font-body text-small text-text-muted">{emptyHint}</li>
           )}
         </ul>
       )}

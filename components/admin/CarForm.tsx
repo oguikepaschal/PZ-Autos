@@ -295,7 +295,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
       <Field label="Supplier">
         <SupplierPicker
           suppliers={suppliers}
@@ -311,7 +311,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <ImageUploader folderId={folderId} images={images} onChange={setImages} />
       </Field>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
         <Field label="Year">
           <select
@@ -319,7 +319,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
             value={year}
             onChange={(e) => setYear(e.target.value)}
             required
-            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+            className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
           >
             <option value="">Select year…</option>
             {YEAR_OPTIONS.map((y) => (
@@ -331,12 +331,12 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Asking price (₦)"><Input name="asking_price_ngn" type="number" min={1} required /></Field>
         <Field label="Cost price (₦, admin only)"><Input name="cost_price_ngn" type="number" min={0} /></Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Body type">
           <ConstrainedSelect
             name="body_type"
@@ -358,7 +358,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         </Field>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Transmission">
           <ConstrainedSelect
             name="transmission"
@@ -380,7 +380,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <Field label="Mileage (km)"><Input name="mileage_km" type="number" min={0} /></Field>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Exterior colour">
           <Input
             name="exterior_colour"
@@ -415,7 +415,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Engine layout">
           <ConstrainedSelect
             name="engine_layout"
@@ -437,14 +437,14 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <textarea
           name="description"
           rows={4}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         />
       </Field>
 
       <Field label="VIN (admin only)"><Input name="vin" /></Field>
 
-      <details className="rounded-lg border border-hairline px-3 py-2">
-        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer">
+      <details className="rounded-lg border border-hairline px-3 pb-3">
+        <summary className="flex min-h-11 cursor-pointer items-center font-body text-small font-semibold text-ink">
           Registration plate (optional, admin only)
         </summary>
         <div className="mt-2">
@@ -456,7 +456,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <textarea
           name="acquisition_notes"
           rows={2}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         />
       </Field>
 
@@ -465,7 +465,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           name="status"
           value={status}
           onChange={(e) => setStatus(e.target.value as typeof status)}
-          className="border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full sm:w-auto border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         >
           <option value="draft">Draft (not public yet)</option>
           <option value="available">Available</option>
@@ -473,28 +473,28 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         </select>
       </Field>
 
-      <label className="flex items-center gap-2 font-body text-sm text-ink">
+      <label className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 font-body text-body text-ink">
         <input
           type="checkbox"
           checked={featureOnCreate}
           disabled={!canFeature}
           onChange={(e) => setFeatureOnCreate(e.target.checked)}
-          className="disabled:opacity-40"
+          className="size-5 disabled:opacity-40"
         />
         Feature on the homepage
         {!canFeature && (
-          <span className="font-body text-xs text-text-muted">
+          <span className="font-body text-small text-text-muted">
             (only available/reserved cars can be featured)
           </span>
         )}
       </label>
 
-      {error && <p className="font-body text-sm text-signal-red">{error}</p>}
+      {error && <p className="font-body text-body text-signal-red">{error}</p>}
 
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-lg bg-signal-red text-white font-body font-semibold text-sm px-6 py-3 disabled:opacity-60"
+        className="rounded-lg bg-signal-red text-white font-body font-semibold text-body h-12 px-6 w-full sm:w-auto disabled:opacity-60"
       >
         {submitting ? 'Saving…' : 'Save car'}
       </button>
@@ -506,7 +506,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+      className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
     />
   )
 }
