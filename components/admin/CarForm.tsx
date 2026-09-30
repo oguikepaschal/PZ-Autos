@@ -332,8 +332,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Asking price (₦)"><Input name="asking_price_ngn" type="number" min={1} required /></Field>
-        <Field label="Cost price (₦, admin only)"><Input name="cost_price_ngn" type="number" min={0} /></Field>
+        <Field label="Asking price (₦)"><Input name="asking_price_ngn" type="number" min={1} required placeholder="e.g. ₦10,000,000" /></Field>
+        <Field label="Cost price (₦, admin only)"><Input name="cost_price_ngn" type="number" min={0} placeholder="e.g. ₦12,500,000" /></Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -377,13 +377,14 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
             placeholder="Select fuel type…"
           />
         </Field>
-        <Field label="Mileage (km)"><Input name="mileage_km" type="number" min={0} /></Field>
+        <Field label="Mileage (km)"><Input name="mileage_km" type="number" min={0} placeholder="e.g. 50,000" /></Field>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <Field label="Exterior colour">
           <Input
             name="exterior_colour"
+            placeholder="e.g. Black"
             value={exteriorColour}
             onChange={(e) => setExteriorColour(e.target.value)}
           />
@@ -395,6 +396,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <Field label="Interior colour">
           <Input
             name="interior_colour"
+            placeholder="e.g. White"
             value={interiorColour}
             onChange={(e) => setInteriorColour(e.target.value)}
           />
@@ -437,6 +439,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <textarea
           name="description"
           rows={4}
+          placeholder="e.g. Clean, accident-free unit in black with a white leather interior. 50,000 km on the clock, full service history, new tyres and cold AC. Duty fully paid."
           className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
         />
       </Field>
