@@ -332,8 +332,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Asking price (₦)"><Input name="asking_price_ngn" type="number" min={1} required placeholder="e.g. ₦10,000,000" /></Field>
-        <Field label="Cost price (₦, admin only)"><Input name="cost_price_ngn" type="number" min={0} placeholder="e.g. ₦12,500,000" /></Field>
+        <Field label="Asking price (₦)"><Input name="asking_price_ngn" type="number" min={1} required placeholder="e.g. ₦12,500,000" /></Field>
+        <Field label="Cost price (₦, admin only)"><Input name="cost_price_ngn" type="number" min={0} placeholder="e.g. ₦10,000,000" /></Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
