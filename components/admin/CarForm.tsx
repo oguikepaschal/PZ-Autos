@@ -384,7 +384,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <Field label="Exterior colour">
           <Input
             name="exterior_colour"
-            placeholder="e.g. Black"
+            placeholder="e.g. Beige"
             value={exteriorColour}
             onChange={(e) => setExteriorColour(e.target.value)}
           />
@@ -439,7 +439,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <textarea
           name="description"
           rows={4}
-          placeholder="e.g. Clean, accident-free unit in black with a white leather interior. 50,000 km on the clock, full service history, new tyres and cold AC. Duty fully paid."
+          placeholder="e.g. Clean, accident-free unit in beige with a white leather interior. 50,000 km on the clock, full service history, new tyres and cold AC. Duty fully paid."
           className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
         />
       </Field>
