@@ -32,8 +32,8 @@ export function StatusBadge({ status, size = 'sm', className }: StatusBadgeProps
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full font-body font-semibold uppercase tracking-wide',
-        size === 'lg' ? 'px-4 py-1.5 text-xs' : 'px-2.5 py-0.5 text-[10px]',
+        'inline-flex items-center rounded-full font-body font-semibold',
+        size === 'lg' ? 'px-3 py-1 text-small' : 'px-2.5 py-0.5 text-caption',
         config.className,
         className
       )}

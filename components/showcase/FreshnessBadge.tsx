@@ -9,7 +9,7 @@ export function FreshnessBadge({ lastVerifiedAt }: { lastVerifiedAt: string }) {
   if (tier !== 'fresh') return null
 
   return (
-    <p className="font-mono text-xs text-text-muted">
+    <p className="font-body text-small text-text-muted">
       Verified {formatRelativeDate(lastVerifiedAt)}
     </p>
   )

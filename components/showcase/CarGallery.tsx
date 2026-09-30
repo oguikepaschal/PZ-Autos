@@ -41,21 +41,23 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
 
   if (ordered.length === 0) {
     return (
-      <div className="relative w-full aspect-[4/3] lg:aspect-[16/10] rounded-xl overflow-hidden placeholder-stripes flex items-center justify-center">
-        <span className="font-display font-bold text-text-muted text-sm tracking-[0.3em]">
-          PZ AUTOS
-        </span>
+      <div className="relative w-full aspect-4/3 lg:aspect-16/10 rounded-lg overflow-hidden bg-surface flex items-center justify-center">
+        <span className="font-body text-small text-text-muted">Photo coming soon</span>
       </div>
     )
   }
 
   return (
-    <div tabIndex={0} onKeyDown={handleKeyDown} className="outline-none">
-      <div className="relative w-full aspect-[4/3] lg:aspect-[16/10] rounded-xl overflow-hidden placeholder-stripes">
-        {!loaded && <div className="absolute inset-0 placeholder-stripes animate-pulse" />}
+    <div
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-label={`${carName} photos. Use the left and right arrow keys to browse.`}
+      className="rounded-lg text-ink"
+    >
+      <div className="relative w-full aspect-4/3 lg:aspect-16/10 rounded-lg overflow-hidden bg-surface">
         <Image
           src={ordered[activeIndex]!.url}
-          alt={`${carName} — photo ${activeIndex + 1} of ${ordered.length}`}
+          alt={`${carName}, photo ${activeIndex + 1} of ${ordered.length}`}
           fill
           quality={85}
           sizes="(max-width: 1024px) 100vw, 55vw"
@@ -67,7 +69,7 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
       </div>
 
       {ordered.length > 1 && (
-        <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 mt-3 p-1 -m-1 overflow-x-auto overscroll-x-contain scrollbar-hide">
           {ordered.map((image, i) => (
             <button
               key={`${image.url}-${i}`}
@@ -76,7 +78,7 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
               aria-label={`View photo ${i + 1}`}
               aria-current={i === activeIndex}
               className={cn(
-                'relative shrink-0 w-[72px] h-[54px] rounded-lg overflow-hidden border-2 transition-colors duration-150 ease-out',
+                'relative shrink-0 w-18 h-14 rounded-lg overflow-hidden border-2 transition-colors',
                 i === activeIndex ? 'border-ink' : 'border-transparent'
               )}
             >
@@ -84,7 +86,7 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
                 src={image.url}
                 alt=""
                 width={72}
-                height={54}
+                height={56}
                 quality={70}
                 loading="lazy"
                 className="object-cover w-full h-full"

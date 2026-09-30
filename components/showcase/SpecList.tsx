@@ -28,9 +28,11 @@ export function SpecList({ car }: { car: PublicCar }) {
   return (
     <dl className="divide-y divide-hairline border-y border-hairline">
       {rows.map((row) => (
-        <div key={row.label} className="flex items-center justify-between py-3">
-          <dt className="font-body text-sm text-text-muted">{row.label}</dt>
-          <dd className="font-body font-semibold text-sm text-ink">{row.value}</dd>
+        <div key={row.label} className="flex items-baseline justify-between gap-4 py-3">
+          <dt className="shrink-0 font-body text-body text-text-muted">{row.label}</dt>
+          <dd className="min-w-0 break-words text-right font-body font-semibold text-body text-ink">
+            {row.value}
+          </dd>
         </div>
       ))}
     </dl>

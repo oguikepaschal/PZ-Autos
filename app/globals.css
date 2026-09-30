@@ -13,6 +13,7 @@
   --color-text-on-dark: var(--text-on-dark);
   --color-text-muted: var(--text-muted);
   --color-hairline: var(--hairline);
+  --color-surface: var(--surface);
   --color-placeholder-a: var(--placeholder-a);
   --color-placeholder-b: var(--placeholder-b);
 
@@ -24,19 +25,74 @@
   --font-display: var(--font-archivo), Helvetica, Arial, sans-serif;
   --font-wordmark: var(--font-archivo), Helvetica, Arial, sans-serif;
   --font-body: var(--font-barlow), Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+/* The type, spacing and motion scale. Marketing pages use only these steps;
+   headings and body are fluid between a 360px and a 1440px viewport. */
+@theme {
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+  --text-small: 0.9375rem;
+  --text-small--line-height: 1.5;
+  --text-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-body--line-height: 1.5;
+  --text-lead: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+  --text-lead--line-height: 1.5;
+  --text-h3: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --text-h3--line-height: 1.2;
+  --text-h2: clamp(1.75rem, 1.35rem + 1.75vw, 2.75rem);
+  --text-h2--line-height: 1.1;
+  --text-h1: clamp(2.25rem, 1.75rem + 2.25vw, 3.75rem);
+  --text-h1--line-height: 1.05;
+
+  --tracking-display: -0.02em;
+
+  /* One page container: 1200px max, 20px gutters, 32px from tablet up. */
+  --container-page: 75rem;
+  --container-measure: 65ch;
+
+  --spacing-section: clamp(4rem, 2.5rem + 6vw, 7.5rem);
+  --spacing-header: 4rem;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: var(--ease-out);
+}
+
+/* Hover styles only for a precise pointer that can hover. Without the
+   pointer check a tap on a touch screen leaves :hover stuck on. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Neutral greys only: every grey below has equal R, G and B. Contrast:
+   text-muted 6.7:1 on white, text-on-dark 7.3:1 on ink. */
 :root {
   --ink: #141414;
   --signal-red: #d0121b;
   --bg-base: #ffffff;
-  --body-text: #1b222c;
-  --text-on-dark: #8b95a6;
-  --text-muted: #5b6470;
-  --hairline: #e4e7ec;
-  --placeholder-a: #e8ecf2;
-  --placeholder-b: #f4f6f9;
+  --body-text: #262626;
+  --text-on-dark: #a3a3a3;
+  --text-muted: #5c5c5c;
+  --hairline: #e5e5e5;
+  --surface: #f5f5f5;
+  --placeholder-a: #ebebeb;
+  --placeholder-b: #f5f5f5;
 
   /* Reserved uses ink, not a status colour, per the brand ratio constraint
      (status badges must never default to red). Sold uses a muted treatment
@@ -47,20 +103,35 @@
   color-scheme: light;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--bg-base);
   color: var(--body-text);
 }
 
-/* Diagonal stripe pair used for image-slot placeholders (no photo yet). */
-.placeholder-stripes {
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--placeholder-a),
-    var(--placeholder-a) 10px,
-    var(--placeholder-b) 10px,
-    var(--placeholder-b) 20px
-  );
+a,
+button,
+summary,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+button,
+[role="button"] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* currentColor keeps the ring visible on both the white base and ink
+   surfaces without a per-component override. */
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
 .scrollbar-hide {
@@ -76,77 +147,5 @@ body {
   button:active,
   [role="button"]:active {
     scale: 1 !important;
-  }
-}
-
-/* Makes ticker (landing page brand strip) — infinite horizontal loop
-   built from two identical sets side by side, translated by exactly
-   -50% so the loop point is invisible. Edge fade uses an alpha mask,
-   not a color overlay, so it stays token-free. */
-@keyframes makes-ticker-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.makes-ticker-viewport {
-  overflow: hidden;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 8%,
-    black 92%,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 8%,
-    black 92%,
-    transparent
-  );
-}
-
-.makes-ticker-track {
-  display: flex;
-  width: max-content;
-  animation: makes-ticker-scroll var(--makes-ticker-duration, 20s) linear infinite;
-  /* One-time entrance pause: sits static (no fill-mode, so the pre-delay
-     frame is just the element's normal untransformed layout) for 2s after
-     it paints, then starts scrolling. animation-delay only holds back the
-     first iteration, never the loop, so this can't reintroduce a pause on
-     every pass. Deliberately CSS-only — no JS timer, no 'use client'
-     boundary, no window 'load' listener — MakesTicker stays a server
-     component and the delay tracks when the ticker itself paints rather
-     than an unrelated, resource-dependent load event elsewhere on the
-     page. */
-  animation-delay: 2s;
-}
-
-.makes-ticker-viewport:hover .makes-ticker-track,
-.makes-ticker-viewport:focus-within .makes-ticker-track {
-  animation-play-state: paused;
-}
-
-.makes-ticker-set {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .makes-ticker-track {
-    animation: none;
-    width: auto;
-    flex-wrap: wrap;
-  }
-
-  .makes-ticker-set[data-ticker-dup="true"] {
-    display: none;
   }
 }
