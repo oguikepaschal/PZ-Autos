@@ -22,7 +22,7 @@ export function ConstrainedSelect({ name, options, value, onChange, placeholder,
       name={name}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+      className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
     >
       <option value="">{placeholder}</option>
       {hasLegacyValue && (

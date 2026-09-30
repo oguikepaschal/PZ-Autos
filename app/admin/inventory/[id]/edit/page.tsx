@@ -33,7 +33,7 @@ export default async function EditCarPage({ params }: PageProps) {
 
   return (
     <div>
-      <h1 className="font-display font-black text-2xl text-ink mb-6">
+      <h1 className="mb-6 font-display font-black text-h3 tracking-display text-ink">
         Edit {formatCarTitle(typedCar.make, typedCar.model, typedCar.year)}
       </h1>
       <CarEditForm

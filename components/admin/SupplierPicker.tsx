@@ -90,13 +90,13 @@ export function SupplierPicker({
           placeholder="Supplier name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+          className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <select
             value={type}
             onChange={(e) => setType(e.target.value as 'dealership' | 'individual')}
-            className="border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+            className="border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body"
           >
             <option value="individual">Individual</option>
             <option value="dealership">Dealership</option>
@@ -106,23 +106,23 @@ export function SupplierPicker({
             placeholder="Phone (optional)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+            className="min-w-0 flex-1 border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body"
           />
         </div>
-        {error && <p className="font-body text-xs text-signal-red">{error}</p>}
+        {error && <p className="font-body text-small text-signal-red">{error}</p>}
         <div className="flex gap-2">
           <button
             type="button"
             onClick={handleCreate}
             disabled={submitting}
-            className="rounded-lg bg-ink text-white font-body text-xs font-semibold px-3 py-1.5"
+            className="min-h-11 rounded-lg bg-ink text-white font-body text-small font-semibold px-4"
           >
             {submitting ? 'Saving…' : 'Save supplier'}
           </button>
           <button
             type="button"
             onClick={() => setCreating(false)}
-            className="font-body text-xs text-text-muted"
+            className="min-h-11 px-3 font-body text-small text-text-muted"
           >
             Cancel
           </button>
@@ -138,7 +138,7 @@ export function SupplierPicker({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           required
-          className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="min-w-0 flex-1 border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body text-ink"
         >
           <option value="">Select a supplier…</option>
           {suppliers.map((s) => (
@@ -151,7 +151,7 @@ export function SupplierPicker({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="rounded-lg border border-hairline font-body text-sm px-3 py-2 text-ink"
+          className="min-h-11 shrink-0 rounded-lg border border-hairline font-body text-body px-4 text-ink"
         >
           + New
         </button>
@@ -162,7 +162,7 @@ export function SupplierPicker({
           placeholder="Supplier name for this car"
           value={customName}
           onChange={(e) => onCustomNameChange(e.target.value)}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+          className="w-full border border-hairline rounded-lg min-h-11 px-3 py-2 font-body text-body"
         />
       )}
     </div>
