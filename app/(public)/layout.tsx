@@ -1,4 +1,13 @@
+import type { Metadata } from 'next'
 import { PublicFooter } from '@/components/showcase/PublicFooter'
+
+// The landing page and /cars pages all install the cars showcase. Chrome
+// doesn't require the page to sit inside the manifest's scope, so the
+// landing page can offer the install too.
+export const metadata: Metadata = {
+  manifest: '/manifest-cars.webmanifest',
+  appleWebApp: { capable: true, title: 'PZ Autos', statusBarStyle: 'black' },
+}
 
 // Each page renders its own <PublicHeader> (with or without the back
 // button) — the listing is a root screen and stays bare, while a car's

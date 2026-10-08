@@ -17,7 +17,7 @@ export function SuggestionChip({ value, onAccept }: SuggestionChipProps) {
     <button
       type="button"
       onClick={() => onAccept(value)}
-      className="mt-1 rounded-full border border-hairline bg-hairline/40 px-2.5 py-1 font-body text-xs text-text-muted hover:text-ink transition-colors text-left"
+      className="mt-1 inline-flex min-h-11 items-center rounded-full border border-hairline bg-hairline/40 px-2.5 py-1 font-body text-xs text-text-muted hover:text-ink transition-colors text-left"
     >
       Suggested: <span className="font-semibold text-ink">{value}</span> — tap to accept
     </button>

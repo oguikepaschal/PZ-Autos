@@ -81,20 +81,27 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
               type="button"
               onClick={() => handleSetCover(index)}
               aria-label="Set as cover photo"
-              className={cn(
-                'absolute top-1 left-1 rounded-full p-1',
-                image.isCover ? 'bg-signal-red text-white' : 'bg-black/50 text-white'
-              )}
+              className="absolute top-0 left-0 flex size-11 items-center justify-center text-white"
             >
-              <Star size={12} fill={image.isCover ? 'currentColor' : 'none'} />
+              {/* The 44px button is the hit area; the badge is the visual. */}
+              <span
+                className={cn(
+                  'rounded-full p-1',
+                  image.isCover ? 'bg-signal-red' : 'bg-black/50'
+                )}
+              >
+                <Star size={12} fill={image.isCover ? 'currentColor' : 'none'} />
+              </span>
             </button>
             <button
               type="button"
               onClick={() => handleRemove(index)}
               aria-label="Remove photo"
-              className="absolute top-1 right-1 rounded-full bg-black/50 text-white p-1"
+              className="absolute top-0 right-0 flex size-11 items-center justify-center text-white"
             >
-              <X size={12} />
+              <span className="rounded-full bg-black/50 p-1">
+                <X size={12} />
+              </span>
             </button>
           </div>
         ))}
@@ -118,7 +125,7 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
       </div>
       {error && <p className="font-body text-xs text-signal-red mt-2">{error}</p>}
       <p className="font-body text-xs text-text-muted mt-2">
-        Click the star to set the cover photo. Photos are compressed and stripped of location
+        Tap the star to set the cover photo. Photos are compressed and stripped of location
         metadata automatically.
       </p>
     </div>

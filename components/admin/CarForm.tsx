@@ -295,7 +295,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} data-lock-overscroll className="space-y-6 max-w-2xl">
       <Field label="Supplier">
         <SupplierPicker
           suppliers={suppliers}
@@ -319,7 +319,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
             value={year}
             onChange={(e) => setYear(e.target.value)}
             required
-            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
           >
             <option value="">Select year…</option>
             {YEAR_OPTIONS.map((y) => (
@@ -440,14 +440,14 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           name="description"
           rows={4}
           placeholder="e.g. Clean, accident-free unit in beige with a white leather interior. 50,000 km on the clock, full service history, new tyres and cold AC. Duty fully paid."
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         />
       </Field>
 
       <Field label="VIN (admin only)"><Input name="vin" /></Field>
 
       <details className="rounded-lg border border-hairline px-3 py-2">
-        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer">
+        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer py-3.5">
           Registration plate (optional, admin only)
         </summary>
         <div className="mt-2">
@@ -459,7 +459,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         <textarea
           name="acquisition_notes"
           rows={2}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         />
       </Field>
 
@@ -468,7 +468,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           name="status"
           value={status}
           onChange={(e) => setStatus(e.target.value as typeof status)}
-          className="border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         >
           <option value="draft">Draft (not public yet)</option>
           <option value="available">Available</option>
@@ -476,7 +476,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         </select>
       </Field>
 
-      <label className="flex items-center gap-2 font-body text-sm text-ink">
+      <label className="flex min-h-11 items-center gap-2 font-body text-sm text-ink">
         <input
           type="checkbox"
           checked={featureOnCreate}
@@ -509,7 +509,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
     />
   )
 }

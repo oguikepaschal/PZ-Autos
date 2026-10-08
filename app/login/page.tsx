@@ -40,7 +40,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-base px-4">
+    <div className="min-h-svh flex items-center justify-center bg-bg-base px-4">
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-8">
           <Wordmark priority />
@@ -58,7 +58,7 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+              className="w-full mt-1 border border-hairline rounded-lg px-3 py-2 font-body text-ink"
             />
           </div>
           <div>
@@ -70,7 +70,7 @@ function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+              className="w-full mt-1 border border-hairline rounded-lg px-3 py-2 font-body text-ink"
             />
           </div>
           {error && <p className="font-body text-sm text-signal-red">{error}</p>}

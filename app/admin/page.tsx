@@ -1,16 +1,7 @@
 import Link from 'next/link'
-import { ChevronUp, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { StaleIndicator } from '@/components/admin/StaleIndicator'
+import { CarRowActions } from '@/components/admin/CarRowActions'
 import { formatNGN, formatCarTitle } from '@/lib/formatters'
-import {
-  setCarFeatured,
-  moveFeaturedUp,
-  moveFeaturedDown,
-  markVerified,
-  updateCarStatus,
-} from './actions'
-import { cn } from '@/lib/utils'
 import type { CarWithSupplier } from '@/lib/supabase/types'
 
 export const dynamic = 'force-dynamic'
@@ -34,13 +25,36 @@ export default async function AdminInventoryPage() {
   const featuredIds = typedCars.filter((c) => c.is_featured).map((c) => c.id)
   const featuredCount = featuredIds.length
 
+  // One derived list feeds both layouts, so the phone cards and the desktop
+  // table can't disagree about a car.
+  const rows = typedCars.map((car) => ({
+    car,
+    featuredIndex: car.is_featured ? featuredIds.indexOf(car.id) : -1,
+    hasPhoto: (car.car_images[0]?.count ?? 0) > 0,
+  }))
+  const actionProps = (row: (typeof rows)[number]) => ({
+    car: row.car,
+    hasPhoto: row.hasPhoto,
+    featuredIndex: row.featuredIndex,
+    featuredCount,
+  })
+  const emptyMessage = (
+    <>
+      No cars yet.{' '}
+      <Link href="/admin/inventory/new" className="underline">
+        Add your first one
+      </Link>
+      .
+    </>
+  )
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display font-black text-2xl text-ink">Inventory</h1>
         <Link
           href="/admin/inventory/new"
-          className="rounded-lg bg-signal-red text-white font-body font-semibold text-sm px-4 py-2"
+          className="inline-flex h-11 items-center rounded-lg bg-signal-red text-white font-body font-semibold text-sm px-4"
         >
           Add car
         </Link>
@@ -53,7 +67,51 @@ export default async function AdminInventoryPage() {
         </p>
       )}
 
-      <div className="border border-hairline rounded-xl overflow-x-auto">
+      {/* Phone: one card per car. */}
+      <ul className="space-y-3 md:hidden">
+        {rows.map((row) => (
+          <li key={row.car.id} className="rounded-xl border border-hairline p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-body text-sm font-semibold text-ink">
+                  {formatCarTitle(row.car.make, row.car.model, row.car.year)}
+                </p>
+                <p className="font-body text-sm text-text-muted">{row.car.supplier?.name ?? '—'}</p>
+              </div>
+              <p className="shrink-0 font-body text-sm font-semibold text-ink tabular-nums">
+                {formatNGN(row.car.asking_price_ngn)}
+              </p>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 font-body text-sm text-text-muted">
+              <span className="capitalize text-ink">{row.car.status}</span>
+              <span className="tabular-nums">
+                {row.car.whatsapp_clicks[0]?.count ?? 0} WhatsApp taps
+              </span>
+            </div>
+            <div className="mt-2 divide-y divide-hairline border-t border-hairline">
+              <div className="py-1">
+                <CarRowActions {...actionProps(row)} section="verified" />
+              </div>
+              {row.car.status !== 'draft' && (
+                <div className="py-1">
+                  <CarRowActions {...actionProps(row)} section="featured" />
+                </div>
+              )}
+              <div className="pt-1">
+                <CarRowActions {...actionProps(row)} section="status" />
+              </div>
+            </div>
+          </li>
+        ))}
+        {rows.length === 0 && (
+          <li className="rounded-xl border border-hairline px-4 py-8 text-center font-body text-text-muted">
+            {emptyMessage}
+          </li>
+        )}
+      </ul>
+
+      {/* Tablet and up: the table. */}
+      <div className="hidden md:block border border-hairline rounded-xl overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-placeholder-b">
             <tr>
@@ -82,172 +140,36 @@ export default async function AdminInventoryPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-hairline">
-            {typedCars.map((car) => {
-              const featuredIndex = car.is_featured ? featuredIds.indexOf(car.id) : -1
-              const canFeature = ['available', 'reserved'].includes(car.status)
-              const isDraft = car.status === 'draft'
-              const hasPhoto = (car.car_images[0]?.count ?? 0) > 0
-
-              return (
-              <tr key={car.id}>
-                <td className="px-4 py-3 font-body text-sm text-ink font-semibold">
-                  {formatCarTitle(car.make, car.model, car.year)}
+            {rows.map((row) => (
+              <tr key={row.car.id}>
+                <td className="px-4 py-2 font-body text-sm text-ink font-semibold">
+                  {formatCarTitle(row.car.make, row.car.model, row.car.year)}
                 </td>
-                <td className="px-4 py-3 font-body text-sm text-text-muted">
-                  {car.supplier?.name ?? '—'}
+                <td className="px-4 py-2 font-body text-sm text-text-muted">
+                  {row.car.supplier?.name ?? '—'}
                 </td>
-                <td className="px-4 py-3 font-body text-sm text-ink capitalize">{car.status}</td>
-                <td className="px-4 py-3 font-body text-sm text-ink tabular-nums">
-                  {formatNGN(car.asking_price_ngn)}
+                <td className="px-4 py-2 font-body text-sm text-ink capitalize">{row.car.status}</td>
+                <td className="px-4 py-2 font-body text-sm text-ink tabular-nums">
+                  {formatNGN(row.car.asking_price_ngn)}
                 </td>
-                <td className="px-4 py-3 font-body text-sm text-ink tabular-nums">
-                  {car.whatsapp_clicks[0]?.count ?? 0}
+                <td className="px-4 py-2 font-body text-sm text-ink tabular-nums">
+                  {row.car.whatsapp_clicks[0]?.count ?? 0}
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <StaleIndicator lastVerifiedAt={car.last_verified_at} />
-                    <form action={markVerified.bind(null, car.id)}>
-                      <button
-                        type="submit"
-                        className="font-body text-xs text-text-muted hover:text-ink underline"
-                      >
-                        Mark verified
-                      </button>
-                    </form>
-                  </div>
+                <td className="px-4 py-2">
+                  <CarRowActions {...actionProps(row)} section="verified" />
                 </td>
-                <td className="px-4 py-3">
-                  {!isDraft && (
-                  <div className="flex items-center gap-1">
-                    <form action={setCarFeatured.bind(null, car.id, !car.is_featured)}>
-                      <button
-                        type="submit"
-                        role="switch"
-                        aria-checked={car.is_featured}
-                        disabled={!car.is_featured && !canFeature}
-                        aria-label={car.is_featured ? 'Remove from featured' : 'Add to featured'}
-                        title={
-                          car.is_featured
-                            ? 'Featured — click to remove'
-                            : canFeature
-                              ? 'Click to feature on the landing page'
-                              : 'Only available/reserved cars can be featured'
-                        }
-                        className={cn(
-                          'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
-                          'disabled:opacity-30 disabled:cursor-not-allowed',
-                          car.is_featured ? 'bg-signal-red' : 'bg-hairline'
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform',
-                            car.is_featured ? 'translate-x-[18px]' : 'translate-x-1'
-                          )}
-                        />
-                      </button>
-                    </form>
-                    {car.is_featured && (
-                      <>
-                        <span className="font-body text-[10px] font-semibold text-text-muted tabular-nums w-4 text-center">
-                          {featuredIndex + 1}
-                        </span>
-                        <form action={moveFeaturedUp.bind(null, car.id)}>
-                          <button
-                            type="submit"
-                            aria-label="Move up"
-                            disabled={featuredIndex === 0}
-                            className="rounded p-0.5 text-text-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <ChevronUp size={14} />
-                          </button>
-                        </form>
-                        <form action={moveFeaturedDown.bind(null, car.id)}>
-                          <button
-                            type="submit"
-                            aria-label="Move down"
-                            disabled={featuredIndex === featuredIds.length - 1}
-                            className="rounded p-0.5 text-text-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <ChevronDown size={14} />
-                          </button>
-                        </form>
-                      </>
-                    )}
-                  </div>
-                  )}
+                <td className="px-4 py-2">
+                  <CarRowActions {...actionProps(row)} section="featured" />
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-3 whitespace-nowrap">
-                    {/* The explicit undefined fills archiveReason so the form's
-                        FormData argument lands past it instead of in it. */}
-                    {isDraft ? (
-                      hasPhoto ? (
-                        <form action={updateCarStatus.bind(null, car.id, 'available', undefined)}>
-                          <button
-                            type="submit"
-                            className="font-body text-xs text-text-muted hover:text-ink underline"
-                          >
-                            Publish
-                          </button>
-                        </form>
-                      ) : (
-                        <Link
-                          href={`/admin/inventory/${car.id}/edit`}
-                          className="font-body text-xs text-text-muted hover:text-ink underline"
-                        >
-                          Add a photo to publish
-                        </Link>
-                      )
-                    ) : (
-                      <>
-                        {car.status === 'available' && (
-                          <form action={updateCarStatus.bind(null, car.id, 'reserved', undefined)}>
-                            <button
-                              type="submit"
-                              className="font-body text-xs text-text-muted hover:text-ink underline"
-                            >
-                              Reserve
-                            </button>
-                          </form>
-                        )}
-                        <form action={updateCarStatus.bind(null, car.id, 'sold', undefined)}>
-                          <button
-                            type="submit"
-                            className="font-body text-xs text-text-muted hover:text-ink underline"
-                          >
-                            Mark sold
-                          </button>
-                        </form>
-                        <form action={updateCarStatus.bind(null, car.id, 'withdrawn', undefined)}>
-                          <button
-                            type="submit"
-                            className="font-body text-xs text-text-muted hover:text-ink underline"
-                          >
-                            Withdraw
-                          </button>
-                        </form>
-                      </>
-                    )}
-                    <Link
-                      href={`/admin/inventory/${car.id}/edit`}
-                      className="font-body text-sm font-semibold text-ink hover:underline"
-                    >
-                      Edit
-                    </Link>
-                  </div>
+                <td className="px-4 py-2">
+                  <CarRowActions {...actionProps(row)} section="status" />
                 </td>
               </tr>
-              )
-            })}
-            {typedCars.length === 0 && (
+            ))}
+            {rows.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center font-body text-text-muted">
-                  No cars yet.{' '}
-                  <Link href="/admin/inventory/new" className="underline">
-                    Add your first one
-                  </Link>
-                  .
+                  {emptyMessage}
                 </td>
               </tr>
             )}

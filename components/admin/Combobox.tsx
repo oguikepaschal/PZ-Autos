@@ -78,7 +78,7 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+        className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
       />
       {open && (filtered.length > 0 || emptyHint) && (
         <ul
@@ -95,7 +95,7 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
                 e.preventDefault()
                 selectOption(option)
               }}
-              className={`px-3 py-2 font-body text-sm cursor-pointer ${
+              className={`flex min-h-11 items-center px-3 font-body text-sm cursor-pointer ${
                 index === highlighted ? 'bg-hairline/60 text-ink' : 'text-ink'
               }`}
             >
@@ -103,7 +103,7 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
             </li>
           ))}
           {filtered.length === 0 && emptyHint && (
-            <li className="px-3 py-2 font-body text-xs text-text-muted">{emptyHint}</li>
+            <li className="flex min-h-11 items-center px-3 font-body text-xs text-text-muted">{emptyHint}</li>
           )}
         </ul>
       )}

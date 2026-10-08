@@ -35,7 +35,18 @@ export const metadata: Metadata = {
         media: '(prefers-color-scheme: dark)',
       },
     ],
+    apple: '/apple-touch-icon.png',
   },
+  // 'black' keeps iOS's status bar opaque, so pages start below it and the
+  // ink header lines up; black-translucent would draw under the status bar.
+  appleWebApp: {
+    capable: true,
+    title: 'PZ Autos',
+    statusBarStyle: 'black',
+  },
+  // Next only emits the unprefixed mobile-web-app-capable; iOS before 16.4
+  // reads the prefixed tag.
+  other: { 'apple-mobile-web-app-capable': 'yes' },
 }
 
 // viewport-fit=cover lets fixed bars pad themselves clear of the notch and

@@ -90,13 +90,13 @@ export function SupplierPicker({
           placeholder="Supplier name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body"
         />
         <div className="flex gap-2">
           <select
             value={type}
             onChange={(e) => setType(e.target.value as 'dealership' | 'individual')}
-            className="border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+            className="border border-hairline rounded-lg px-3 py-2 font-body"
           >
             <option value="individual">Individual</option>
             <option value="dealership">Dealership</option>
@@ -106,7 +106,7 @@ export function SupplierPicker({
             placeholder="Phone (optional)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+            className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body"
           />
         </div>
         {error && <p className="font-body text-xs text-signal-red">{error}</p>}
@@ -115,14 +115,14 @@ export function SupplierPicker({
             type="button"
             onClick={handleCreate}
             disabled={submitting}
-            className="rounded-lg bg-ink text-white font-body text-xs font-semibold px-3 py-1.5"
+            className="min-h-11 rounded-lg bg-ink text-white font-body text-sm font-semibold px-4"
           >
             {submitting ? 'Saving…' : 'Save supplier'}
           </button>
           <button
             type="button"
             onClick={() => setCreating(false)}
-            className="font-body text-xs text-text-muted"
+            className="min-h-11 px-3 font-body text-sm text-text-muted"
           >
             Cancel
           </button>
@@ -138,7 +138,7 @@ export function SupplierPicker({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           required
-          className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         >
           <option value="">Select a supplier…</option>
           {suppliers.map((s) => (
@@ -151,7 +151,7 @@ export function SupplierPicker({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="rounded-lg border border-hairline font-body text-sm px-3 py-2 text-ink"
+          className="min-h-11 rounded-lg border border-hairline font-body text-sm px-3 text-ink"
         >
           + New
         </button>
@@ -162,7 +162,7 @@ export function SupplierPicker({
           placeholder="Supplier name for this car"
           value={customName}
           onChange={(e) => onCustomNameChange(e.target.value)}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm"
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body"
         />
       )}
     </div>
