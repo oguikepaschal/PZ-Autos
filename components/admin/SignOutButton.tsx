@@ -3,7 +3,13 @@
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export function SignOutButton() {
+// The default look is for the always-dark desktop header; the phone account
+// sheet passes its own row styling.
+export function SignOutButton({
+  className = '-mr-3 min-h-11 px-3 font-body text-sm text-text-on-dark hover:text-white transition-colors',
+}: {
+  className?: string
+}) {
   const router = useRouter()
 
   async function handleSignOut() {
@@ -17,7 +23,7 @@ export function SignOutButton() {
     <button
       type="button"
       onClick={handleSignOut}
-      className="-mr-3 min-h-11 px-3 font-body text-sm text-text-on-dark hover:text-white transition-colors"
+      className={className}
     >
       Sign out
     </button>

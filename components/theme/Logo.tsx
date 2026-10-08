@@ -30,3 +30,14 @@ export function Wordmark({ className, tone = 'dark', priority = false }: Wordmar
     />
   )
 }
+
+// Both wordmark PNGs carry an opaque background (white or #141414), so on a
+// themed surface the mark sits on its own always-dark badge rather than
+// showing a mismatched rectangle in one of the two themes.
+export function WordmarkBadge({ className, priority = false }: Omit<WordmarkProps, 'tone'>) {
+  return (
+    <span className={cn('inline-flex items-center rounded-lg bg-surface-dark px-2.5 py-2', className)}>
+      <Wordmark tone="light" priority={priority} className="h-5" />
+    </span>
+  )
+}

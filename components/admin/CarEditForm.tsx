@@ -1,14 +1,32 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { Camera, Car as CarIcon, ChevronLeft, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ImageUploader, type PendingImage } from './ImageUploader'
 import { MakeModelFields } from './MakeModelFields'
 import { CUSTOM_SUPPLIER, SupplierPicker, createOneOffSupplier } from './SupplierPicker'
 import { ConstrainedSelect } from './ConstrainedSelect'
-import { Field } from './FormField'
+import { CarRowActions, FeaturedSwitch, PositionArrows } from './CarRowActions'
+import {
+  BottomBar,
+  FormError,
+  Row,
+  RowGroup,
+  SelectRow,
+  StackedRow,
+  bottomBarSpace,
+  primaryButtonClass,
+  rowClass,
+  rowControlClass,
+  rowSelectClass,
+  stackedControlClass,
+} from './FormRows'
 import { getCarImagePublicUrl } from '@/lib/images'
+import { formatCarTitle, formatMileage, formatNGN, toDisplayCase } from '@/lib/formatters'
 import { buildCarFormSchema, formatCarFormErrors } from '@/lib/carFormSchema'
 import { BODY_TYPES, CONDITIONS, DRIVETRAINS, ENGINE_LAYOUTS, FUEL_TYPES, TRANSMISSIONS, getYearOptions } from '@/lib/carOptions'
 import type { Car, CarImage, Supplier } from '@/lib/supabase/types'
@@ -17,11 +35,32 @@ interface CarEditFormProps {
   car: Car
   images: CarImage[]
   suppliers: Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]
+  whatsappTaps: number
+  // This car's place in the home page order (-1 when not featured) and the
+  // size of that order.
+  featuredIndex: number
+  featuredCount: number
 }
+
+// Draft is not one of the four; a draft shows nothing selected and a banner
+// with Publish instead.
+const STATUSES = [
+  { value: 'available', label: 'Available' },
+  { value: 'reserved', label: 'Reserved' },
+  { value: 'sold', label: 'Sold' },
+  { value: 'withdrawn', label: 'Withdrawn' },
+] as const
 
 const YEAR_OPTIONS = getYearOptions()
 
-export function CarEditForm({ car, images: initialImages, suppliers: initialSuppliers }: CarEditFormProps) {
+export function CarEditForm({
+  car,
+  images: initialImages,
+  suppliers: initialSuppliers,
+  whatsappTaps,
+  featuredIndex,
+  featuredCount,
+}: CarEditFormProps) {
   const router = useRouter()
   const [images, setImages] = useState<PendingImage[]>(
     initialImages.map((img) => ({
@@ -36,6 +75,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
   const [supplierId, setSupplierId] = useState(car.supplier_id)
   const [customSupplierName, setCustomSupplierName] = useState('')
   const [status, setStatus] = useState(car.status)
+  const [showPhotos, setShowPhotos] = useState(false)
   const [archiveReason, setArchiveReason] = useState(car.archive_reason ?? '')
 
   const [make, setMake] = useState(car.make)
@@ -56,6 +96,11 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
     setSaving(true)
     setError(null)
 
+    // The draft banner's Publish saves every change and makes the car
+    // available in one go.
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null
+    const nextStatus: Car['status'] = submitter?.value === 'publish' ? 'available' : status
+
     if (!supplierId) {
       setError('Select or create a supplier')
       setSaving(false)
@@ -67,7 +112,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
       return
     }
 
-    if ((status === 'available' || status === 'reserved') && images.length === 0) {
+    if ((nextStatus === 'available' || nextStatus === 'reserved') && images.length === 0) {
       setError('Add at least one photo to publish')
       setSaving(false)
       return
@@ -140,8 +185,8 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         registration_plate: (form.get('registration_plate') as string) || null,
         cost_price_ngn: form.get('cost_price_ngn') ? Number(form.get('cost_price_ngn')) : null,
         asking_price_ngn: Number(form.get('asking_price_ngn')),
-        status,
-        archive_reason: status === 'sold' || status === 'withdrawn' ? archiveReason || null : null,
+        status: nextStatus,
+        archive_reason: nextStatus === 'sold' || nextStatus === 'withdrawn' ? archiveReason || null : null,
         acquisition_notes: (form.get('acquisition_notes') as string) || null,
       })
       .eq('id', car.id)
@@ -195,214 +240,350 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
   const isTerminal = status === 'sold' || status === 'withdrawn'
   const hasLegacyYear = !YEAR_OPTIONS.includes(car.year)
 
+  const title = formatCarTitle(car.make, car.model, car.year)
+  const meta = [formatMileage(car.mileage_km), toDisplayCase(car.transmission), toDisplayCase(car.fuel_type)]
+    .filter(Boolean)
+    .join(' · ')
+  const cover = images.find((img) => img.isCover) ?? images[0]
+  // The public view lists available, reserved and sold cars.
+  const isPublic = ['available', 'reserved', 'sold'].includes(car.status)
+  const rowCar = {
+    id: car.id,
+    status: car.status,
+    is_featured: car.is_featured,
+    last_verified_at: car.last_verified_at,
+  }
+  const sectionTitleClass = 'px-1 font-body text-[13px] font-semibold uppercase tracking-[0.06em] text-text-muted'
+
   return (
-    <form onSubmit={handleSubmit} data-lock-overscroll className="space-y-6 max-w-2xl">
-      <Field label="Supplier">
-        <SupplierPicker
-          suppliers={suppliers}
-          value={supplierId}
-          onChange={setSupplierId}
-          onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
-          customName={customSupplierName}
-          onCustomNameChange={setCustomSupplierName}
-        />
-      </Field>
-
-      <Field label="Photos">
-        <ImageUploader
-          folderId={`car-${car.id}`}
-          images={images}
-          onChange={setImages}
-        />
-      </Field>
-
-      <div className="grid grid-cols-3 gap-3">
-        <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
-        <Field label="Year">
-          <select
-            name="year"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            required
-            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-          >
-            <option value="">Select year…</option>
-            {hasLegacyYear && (
-              <option value={car.year}>{car.year} (existing value, outside current range)</option>
+    <form onSubmit={handleSubmit} data-lock-overscroll className="md:max-w-2xl">
+      <div className={`flex flex-col gap-[22px] ${bottomBarSpace}`}>
+        <div className="relative">
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-fill md:rounded-2xl">
+            {cover ? (
+              <Image
+                src={cover.publicUrl}
+                alt={`${title}, cover photo`}
+                fill
+                priority
+                sizes="(min-width: 768px) 672px, 100vw"
+                className="object-cover"
+              />
+            ) : (
+              <span className="absolute inset-0 flex items-center justify-center text-text-muted">
+                <CarIcon size={56} strokeWidth={1.2} aria-hidden="true" />
+              </span>
             )}
-            {YEAR_OPTIONS.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Asking price (₦)">
-          <Input name="asking_price_ngn" type="number" defaultValue={car.asking_price_ngn} required />
-        </Field>
-        <Field label="Cost price (₦, admin only)">
-          <Input name="cost_price_ngn" type="number" defaultValue={car.cost_price_ngn ?? ''} />
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Body type">
-          <ConstrainedSelect
-            name="body_type"
-            options={BODY_TYPES}
-            value={bodyType}
-            onChange={setBodyType}
-            placeholder="Select body type…"
-            legacyValue={car.body_type}
-          />
-        </Field>
-        <Field label="Condition">
-          <ConstrainedSelect
-            name="condition"
-            options={CONDITIONS}
-            value={condition}
-            onChange={setCondition}
-            placeholder="Select condition…"
-            legacyValue={car.condition}
-          />
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        <Field label="Transmission">
-          <ConstrainedSelect
-            name="transmission"
-            options={TRANSMISSIONS}
-            value={transmission}
-            onChange={setTransmission}
-            placeholder="Select transmission…"
-            legacyValue={car.transmission}
-          />
-        </Field>
-        <Field label="Fuel type">
-          <ConstrainedSelect
-            name="fuel_type"
-            options={FUEL_TYPES}
-            value={fuelType}
-            onChange={setFuelType}
-            placeholder="Select fuel type…"
-            legacyValue={car.fuel_type}
-          />
-        </Field>
-        <Field label="Mileage (km)"><Input name="mileage_km" type="number" defaultValue={car.mileage_km ?? ''} /></Field>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        <Field label="Exterior colour"><Input name="exterior_colour" defaultValue={car.exterior_colour ?? ''} /></Field>
-        <Field label="Interior colour"><Input name="interior_colour" defaultValue={car.interior_colour ?? ''} /></Field>
-        <Field label="Drivetrain">
-          <ConstrainedSelect
-            name="drivetrain"
-            options={DRIVETRAINS}
-            value={drivetrain}
-            onChange={setDrivetrain}
-            placeholder="Select drivetrain…"
-            legacyValue={car.drivetrain}
-          />
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Engine layout">
-          <ConstrainedSelect
-            name="engine_layout"
-            options={ENGINE_LAYOUTS}
-            value={engineLayout}
-            onChange={setEngineLayout}
-            placeholder="Select engine layout…"
-            legacyValue={car.engine_layout}
-          />
-        </Field>
-        <Field label="Location (LGA)"><Input name="location_area" defaultValue={car.location_area ?? ''} /></Field>
-      </div>
-
-      <Field label="Key features (comma-separated)">
-        <Input
-          name="key_features"
-          defaultValue={(car.key_features ?? []).join(', ')}
-          placeholder="Reverse camera, Leather seats, Sunroof"
-        />
-      </Field>
-
-      <Field label="Description">
-        <textarea
-          name="description"
-          rows={4}
-          defaultValue={car.description ?? ''}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        />
-      </Field>
-
-      <Field label="VIN (admin only)"><Input name="vin" defaultValue={car.vin ?? ''} /></Field>
-
-      <details className="rounded-lg border border-hairline px-3 py-2" open={Boolean(car.registration_plate)}>
-        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer py-3.5">
-          Registration plate (optional, admin only)
-        </summary>
-        <div className="mt-2">
-          <Input name="registration_plate" defaultValue={car.registration_plate ?? ''} />
+          </div>
+          {/* Fixed on phones so they stay reachable while the form scrolls. */}
+          <div className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+8px)] z-40 flex justify-between md:absolute md:top-4">
+            <Link
+              href="/admin"
+              aria-label="Back to inventory"
+              className="glass flex size-11 items-center justify-center rounded-full text-ink"
+            >
+              <ChevronLeft size={22} strokeWidth={2.2} aria-hidden="true" />
+            </Link>
+            {isPublic && (
+              <a
+                href={`/cars/${car.slug}`}
+                target="_blank"
+                rel="noopener"
+                aria-label="View public listing"
+                className="glass flex size-11 items-center justify-center rounded-full text-ink"
+              >
+                <ExternalLink size={19} strokeWidth={1.9} aria-hidden="true" />
+              </a>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowPhotos((open) => !open)}
+            aria-expanded={showPhotos}
+            aria-controls="edit-photos"
+            className="glass absolute right-4 bottom-4 flex h-11 items-center gap-1.5 rounded-full px-3.5 font-body text-sm font-semibold text-ink"
+          >
+            <Camera size={16} strokeWidth={1.8} aria-hidden="true" />
+            {showPhotos ? 'Done' : 'Edit photos'}
+          </button>
         </div>
-      </details>
 
-      <Field label="Acquisition notes (admin only)">
-        <textarea
-          name="acquisition_notes"
-          rows={2}
-          defaultValue={car.acquisition_notes ?? ''}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        />
-      </Field>
+        <div className="flex flex-col gap-[22px] px-4 md:px-0">
+          {showPhotos && (
+            <div id="edit-photos">
+              <ImageUploader folderId={`car-${car.id}`} images={images} onChange={setImages} />
+            </div>
+          )}
 
-      <Field label="Status">
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as Car['status'])}
-          className="border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        >
-          <option value="draft">Draft</option>
-          <option value="available">Available</option>
-          <option value="reserved">Reserved</option>
-          <option value="sold">Sold — brokered by me</option>
-          <option value="withdrawn">Withdrawn — gone elsewhere / delisted</option>
-        </select>
-      </Field>
+          <div className="flex flex-col gap-1">
+            <h1 className="font-display text-[26px] font-extrabold leading-[1.1] tracking-display">{title}</h1>
+            <p className="font-display text-xl font-bold tracking-[-0.01em] tabular-nums">
+              {formatNGN(car.asking_price_ngn)}
+            </p>
+            {meta && <p className="font-body text-[15px] text-text-muted">{meta}</p>}
+          </div>
 
-      {isTerminal && (
-        <Field label="Archive reason">
-          <Input
-            value={archiveReason}
-            onChange={(e) => setArchiveReason(e.target.value)}
-            placeholder={status === 'sold' ? 'e.g. sold to walk-in buyer' : 'e.g. sold at source before enquiry'}
-          />
-        </Field>
-      )}
+          {status === 'draft' && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface py-2 pr-2 pl-4">
+              <p className="font-body text-[15px] text-ink">
+                <span className="font-semibold">Draft.</span> Not on the public site yet.
+              </p>
+              <button
+                type="submit"
+                value="publish"
+                disabled={saving}
+                className="h-11 shrink-0 rounded-full bg-ink px-4 font-body text-[15px] font-bold text-ink-inverse disabled:opacity-60"
+              >
+                Publish
+              </button>
+            </div>
+          )}
 
-      {error && <p className="font-body text-sm text-signal-red">{error}</p>}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="flex flex-col gap-0.5 rounded-2xl bg-surface p-3.5">
+              <span className="font-body text-[13px] text-text-muted">WhatsApp taps</span>
+              <span className="font-display text-[22px] font-bold tabular-nums">{whatsappTaps}</span>
+            </div>
+            <div className="flex flex-col gap-0.5 rounded-2xl bg-surface p-3.5">
+              <span className="font-body text-[13px] text-text-muted">Home page</span>
+              <span className="font-display text-[22px] font-bold">
+                {car.is_featured ? `Featured #${featuredIndex + 1}` : 'Not featured'}
+              </span>
+            </div>
+          </div>
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-lg bg-signal-red text-white font-body font-semibold text-sm px-6 py-3 disabled:opacity-60"
-      >
-        {saving ? 'Saving…' : 'Save changes'}
-      </button>
+          <fieldset className="flex flex-col gap-2">
+            <legend className={`mb-2 ${sectionTitleClass}`}>Status</legend>
+            <div className="grid grid-cols-4 gap-0.5 rounded-[14px] bg-fill p-[3px]">
+              {STATUSES.map(({ value, label }) => (
+                <label key={value} className="relative">
+                  <input
+                    type="radio"
+                    name="status_choice"
+                    value={value}
+                    checked={status === value}
+                    onChange={() => setStatus(value)}
+                    className="peer sr-only"
+                  />
+                  <span className="flex h-11 cursor-pointer items-center justify-center rounded-[11px] font-body text-sm font-medium text-ink transition-colors duration-200 peer-checked:bg-segment peer-checked:font-bold peer-checked:shadow-[0_1px_3px_rgba(0,0,0,0.12)] peer-focus-visible:outline-2 peer-focus-visible:outline-ink">
+                    {label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          {isTerminal && (
+            <RowGroup title="Archive">
+              <Row label="Reason">
+                <input
+                  value={archiveReason}
+                  onChange={(e) => setArchiveReason(e.target.value)}
+                  placeholder={status === 'sold' ? 'Sold to walk-in buyer' : 'Sold at source'}
+                  className={rowControlClass}
+                />
+              </Row>
+            </RowGroup>
+          )}
+
+          <section className="flex flex-col gap-2">
+            <h2 className={sectionTitleClass}>Verification</h2>
+            <div className="flex min-h-[60px] items-center rounded-2xl bg-surface py-2 pr-2 pl-4">
+              <CarRowActions
+                car={rowCar}
+                hasPhoto={images.length > 0}
+                featuredIndex={featuredIndex}
+                featuredCount={featuredCount}
+                section="verified"
+              />
+            </div>
+          </section>
+
+          <RowGroup title="Featured">
+            <div className={`${rowClass} justify-between pr-2`}>
+              <span className="font-body text-base">Show on home page</span>
+              <FeaturedSwitch car={rowCar} label="Show on home page" />
+            </div>
+            {car.is_featured && (
+              <div className={`${rowClass} justify-between pr-2`}>
+                <span className="font-body text-base">Position</span>
+                <PositionArrows car={rowCar} featuredIndex={featuredIndex} featuredCount={featuredCount} />
+              </div>
+            )}
+          </RowGroup>
+
+          <RowGroup title="Details">
+            <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
+            <SelectRow label="Year">
+              <select name="year" value={year} onChange={(e) => setYear(e.target.value)} required className={rowSelectClass}>
+                <option value="">Select</option>
+                {hasLegacyYear && <option value={car.year}>{car.year} (existing value, outside current range)</option>}
+                {YEAR_OPTIONS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </SelectRow>
+            <Row label="Asking price">
+              <input
+                name="asking_price_ngn"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                defaultValue={car.asking_price_ngn}
+                required
+                className={rowControlClass}
+              />
+            </Row>
+            <SelectRow label="Condition">
+              <ConstrainedSelect
+                name="condition"
+                options={CONDITIONS}
+                value={condition}
+                onChange={setCondition}
+                placeholder="Select"
+                legacyValue={car.condition}
+              />
+            </SelectRow>
+            <SelectRow label="Body type">
+              <ConstrainedSelect
+                name="body_type"
+                options={BODY_TYPES}
+                value={bodyType}
+                onChange={setBodyType}
+                placeholder="Select"
+                legacyValue={car.body_type}
+              />
+            </SelectRow>
+            <SelectRow label="Transmission">
+              <ConstrainedSelect
+                name="transmission"
+                options={TRANSMISSIONS}
+                value={transmission}
+                onChange={setTransmission}
+                placeholder="Select"
+                legacyValue={car.transmission}
+              />
+            </SelectRow>
+            <SelectRow label="Fuel type">
+              <ConstrainedSelect
+                name="fuel_type"
+                options={FUEL_TYPES}
+                value={fuelType}
+                onChange={setFuelType}
+                placeholder="Select"
+                legacyValue={car.fuel_type}
+              />
+            </SelectRow>
+            <Row label="Mileage">
+              <input
+                name="mileage_km"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                defaultValue={car.mileage_km ?? ''}
+                placeholder="km"
+                className={rowControlClass}
+              />
+            </Row>
+            <Row label="Exterior">
+              <input name="exterior_colour" defaultValue={car.exterior_colour ?? ''} placeholder="Colour" className={rowControlClass} />
+            </Row>
+            <Row label="Interior">
+              <input name="interior_colour" defaultValue={car.interior_colour ?? ''} placeholder="Colour" className={rowControlClass} />
+            </Row>
+            <SelectRow label="Drivetrain">
+              <ConstrainedSelect
+                name="drivetrain"
+                options={DRIVETRAINS}
+                value={drivetrain}
+                onChange={setDrivetrain}
+                placeholder="Select"
+                legacyValue={car.drivetrain}
+              />
+            </SelectRow>
+            <SelectRow label="Engine layout">
+              <ConstrainedSelect
+                name="engine_layout"
+                options={ENGINE_LAYOUTS}
+                value={engineLayout}
+                onChange={setEngineLayout}
+                placeholder="Select"
+                legacyValue={car.engine_layout}
+              />
+            </SelectRow>
+            <Row label="Location">
+              <input
+                name="location_area"
+                defaultValue={car.location_area ?? ''}
+                placeholder="LGA, never a street"
+                className={rowControlClass}
+              />
+            </Row>
+          </RowGroup>
+
+          <RowGroup title="Description">
+            <StackedRow label="Key features">
+              <input
+                name="key_features"
+                defaultValue={(car.key_features ?? []).join(', ')}
+                placeholder="Reverse camera, Leather seats, Sunroof"
+                className={stackedControlClass}
+              />
+            </StackedRow>
+            <StackedRow label="Description">
+              <textarea name="description" rows={4} defaultValue={car.description ?? ''} className={stackedControlClass} />
+            </StackedRow>
+          </RowGroup>
+
+          <RowGroup title="Only you see this" locked footer="Supplier and cost price never appear on the public site.">
+            <SupplierPicker
+              suppliers={suppliers}
+              value={supplierId}
+              onChange={setSupplierId}
+              onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
+              customName={customSupplierName}
+              onCustomNameChange={setCustomSupplierName}
+            />
+            <Row label="Cost price">
+              <input
+                name="cost_price_ngn"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                defaultValue={car.cost_price_ngn ?? ''}
+                placeholder="₦ amount"
+                className={rowControlClass}
+              />
+            </Row>
+            <Row label="VIN">
+              <input name="vin" defaultValue={car.vin ?? ''} autoCapitalize="characters" autoCorrect="off" className={rowControlClass} />
+            </Row>
+            <Row label="Plate">
+              <input
+                name="registration_plate"
+                defaultValue={car.registration_plate ?? ''}
+                autoCapitalize="characters"
+                autoCorrect="off"
+                placeholder="Optional"
+                className={rowControlClass}
+              />
+            </Row>
+            <StackedRow label="Acquisition notes">
+              <textarea name="acquisition_notes" rows={2} defaultValue={car.acquisition_notes ?? ''} className={stackedControlClass} />
+            </StackedRow>
+          </RowGroup>
+
+          <FormError message={error} />
+        </div>
+      </div>
+
+      <BottomBar>
+        <button type="submit" disabled={saving} className={`${primaryButtonClass} flex-1`}>
+          {saving ? 'Saving…' : 'Save changes'}
+        </button>
+      </BottomBar>
     </form>
-  )
-}
-
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-    />
   )
 }

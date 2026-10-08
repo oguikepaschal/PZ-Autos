@@ -6,9 +6,9 @@ import { generateWhatsAppLink, getOwnerPhone } from '@/lib/whatsapp'
 const OWNER_PHONE = getOwnerPhone()
 const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'pzautomobiles@gmail.com'
 
-// The closing call to action for every public page. The WhatsApp button is
-// white on ink, not signal red: on a car's detail page the fixed red
-// enquiry bar is already in view at the bottom, and red is one per view.
+// The closing call to action for every public page, on the always-dark
+// surface in both themes. The WhatsApp button is white, not signal red: red
+// is kept for the few accents the design allows.
 export function PublicFooter() {
   const whatsappLink = generateWhatsAppLink(
     OWNER_PHONE,
@@ -16,11 +16,11 @@ export function PublicFooter() {
   )
 
   return (
-    <footer className="bg-ink">
+    <footer className="bg-surface-dark">
       <div className="container-page py-section">
         <div className="grid gap-12 md:grid-cols-2 md:items-end">
           <div>
-            <h2 className="font-display font-black text-h2 tracking-display text-white">
+            <h2 className="font-display font-extrabold text-h2 tracking-display text-white">
               Serious about a car?
             </h2>
             <p className="mt-3 max-w-measure font-body text-body text-text-on-dark">
@@ -30,7 +30,7 @@ export function PublicFooter() {
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-white px-6 font-body font-semibold text-body text-ink transition active:scale-98 sm:w-auto"
+              className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 font-body font-semibold text-body text-surface-dark transition active:scale-98 sm:w-auto"
             >
               <MessageCircle size={20} aria-hidden="true" />
               Chat on WhatsApp

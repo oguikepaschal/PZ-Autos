@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
+import { rowControlClass } from './FormRows'
 
 interface ComboboxProps {
   name?: string
@@ -60,7 +61,7 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
   }
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative w-full">
       <input
         role="combobox"
         aria-expanded={open}
@@ -78,13 +79,13 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
+        className={rowControlClass}
       />
       {open && (filtered.length > 0 || emptyHint) && (
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-hairline bg-white shadow-lg"
+          className="absolute right-0 top-full z-20 mt-2 max-h-56 w-[min(18rem,calc(100vw-3rem))] overflow-auto rounded-xl bg-surface text-left shadow-lg ring-1 ring-hairline"
         >
           {filtered.map((option, index) => (
             <li
@@ -95,15 +96,15 @@ export function Combobox({ name, value, onChange, options, placeholder, emptyHin
                 e.preventDefault()
                 selectOption(option)
               }}
-              className={`flex min-h-11 items-center px-3 font-body text-sm cursor-pointer ${
-                index === highlighted ? 'bg-hairline/60 text-ink' : 'text-ink'
+              className={`flex min-h-11 items-center px-4 font-body text-base cursor-pointer ${
+                index === highlighted ? 'bg-fill text-ink' : 'text-ink'
               }`}
             >
               {option}
             </li>
           ))}
           {filtered.length === 0 && emptyHint && (
-            <li className="flex min-h-11 items-center px-3 font-body text-xs text-text-muted">{emptyHint}</li>
+            <li className="flex min-h-11 items-center px-4 font-body text-sm text-text-muted">{emptyHint}</li>
           )}
         </ul>
       )}

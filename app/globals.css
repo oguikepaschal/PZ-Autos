@@ -7,20 +7,18 @@
    values; every value below is PZ Autos's own brand kit. */
 @theme inline {
   --color-ink: var(--ink);
+  --color-ink-3: var(--ink-3);
+  --color-ink-inverse: var(--ink-inverse);
   --color-signal-red: var(--signal-red);
   --color-bg-base: var(--bg-base);
-  --color-body-text: var(--body-text);
+  --color-surface: var(--surface);
+  --color-surface-dark: var(--surface-dark);
   --color-text-on-dark: var(--text-on-dark);
   --color-text-muted: var(--text-muted);
   --color-hairline: var(--hairline);
-  --color-surface: var(--surface);
-  --color-placeholder-a: var(--placeholder-a);
-  --color-placeholder-b: var(--placeholder-b);
-
-  /* Status/freshness — deliberately NOT red anywhere (see brand ratio
-     constraint: red is reserved for one CTA per screen). */
-  --color-status-reserved: var(--status-reserved);
-  --color-status-sold: var(--status-sold);
+  --color-fill: var(--fill);
+  --color-segment: var(--segment);
+  --color-tab-highlight: var(--tab-highlight);
 
   --font-display: var(--font-archivo), Helvetica, Arial, sans-serif;
   --font-wordmark: var(--font-archivo), Helvetica, Arial, sans-serif;
@@ -80,27 +78,104 @@
   }
 }
 
-/* Neutral greys only: every grey below has equal R, G and B. Contrast:
-   text-muted 6.7:1 on white, text-on-dark 7.3:1 on ink. */
+/* The theme follows the system setting; there is no toggle. Every value
+   here is one of the approved tokens. Contrast on the page background:
+   text-muted 6.0:1 light and 7.7:1 dark; signal red 5.0:1 light and 5.2:1
+   dark. ink-3 is for glyphs and dots, never for text. */
 :root {
+  --bg-base: #f2f2f4;
+  --surface: #ffffff;
   --ink: #141414;
+  --text-muted: #5b5b60;
+  --ink-3: #aeaeb2;
+  --hairline: rgba(20, 20, 20, 0.08);
+  --fill: rgba(20, 20, 20, 0.05);
   --signal-red: #d0121b;
-  --bg-base: #ffffff;
-  --body-text: #262626;
-  --text-on-dark: #a3a3a3;
-  --text-muted: #5c5c5c;
-  --hairline: #e5e5e5;
-  --surface: #f5f5f5;
-  --placeholder-a: #ebebeb;
-  --placeholder-b: #f5f5f5;
+  /* Text on an ink-filled primary button. */
+  --ink-inverse: #ffffff;
+  /* The selected segment of a segmented control, and the highlight behind
+     the active tab (solid, so the red label keeps its contrast over any
+     content the glass bar floats above). */
+  --segment: #ffffff;
+  --tab-highlight: #ffffff;
 
-  /* Reserved uses ink, not a status colour, per the brand ratio constraint
-     (status badges must never default to red). Sold uses a muted treatment
-     — archived, not a live status. */
-  --status-reserved: var(--ink);
-  --status-sold: var(--text-muted);
+  /* Always dark in both themes: the public header, footer, landing hero and
+     the Sold pill. Its text is white or text-on-dark (7.2:1). */
+  --surface-dark: #141414;
+  --text-on-dark: #a1a1a6;
 
-  color-scheme: light;
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 12px 32px rgba(20, 20, 20, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-filter: blur(24px) saturate(180%);
+
+  color-scheme: light dark;
+}
+
+/* The dark values, once for the system setting and once for .scheme-dark,
+   which forces dark inside the photo viewer whatever the system theme. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-base: #000000;
+    --surface: #1c1c1e;
+    --ink: #f5f5f7;
+    --text-muted: #a1a1a6;
+    --ink-3: #636366;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --fill: rgba(255, 255, 255, 0.09);
+    --signal-red: #f0323a;
+    --ink-inverse: #141414;
+    --segment: #636366;
+    --tab-highlight: #000000;
+    --glass-bg: rgba(44, 44, 46, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.14);
+    --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    /* brightness() keeps light text on dark glass at 4.5:1 or better even
+       over a white photo; without it the composite is only 3.1:1. */
+    --glass-filter: blur(24px) saturate(180%) brightness(0.75);
+  }
+}
+
+.scheme-dark {
+  --bg-base: #000000;
+  --surface: #1c1c1e;
+  --ink: #f5f5f7;
+  --text-muted: #a1a1a6;
+  --ink-3: #636366;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --fill: rgba(255, 255, 255, 0.09);
+  --signal-red: #f0323a;
+  --ink-inverse: #141414;
+  --segment: #636366;
+  --tab-highlight: #000000;
+  --glass-bg: rgba(44, 44, 46, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glass-filter: blur(24px) saturate(180%) brightness(0.75);
+  color-scheme: dark;
+}
+
+/* The one glass treatment. Under reduced transparency it becomes a solid
+   surface; under increased contrast, solid with a visible ink border. */
+@utility glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  @media (prefers-contrast: more) {
+    background: var(--surface);
+    border-color: var(--ink);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 html {
@@ -135,7 +210,13 @@ html:has([data-lock-overscroll]) {
 
 body {
   background: var(--bg-base);
-  color: var(--body-text);
+  color: var(--ink);
+}
+
+/* An open modal sheet or the photo viewer holds the page still behind it. */
+html:has(dialog[open]),
+html:has([data-scroll-lock]) {
+  overflow: hidden;
 }
 
 a,

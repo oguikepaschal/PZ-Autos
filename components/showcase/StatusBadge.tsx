@@ -1,21 +1,19 @@
 import { cn } from '@/lib/utils'
 
-// Status badges never default to red — the brand's ratio constraint
-// reserves signal-red for exactly one CTA/accent per screen, and a status
-// pill would otherwise be the thing that quietly breaks that budget on
-// every single car card.
+// Status badges are never red. Sold uses the always-dark surface so it reads
+// the same in both themes.
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   available: {
     label: 'Available',
-    className: 'border border-hairline bg-bg-base text-ink',
+    className: 'border border-hairline bg-surface text-ink',
   },
   reserved: {
     label: 'Reserved',
-    className: 'border border-ink bg-bg-base text-ink',
+    className: 'border border-ink bg-surface text-ink',
   },
   sold: {
     label: 'Sold',
-    className: 'bg-text-muted text-white',
+    className: 'bg-surface-dark text-white',
   },
 }
 

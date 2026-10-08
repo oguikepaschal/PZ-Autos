@@ -1,7 +1,12 @@
 'use client'
 
+import { Check, Plus } from 'lucide-react'
+
 interface SuggestionChipProps {
+  label: string
   value: string | null
+  // The field's current value, so an accepted chip shows a check.
+  current: string
   onAccept: (value: string) => void
 }
 
@@ -10,16 +15,26 @@ interface SuggestionChipProps {
 // field's own state setter like any manual edit. It deliberately keeps showing
 // when the field already holds a value: the admin may still want to compare,
 // and hiding it would quietly decide for them.
-export function SuggestionChip({ value, onAccept }: SuggestionChipProps) {
+export function SuggestionChip({ label, value, current, onAccept }: SuggestionChipProps) {
   if (!value) return null
+  const accepted = current === value
 
   return (
     <button
       type="button"
       onClick={() => onAccept(value)}
-      className="mt-1 inline-flex min-h-11 items-center rounded-full border border-hairline bg-hairline/40 px-2.5 py-1 font-body text-xs text-text-muted hover:text-ink transition-colors text-left"
+      aria-pressed={accepted}
+      aria-label={`Use suggested ${label.toLowerCase()}: ${value}`}
+      className="flex h-11 items-center"
     >
-      Suggested: <span className="font-semibold text-ink">{value}</span> — tap to accept
+      <span className="flex h-10 items-center gap-1.5 rounded-full border border-hairline bg-surface px-3.5 font-body text-sm font-semibold text-ink transition-transform active:scale-[0.97]">
+        {accepted ? (
+          <Check size={14} strokeWidth={2.4} aria-hidden="true" />
+        ) : (
+          <Plus size={14} strokeWidth={2.4} aria-hidden="true" />
+        )}
+        {label}: {value}
+      </span>
     </button>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import { Combobox } from './Combobox'
-import { Field } from './FormField'
+import { Row } from './FormRows'
 import { CAR_MAKES, CAR_MAKES_WITH_MODELS } from '@/lib/carOptions'
 
 interface MakeModelFieldsProps {
@@ -31,26 +31,26 @@ export function MakeModelFields({ make, model, onMakeChange, onModelChange }: Ma
 
   return (
     <>
-      <Field label="Make">
+      <Row label="Make">
         <Combobox
           name="make"
           value={make}
           onChange={handleMakeChange}
           options={CAR_MAKES}
-          placeholder="e.g. Toyota"
+          placeholder="Toyota"
           emptyHint="No match — this make will be saved as typed"
         />
-      </Field>
-      <Field label="Model">
+      </Row>
+      <Row label="Model">
         <Combobox
           name="model"
           value={model}
           onChange={onModelChange}
           options={modelOptions}
-          placeholder={modelOptions.length ? 'e.g. Camry' : 'Type the model'}
+          placeholder={modelOptions.length ? 'Camry' : 'Type the model'}
           emptyHint="No match — this model will be saved as typed"
         />
-      </Field>
+      </Row>
     </>
   )
 }

@@ -4,7 +4,7 @@ import './globals.css'
 
 const archivo = Archivo({
   subsets: ['latin'],
-  weight: ['700', '900'],
+  weight: ['700', '800', '900'],
   variable: '--font-archivo',
   display: 'swap',
 })
@@ -50,14 +50,17 @@ export const metadata: Metadata = {
 }
 
 // viewport-fit=cover lets fixed bars pad themselves clear of the notch and
-// home indicator with env(safe-area-inset-*). One theme-color is enough: the
-// site is light-only (color-scheme: light) and every page opens on the ink
-// header, so the browser chrome matches it in either OS scheme.
+// home indicator with env(safe-area-inset-*). The theme follows the system
+// setting, so the browser chrome matches the page background in each scheme.
+// The public layout overrides this: its pages open on the always-dark header.
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#141414',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F2F2F4' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
