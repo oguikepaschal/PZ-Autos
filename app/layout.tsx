@@ -37,12 +37,12 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-touch-icon.png',
   },
-  // 'black' keeps iOS's status bar opaque, so pages start below it and the
-  // ink header lines up; black-translucent would draw under the status bar.
+  // 'default' lets the status bar follow the page's light or dark theme.
+  // black-translucent would draw page content under the status bar.
   appleWebApp: {
     capable: true,
     title: 'PZ Autos',
-    statusBarStyle: 'black',
+    statusBarStyle: 'default',
   },
   // Next only emits the unprefixed mobile-web-app-capable; iOS before 16.4
   // reads the prefixed tag.

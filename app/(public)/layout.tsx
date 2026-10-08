@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+import type { Metadata } from 'next'
 import { PublicFooter } from '@/components/showcase/PublicFooter'
 
 // The landing page and /cars pages all install the cars showcase. Chrome
@@ -6,13 +6,8 @@ import { PublicFooter } from '@/components/showcase/PublicFooter'
 // landing page can offer the install too.
 export const metadata: Metadata = {
   manifest: '/manifest-cars.webmanifest',
-  appleWebApp: { capable: true, title: 'PZ Autos', statusBarStyle: 'black' },
+  appleWebApp: { capable: true, title: 'PZ Autos', statusBarStyle: 'default' },
 }
-
-// The landing page and /cars open on the always-dark header, and a car's page
-// opens on its photo, so the browser chrome stays the dark surface in both
-// schemes.
-export const viewport: Viewport = { themeColor: '#141414' }
 
 // Each page renders its own <PublicHeader> (with or without the back
 // button) — the listing is a root screen and stays bare, while a car's

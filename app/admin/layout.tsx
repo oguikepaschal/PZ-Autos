@@ -10,7 +10,7 @@ import { AdminTabBar } from '@/components/admin/AdminTabBar'
 // capable and statusBarStyle.
 export const metadata: Metadata = {
   manifest: '/manifest-admin.webmanifest',
-  appleWebApp: { capable: true, title: 'PZ Admin', statusBarStyle: 'black' },
+  appleWebApp: { capable: true, title: 'PZ Admin', statusBarStyle: 'default' },
 }
 
 // From md up every screen shares the always-dark header and a padded column.
