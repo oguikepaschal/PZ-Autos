@@ -6,8 +6,10 @@ import { cn } from '@/lib/utils'
 
 const ADVANCE_MS = 3800
 const TOUCH_HOLD_MS = 6000
-// Up to this many cars get dots; past it a "3 / 24" counter takes their place.
-const MAX_DOTS = 8
+// Up to this many cars get dots; past it a "3 / 24" counter takes their
+// place. Six 44px dots plus the 44px pause button is the most that fits a
+// 360px phone inside the page gutters.
+const MAX_DOTS = 6
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
 const PHONE = '(max-width: 47.99rem)'
@@ -152,7 +154,7 @@ export function CarRail({ labels, autoAdvance = false, children }: CarRailProps)
                 >
                   <span
                     className={cn(
-                      'block h-1.5 rounded-full transition-[width,background-color] duration-300',
+                      'block h-1.5 rounded-full transition-[width,background-color] duration-300 motion-reduce:transition-none',
                       i === index ? 'w-[22px] bg-ink' : 'w-1.5 bg-ink-3'
                     )}
                   />

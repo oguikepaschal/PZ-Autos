@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { StaleIndicator } from '@/components/admin/StaleIndicator'
@@ -85,10 +86,13 @@ function VerifiedAction({ car }: { car: RowCar }) {
 // The red switch is one of the few places signal red is allowed.
 export function FeaturedSwitch({ car, label }: { car: RowCar; label?: string }) {
   const { state, run, pending } = useInstantSave()
+  // The switch shows where it is going from the tap until the refreshed car
+  // arrives with that value (or the save fails), so it never flickers back.
+  const [target, setTarget] = useState<boolean | null>(null)
+  if (target !== null && (target === car.is_featured || state === 'error')) setTarget(null)
   const canFeature = ['available', 'reserved'].includes(car.status)
   const disabled = (!car.is_featured && !canFeature) || pending
-  // While the save is in flight the switch already shows where it is going.
-  const on = pending ? !car.is_featured : car.is_featured
+  const on = target ?? car.is_featured
 
   return (
     <div className="flex items-center gap-2">
@@ -99,13 +103,17 @@ export function FeaturedSwitch({ car, label }: { car: RowCar; label?: string }) 
         aria-checked={on}
         disabled={disabled}
         aria-label={label ?? (car.is_featured ? 'Remove from featured' : 'Add to featured')}
-        onClick={() => run(() => setCarFeatured(car.id, !car.is_featured))}
+        onClick={() => {
+          setTarget(!car.is_featured)
+          run(() => setCarFeatured(car.id, !car.is_featured))
+        }}
         className="inline-flex h-11 w-[52px] shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
       >
         <span
           className={cn(
-            'relative block h-[31px] w-[51px] rounded-full transition-colors duration-200',
-            on ? 'bg-signal-red' : 'bg-ink-3'
+            'relative block h-[31px] w-[51px] rounded-full transition-colors duration-200 motion-reduce:transition-none',
+            // The off track uses text-muted for 3:1 against the card.
+            on ? 'bg-signal-red' : 'bg-text-muted'
           )}
         >
           <span

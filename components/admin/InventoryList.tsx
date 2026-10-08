@@ -134,7 +134,11 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
                 )}
               >
                 {label}
-                <span className="font-medium opacity-70 tabular-nums">{counts[id]}</span>
+                {/* Tiers are recomputed on the client and can cross a 14- or 30-day
+                    boundary between the server render and hydration. */}
+                <span suppressHydrationWarning className="font-medium opacity-70 tabular-nums">
+                  {counts[id]}
+                </span>
               </span>
             </button>
           )

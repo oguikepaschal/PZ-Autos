@@ -25,8 +25,8 @@ export function ActionSheet({ open, onClose, title, children }: ActionSheetProps
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
-    if (open && !dialog.open) {
-      dialog.showModal()
+    if (open) {
+      if (!dialog.open) dialog.showModal()
       const frame = requestAnimationFrame(() => dialog.setAttribute('data-open', ''))
       return () => cancelAnimationFrame(frame)
     }
@@ -44,6 +44,11 @@ export function ActionSheet({ open, onClose, title, children }: ActionSheetProps
       onCancel={(e) => {
         e.preventDefault()
         onClose()
+      }}
+      // The browser can close a modal without a cancelable cancel (Android
+      // back with no recent user activation); keep the parent's state in step.
+      onClose={() => {
+        if (open) onClose()
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()

@@ -170,6 +170,12 @@
     backdrop-filter: none;
   }
 
+  /* Text contrast on dark glass depends on the backdrop filter; without it
+     the glass is a solid surface. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--surface);
+  }
+
   @media (prefers-contrast: more) {
     background: var(--surface);
     border-color: var(--ink);

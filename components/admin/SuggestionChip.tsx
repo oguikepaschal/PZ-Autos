@@ -25,9 +25,9 @@ export function SuggestionChip({ label, value, current, onAccept }: SuggestionCh
       onClick={() => onAccept(value)}
       aria-pressed={accepted}
       aria-label={`Use suggested ${label.toLowerCase()}: ${value}`}
-      className="flex h-11 items-center"
+      className="flex h-11 items-center transition-transform active:scale-[0.97]"
     >
-      <span className="flex h-10 items-center gap-1.5 rounded-full border border-hairline bg-surface px-3.5 font-body text-sm font-semibold text-ink transition-transform active:scale-[0.97]">
+      <span className="flex h-10 items-center gap-1.5 rounded-full border border-hairline bg-surface px-3.5 font-body text-sm font-semibold text-ink">
         {accepted ? (
           <Check size={14} strokeWidth={2.4} aria-hidden="true" />
         ) : (

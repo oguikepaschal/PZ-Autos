@@ -45,7 +45,12 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
     }
   }, [])
 
-  const closeViewer = useCallback(() => setViewerOpen(false), [])
+  // iOS doesn't focus a tapped button, so focus goes back to the main photo
+  // explicitly rather than to whatever the viewer found focused.
+  const closeViewer = useCallback(() => {
+    setViewerOpen(false)
+    mainRef.current?.focus({ preventScroll: true })
+  }, [])
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'ArrowLeft' && active > 0) {

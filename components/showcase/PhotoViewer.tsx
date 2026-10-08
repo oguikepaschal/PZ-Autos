@@ -77,6 +77,8 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
   const pushed = useRef(false)
   const resetAfterPage = useRef(false)
   const paging = useRef(false)
+  // The latest key handler, for the document listener the open effect adds.
+  const keyHandler = useRef<(e: KeyboardEvent) => void>(() => {})
   // Read once, at the tap that opened the viewer.
   const [origin] = useState(getOrigin)
 
@@ -103,7 +105,8 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
 
   const apply = useCallback(() => {
     const s = g.current
-    const transition = s.animate ? `transform ${DURATION}ms ${EASE}` : 'none'
+    // Reduced motion: snap-backs, zoom and paging settle instantly.
+    const transition = s.animate && !prefersReducedMotion() ? `transform ${DURATION}ms ${EASE}` : 'none'
     const h = window.innerHeight
     const dismissScale = 1 - Math.min(s.dismissY / h, 1) * 0.25
     if (trackRef.current) {
@@ -181,7 +184,12 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
     window.setTimeout(onClosed, DURATION)
   }, [apply, getOrigin, onClosed, onIndexChange, origin])
 
+  // Two close paths can fire before popstate arrives (a double tap on close,
+  // a swipe release and a tap); only the first may go back in history.
+  const closeRequested = useRef(false)
   const requestClose = useCallback(() => {
+    if (closeRequested.current) return
+    closeRequested.current = true
     if (pushed.current && window.history.state?.pzViewer) {
       window.history.back()
     } else {
@@ -244,6 +252,11 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
     }
     const onPopState = () => beginClose()
     window.addEventListener('popstate', onPopState)
+    // On document, not the dialog: a click on the photo or a nav button
+    // disabling itself at the last photo drops focus to body, and Escape and
+    // the arrows must keep working.
+    const onKeyDown = (e: KeyboardEvent) => keyHandler.current(e)
+    document.addEventListener('keydown', onKeyDown)
 
     const inerted: Element[] = []
     for (const child of Array.from(document.body.children)) {
@@ -285,6 +298,7 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
 
     return () => {
       window.removeEventListener('popstate', onPopState)
+      document.removeEventListener('keydown', onKeyDown)
       for (const el of inerted) el.removeAttribute('inert')
       previouslyFocused?.focus({ preventScroll: true })
     }
@@ -292,10 +306,7 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    // React events bubble out of a portal to the gallery; its arrow keys are
-    // for the page, not for this.
-    e.stopPropagation()
+  function handleKeyDown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       e.preventDefault()
       requestClose()
@@ -310,7 +321,10 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
       if (focusable.length === 0) return
       const first = focusable[0]!
       const lastEl = focusable[focusable.length - 1]!
-      if (e.shiftKey && document.activeElement === first) {
+      if (!rootRef.current?.contains(document.activeElement)) {
+        e.preventDefault()
+        first.focus()
+      } else if (e.shiftKey && document.activeElement === first) {
         e.preventDefault()
         lastEl.focus()
       } else if (!e.shiftKey && document.activeElement === lastEl) {
@@ -319,6 +333,10 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
       }
     }
   }
+
+  useEffect(() => {
+    keyHandler.current = handleKeyDown
+  })
 
   // --- Gestures ---
 
@@ -508,7 +526,9 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
       aria-modal="true"
       aria-label={`${carName} photos`}
       data-scroll-lock
-      onKeyDown={handleKeyDown}
+      // React key events bubble out of a portal to the gallery, whose arrow
+      // keys are for the page; the viewer's own keys run on document.
+      onKeyDown={(e) => e.stopPropagation()}
       className="scheme-dark fixed inset-0 z-[100] overflow-hidden text-ink"
     >
       <div ref={backdropRef} aria-hidden="true" className="absolute inset-0 bg-bg-base" />
@@ -555,7 +575,10 @@ export function PhotoViewer({ images, startIndex, carName, getOrigin, onIndexCha
 
       <div ref={chromeRef} className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-4 top-[calc(env(safe-area-inset-top)+8px)] flex items-center justify-between">
-          <p className="font-body text-[15px] font-semibold tabular-nums" aria-hidden="true">
+          <p
+            className="glass rounded-full px-3 py-1.5 font-body text-[15px] font-semibold tabular-nums"
+            aria-hidden="true"
+          >
             {index + 1} / {images.length}
           </p>
           <button
