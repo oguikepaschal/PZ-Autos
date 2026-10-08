@@ -109,6 +109,28 @@ html {
   text-size-adjust: 100%;
 }
 
+/* iOS Safari zooms the page when an input under 16px takes focus. Unlayered
+   on purpose: it beats any text-* utility on a form control, so no field can
+   drop below 16px by accident. The min-height is the 44px tap target. */
+input,
+select,
+textarea {
+  font-size: 1rem;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  min-height: 2.75rem;
+}
+
+/* Pull-to-refresh would reload a half-filled car form and strand its
+   uploaded photos. Forms opt in with data-lock-overscroll; the inventory
+   list keeps pull-to-refresh. */
+html:has([data-lock-overscroll]) {
+  overscroll-behavior-y: contain;
+}
+
 body {
   background: var(--bg-base);
   color: var(--body-text);

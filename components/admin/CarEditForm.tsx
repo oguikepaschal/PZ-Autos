@@ -196,7 +196,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
   const hasLegacyYear = !YEAR_OPTIONS.includes(car.year)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} data-lock-overscroll className="space-y-6 max-w-2xl">
       <Field label="Supplier">
         <SupplierPicker
           suppliers={suppliers}
@@ -224,7 +224,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
             value={year}
             onChange={(e) => setYear(e.target.value)}
             required
-            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
           >
             <option value="">Select year…</option>
             {hasLegacyYear && (
@@ -337,14 +337,14 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
           name="description"
           rows={4}
           defaultValue={car.description ?? ''}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         />
       </Field>
 
       <Field label="VIN (admin only)"><Input name="vin" defaultValue={car.vin ?? ''} /></Field>
 
       <details className="rounded-lg border border-hairline px-3 py-2" open={Boolean(car.registration_plate)}>
-        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer">
+        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer py-3.5">
           Registration plate (optional, admin only)
         </summary>
         <div className="mt-2">
@@ -357,7 +357,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
           name="acquisition_notes"
           rows={2}
           defaultValue={car.acquisition_notes ?? ''}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         />
       </Field>
 
@@ -365,7 +365,7 @@ export function CarEditForm({ car, images: initialImages, suppliers: initialSupp
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as Car['status'])}
-          className="border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+          className="border border-hairline rounded-lg px-3 py-2 font-body text-ink"
         >
           <option value="draft">Draft</option>
           <option value="available">Available</option>
@@ -402,7 +402,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-sm text-ink"
+      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
     />
   )
 }

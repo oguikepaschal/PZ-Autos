@@ -80,14 +80,14 @@ export default async function ArchivePage() {
                     <form action={updateCarStatus.bind(null, car.id, 'available', undefined)}>
                       <button
                         type="submit"
-                        className="font-body text-xs text-text-muted hover:text-ink underline"
+                        className="inline-flex min-h-11 items-center px-1 font-body text-xs text-text-muted hover:text-ink underline"
                       >
                         Restore
                       </button>
                     </form>
                     <Link
                       href={`/admin/inventory/${car.id}/edit`}
-                      className="font-body text-sm font-semibold text-ink hover:underline"
+                      className="inline-flex min-h-11 items-center px-2 font-body text-sm font-semibold text-ink hover:underline"
                     >
                       View
                     </Link>
