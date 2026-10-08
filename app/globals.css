@@ -109,19 +109,21 @@ html {
   text-size-adjust: 100%;
 }
 
-/* iOS Safari zooms the page when an input under 16px takes focus. Unlayered
-   on purpose: it beats any text-* utility on a form control, so no field can
-   drop below 16px by accident. The min-height is the 44px tap target. */
-input,
-select,
-textarea {
-  font-size: 1rem;
-}
+/* iOS Safari zooms the page when an input under 16px takes focus. In the base
+   layer so a utility can still override a control on purpose. The 44px
+   min-height is the tap target for text-entry controls only. */
+@layer base {
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
+  }
 
-input:not([type="checkbox"]):not([type="radio"]),
-select,
-textarea {
-  min-height: 2.75rem;
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+  select,
+  textarea {
+    min-height: 2.75rem;
+  }
 }
 
 /* Pull-to-refresh would reload a half-filled car form and strand its

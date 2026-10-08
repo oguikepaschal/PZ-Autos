@@ -1,7 +1,17 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Wordmark } from '@/components/theme/Logo'
 import { SignOutButton } from '@/components/admin/SignOutButton'
 import { AdminTabBar } from '@/components/admin/AdminTabBar'
+
+// The manifest lives in public/, outside /admin: the proxy redirects every
+// /admin/** request to /login when signed out, and a redirected manifest
+// breaks install. appleWebApp replaces the root's wholesale, so it repeats
+// capable and statusBarStyle.
+export const metadata: Metadata = {
+  manifest: '/manifest-admin.webmanifest',
+  appleWebApp: { capable: true, title: 'PZ Admin', statusBarStyle: 'black' },
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -34,8 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
       <div className="pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-        {/* Bottom padding clears the fixed tab bar below md. */}
-        <main className="mx-auto max-w-[1280px] px-4 md:px-8 pt-8 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8">
+        <main className="mx-auto max-w-[1280px] px-4 md:px-8 py-8">
           {children}
         </main>
       </div>
