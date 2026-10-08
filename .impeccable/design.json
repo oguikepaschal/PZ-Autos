@@ -1,67 +1,112 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T00:00:00Z",
+  "generatedAt": "2026-10-08T00:00:00Z",
   "title": "Design System: PZ Autos",
   "extensions": {
     "colorMeta": {
-      "ink": { "role": "primary", "displayName": "Ink", "canonical": "#141414" },
-      "signal-red": { "role": "secondary", "displayName": "Signal Red", "canonical": "#d0121b" },
-      "bg-base": { "role": "neutral", "displayName": "White", "canonical": "#ffffff" },
-      "body-text": { "role": "neutral", "displayName": "Body Text", "canonical": "#1b222c" },
-      "text-on-dark": { "role": "neutral", "displayName": "Text on Dark", "canonical": "#8b95a6" },
-      "text-muted": { "role": "neutral", "displayName": "Text Muted", "canonical": "#5b6470" },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e4e7ec" }
+      "bg-base": { "role": "neutral", "displayName": "Page Background", "canonical": "#F2F2F4", "dark": "#000000" },
+      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#FFFFFF", "dark": "#1C1C1E" },
+      "ink": { "role": "primary", "displayName": "Ink", "canonical": "#141414", "dark": "#F5F5F7" },
+      "text-muted": { "role": "neutral", "displayName": "Text Muted", "canonical": "#5B5B60", "dark": "#A1A1A6" },
+      "ink-3": { "role": "neutral", "displayName": "Ink 3 (glyphs only, never text)", "canonical": "#AEAEB2", "dark": "#636366" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "rgba(20,20,20,0.08)", "dark": "rgba(255,255,255,0.10)" },
+      "fill": { "role": "neutral", "displayName": "Fill", "canonical": "rgba(20,20,20,0.05)", "dark": "rgba(255,255,255,0.09)" },
+      "signal-red": { "role": "secondary", "displayName": "Signal Red", "canonical": "#D0121B", "dark": "#F0323A" },
+      "surface-dark": { "role": "neutral", "displayName": "Always-dark surface (header, footer, hero, Sold pill)", "canonical": "#141414", "dark": "#141414" },
+      "text-on-dark": { "role": "neutral", "displayName": "Text on Dark", "canonical": "#A1A1A6", "dark": "#A1A1A6" }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display (Archivo)", "purpose": "Wordmark and per-make styling only." },
-      "body": { "displayName": "Body (Barlow)", "purpose": "All running copy, labels, and controls." }
+      "display": { "displayName": "Display (Archivo)", "purpose": "Titles at 800 with -0.02em tracking; wordmark. Archivo 700 for emphasis.", "weights": [700, 800] },
+      "body": { "displayName": "Body (Barlow)", "purpose": "All running copy, labels, and controls. Inputs are always 16px or larger.", "weights": [400, 600] }
     },
     "motion": [
       { "name": "ease-standard", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "The only easing curve used anywhere in the UI, per CLAUDE.md Animation timing." },
-      { "name": "duration-default-max", "value": "300ms", "purpose": "Ceiling for all UI animation: hover, press, toggles, modals, menus, lists, navigation." },
+      { "name": "duration-default-max", "value": "300ms", "purpose": "Ceiling for all UI animation: hover, press, toggles, sheets, the photo viewer, lists, navigation. Reduced motion swaps movement for a short fade." },
       { "name": "duration-focal-entrance", "value": "500-800ms", "purpose": "Exception for a rare focal entrance on a marketing surface only (e.g. listing-page hero). Never on repeated interactions." }
-    ]
+    ],
+    "glass": {
+      "light": {
+        "background": "rgba(255,255,255,0.58)",
+        "border": "rgba(255,255,255,0.8)",
+        "shadow": "0 12px 32px rgba(20,20,20,0.16), inset 0 1px 0 rgba(255,255,255,0.9)"
+      },
+      "dark": {
+        "background": "rgba(44,44,46,0.55)",
+        "border": "rgba(255,255,255,0.14)",
+        "shadow": "0 12px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)"
+      },
+      "blur": "blur(24px) saturate(180%)",
+      "darkExtra": "brightness(0.75) on dark glass, so light text keeps 4.5:1 over white photos",
+      "reducedTransparency": "solid var(--surface), no blur",
+      "highContrast": "solid var(--surface) with a visible ink border",
+      "rule": "One .glass utility in app/globals.css is the only floating treatment."
+    },
+    "redRules": {
+      "allowedUses": [
+        "Active admin tab label and icon",
+        "Cover and featured stars",
+        "Featured switch (on track)",
+        "WhatsApp icon",
+        "INVENTORY kicker",
+        "Error icon and error text on the page background (never on a dark-mode card)"
+      ],
+      "primaryButtons": "Ink fill, never red.",
+      "budget": "Red stays at or under 5% of the visual weight of any screen."
+    }
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The site's one CTA treatment: signal red fill, used once per screen.",
-      "html": "<button class=\"ds-btn-primary\">Enquire</button>",
-      "css": ".ds-btn-primary { background: var(--color-signal-red); color: #ffffff; padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; transition: background 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-primary:hover, .ds-btn-primary:focus-visible { background: #a80e17; } .ds-btn-primary:disabled { opacity: 0.6; }"
+      "description": "Ink fill with inverse text, fully rounded. Ink, not red, in both themes.",
+      "html": "<button class=\"ds-btn-primary\">Post car</button>",
+      "css": ".ds-btn-primary { background: var(--ink); color: var(--ink-inverse); height: 52px; padding: 0 24px; border-radius: 9999px; font-weight: 700; border: none; transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:disabled { opacity: 0.6; }"
     },
     {
       "name": "Text Input",
       "kind": "input",
       "refersTo": "input-default",
-      "description": "The repeated form-field pattern used across every scanned admin and public form.",
-      "html": "<input class=\"ds-input\" type=\"text\" />",
-      "css": ".ds-input { border: 1px solid var(--color-hairline); border-radius: 8px; padding: 8px 12px; font-size: 0.875rem; color: var(--color-ink); background: var(--color-bg-base); } .ds-input:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 1px; }"
+      "description": "Grouped-row input: label left, 16px native control right, 52px row on a surface group. Standalone fields use a fill background.",
+      "html": "<label class=\"ds-row\"><span>Asking price</span><input class=\"ds-input\" type=\"number\" inputmode=\"numeric\" placeholder=\"₦ amount\" /></label>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 12px; min-height: 52px; margin-left: 16px; padding-right: 16px; border-top: 1px solid var(--hairline); } .ds-input { min-height: 0; flex: 1; min-width: 0; text-align: right; background: transparent; border: 0; outline: none; font: 400 16px/1.5 Barlow, sans-serif; color: var(--ink); } .ds-input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }"
+    },
+    {
+      "name": "Glass Control",
+      "kind": "control",
+      "refersTo": "glass-control",
+      "description": "A floating round control or pill: tab bar, form bars, photo buttons, WhatsApp pill. Always the .glass utility.",
+      "html": "<button class=\"glass ds-glass-btn\" aria-label=\"Back\">‹</button>",
+      "css": ".glass { background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); } .ds-glass-btn { width: 44px; height: 44px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; }"
     }
   ],
   "narrative": {
     "northStar": null,
-    "overview": "A functional car-dealership inventory site: ink-black type on a white base, with signal red reserved for exactly one call-to-action or accent per screen. The codebase enforces this itself in comments rejecting red fills at several call sites, and status badges deliberately never use red.",
+    "overview": "A phone-first car showcase and its admin app, styled after native iOS: a soft grey page, white cards, ink type and floating glass controls. The theme follows the system light or dark setting, with no toggle. Signal red is an accent with a fixed list of uses; status never reads as red.",
     "keyCharacteristics": [
-      "Two typefaces, one role each: Archivo for display/wordmark, Barlow for everything else.",
-      "One accent color (signal red), applied narrowly by convention.",
-      "Flat surfaces, hairline borders, rounded-lg as the default corner radius."
+      "Two typefaces, one role each: Archivo for display (800 titles, -0.02em tracking), Barlow for everything else.",
+      "One accent colour, signal red, limited to the uses in redRules.allowedUses.",
+      "Flat cards on a grey page; one glass treatment for everything that floats.",
+      "Always-dark surface (#141414 in both themes) for the public header, footer, landing hero and the Sold pill."
     ],
     "rules": [
-      { "name": "The One Accent Rule", "body": "Signal red is the only accent color and appears on at most one primary action or emphasis per screen. Status indicators never use it.", "section": "colors" },
-      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat. A shadow appears only on a floating/overlay element, never as general card or button styling.", "section": "elevation" }
+      { "name": "The Red Rule", "body": "Signal red appears only on the uses in extensions.redRules.allowedUses. Primary buttons are ink filled. Status indicators are never red. Red stays at or under 5% of the visual weight of any screen.", "section": "colors" },
+      { "name": "Red Text Placement", "body": "Red error text sits on the page background, where it keeps 4.5:1 in both themes. Inside a card, errors use ink text with a red icon, because dark-mode red on the dark card is under 4.5:1.", "section": "colors" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat. A shadow appears only on a floating/overlay element (glass controls, a dropdown panel, a sheet) or a toggle control, never as general card or button styling.", "section": "elevation" },
+      { "name": "Glass Fallbacks", "body": "Glass becomes a solid surface under prefers-reduced-transparency, and solid with an ink border under prefers-contrast: more.", "section": "elevation" }
     ],
     "dos": [
-      "Do reserve signal red (#d0121b) for one primary action or emphasis per screen.",
-      "Do use border-hairline for separation instead of shadows.",
-      "Do use rounded-lg as the default corner radius for buttons, inputs, and cards.",
-      "Do keep all UI animation at or under 300ms using cubic-bezier(0.23, 1, 0.32, 1); reserve 500-800ms only for a rare focal entrance on a marketing surface, never on hover, press, toggles, modals, menus, lists, or navigation."
+      "Do use the tokens in colorMeta, in both themes, and nothing else.",
+      "Do use the one .glass utility for anything that floats.",
+      "Do keep red to the uses in redRules.allowedUses.",
+      "Do keep every input at 16px or larger and every tap target at 44px or larger.",
+      "Do keep all UI animation at or under 300ms using cubic-bezier(0.23, 1, 0.32, 1)."
     ],
     "donts": [
-      "Don't use signal red for status indicators (Reserved/Sold) -- both use ink or muted text instead.",
+      "Don't use signal red for status indicators (Reserved/Sold), primary buttons, or red text on a dark-mode card.",
       "Don't introduce a third typeface; Archivo and Barlow cover every documented use.",
-      "Don't add shadows to cards or buttons as a default treatment; shadows are reserved for floating/overlay elements only."
+      "Don't add shadows to cards or buttons as a default treatment; shadows are reserved for floating/overlay elements only.",
+      "Don't use text-muted or ink-3 on glass; both fail 4.5:1 there."
     ]
   }
 }

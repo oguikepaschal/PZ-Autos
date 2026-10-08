@@ -12,10 +12,5 @@ export default async function NewCarPage() {
     .eq('is_active', true)
     .order('name')
 
-  return (
-    <div>
-      <h1 className="font-display font-black text-2xl text-ink mb-6">Add a car</h1>
-      <CarForm suppliers={(suppliers ?? []) as Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]} />
-    </div>
-  )
+  return <CarForm suppliers={(suppliers ?? []) as Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]} />
 }

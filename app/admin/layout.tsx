@@ -10,19 +10,22 @@ import { AdminTabBar } from '@/components/admin/AdminTabBar'
 // capable and statusBarStyle.
 export const metadata: Metadata = {
   manifest: '/manifest-admin.webmanifest',
-  appleWebApp: { capable: true, title: 'PZ Admin', statusBarStyle: 'black' },
+  appleWebApp: { capable: true, title: 'PZ Admin', statusBarStyle: 'default' },
 }
 
+// From md up every screen shares the always-dark header and a padded column.
+// Below md each screen draws its own top (a large title, a glass bar or a
+// full-bleed photo), so the shell adds no header and no padding there.
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-svh bg-bg-base">
-      <header className="sticky top-0 z-40 bg-ink pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-        <div className="mx-auto max-w-[1280px] px-4 md:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-svh bg-bg-base text-ink">
+      <header className="sticky top-0 z-40 hidden bg-surface-dark pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:block">
+        <div className="mx-auto max-w-[1280px] px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/admin" className="flex h-11 items-center">
               <Wordmark tone="light" />
             </Link>
-            <nav className="hidden md:flex items-center gap-6 font-body text-sm">
+            <nav className="flex items-center gap-6 font-body text-sm">
               <Link href="/admin" className="inline-flex min-h-11 items-center text-text-on-dark hover:text-white transition-colors">
                 Inventory
               </Link>
@@ -44,9 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
       <div className="pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
-        <main className="mx-auto max-w-[1280px] px-4 md:px-8 py-8">
-          {children}
-        </main>
+        <main className="mx-auto max-w-[1280px] md:px-8 md:py-8">{children}</main>
       </div>
       <AdminTabBar />
     </div>

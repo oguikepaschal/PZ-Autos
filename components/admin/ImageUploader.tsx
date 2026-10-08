@@ -1,9 +1,8 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Plus, X, Star } from 'lucide-react'
+import { AlertCircle, Plus, X, Star } from 'lucide-react'
 import { uploadCarImage, deleteCarImage } from '@/lib/supabase/storage'
-import { cn } from '@/lib/utils'
 
 export interface PendingImage {
   storagePath: string
@@ -68,66 +67,81 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
   }
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-3">
+    <section className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between px-1">
+        <h2 className="font-body text-[13px] font-semibold uppercase tracking-[0.06em] text-text-muted">Photos</h2>
+        {images.length > 0 && (
+          <span className="font-body text-[13px] text-text-muted">{images.length} selected</span>
+        )}
+      </div>
+      <ul className="grid grid-cols-3 gap-2">
         {images.map((image, index) => (
-          <div
-            key={image.storagePath}
-            className="relative w-24 h-24 rounded-lg overflow-hidden border border-hairline"
-          >
+          <li key={image.storagePath} className="relative aspect-square overflow-hidden rounded-[14px] bg-fill">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image.publicUrl} alt="" className="w-full h-full object-cover" />
-            <button
-              type="button"
-              onClick={() => handleSetCover(index)}
-              aria-label="Set as cover photo"
-              className="absolute top-0 left-0 flex size-11 items-center justify-center text-white"
-            >
-              {/* The 44px button is the hit area; the badge is the visual. */}
-              <span
-                className={cn(
-                  'rounded-full p-1',
-                  image.isCover ? 'bg-signal-red' : 'bg-black/50'
-                )}
-              >
-                <Star size={12} fill={image.isCover ? 'currentColor' : 'none'} />
-              </span>
-            </button>
+            <img src={image.publicUrl} alt={`Photo ${index + 1}`} className="size-full object-cover" />
+            {/* Each 44px button is the hit area; the glass circle is the visual. */}
             <button
               type="button"
               onClick={() => handleRemove(index)}
-              aria-label="Remove photo"
-              className="absolute top-0 right-0 flex size-11 items-center justify-center text-white"
+              aria-label={`Remove photo ${index + 1}`}
+              className="absolute top-0 left-0 flex size-11 items-center justify-center"
             >
-              <span className="rounded-full bg-black/50 p-1">
-                <X size={12} />
+              <span className="glass flex size-7 items-center justify-center rounded-full text-ink">
+                <X size={14} strokeWidth={2.2} aria-hidden="true" />
               </span>
             </button>
-          </div>
+            <button
+              type="button"
+              onClick={() => handleSetCover(index)}
+              aria-pressed={image.isCover}
+              aria-label={image.isCover ? `Photo ${index + 1} is the cover` : `Set photo ${index + 1} as cover`}
+              className="absolute top-0 right-0 flex size-11 items-center justify-center"
+            >
+              <span className="glass flex size-7 items-center justify-center rounded-full">
+                <Star
+                  size={15}
+                  strokeWidth={1.8}
+                  aria-hidden="true"
+                  className={image.isCover ? 'fill-signal-red text-signal-red' : 'text-ink'}
+                />
+              </span>
+            </button>
+            {image.isCover && (
+              <span className="glass absolute bottom-2 left-2 rounded-full px-2 py-0.5 font-body text-xs font-semibold text-ink">
+                Cover
+              </span>
+            )}
+          </li>
         ))}
-
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-          className="w-24 h-24 rounded-lg border border-dashed border-hairline flex items-center justify-center text-text-muted disabled:opacity-50"
-        >
-          {uploading ? '…' : <Plus size={20} />}
-        </button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={(e) => handleFiles(e.target.files)}
-        />
-      </div>
-      {error && <p className="font-body text-xs text-signal-red mt-2">{error}</p>}
-      <p className="font-body text-xs text-text-muted mt-2">
-        Tap the star to set the cover photo. Photos are compressed and stripped of location
-        metadata automatically.
+        <li>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-[14px] border-[1.5px] border-dashed border-ink-3 font-body text-[13px] font-semibold text-ink disabled:opacity-60"
+          >
+            <Plus size={22} strokeWidth={2} aria-hidden="true" />
+            {uploading ? 'Uploading…' : 'Add'}
+          </button>
+        </li>
+      </ul>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(e) => handleFiles(e.target.files)}
+      />
+      {error && (
+        <p role="alert" className="flex items-start gap-2 px-1 font-body text-[15px] font-semibold text-signal-red">
+          <AlertCircle size={18} aria-hidden="true" className="mt-0.5 shrink-0" />
+          {error}
+        </p>
+      )}
+      <p className="px-1 font-body text-[13px] leading-snug text-text-muted">
+        Tap a star to choose the cover. Photos are compressed and location data is removed on upload.
       </p>
-    </div>
+    </section>
   )
 }

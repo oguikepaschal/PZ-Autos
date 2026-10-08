@@ -7,8 +7,7 @@ import { updateCarStatus } from '../actions'
 export const dynamic = 'force-dynamic'
 
 // Both terminal statuses are archived, but shown with distinct treatment:
-// sold = revenue (green-adjacent ink emphasis), withdrawn = dead listing
-// (muted). Neither is ever red — status never is, per the brand rule.
+// sold = revenue (the always-dark pill), withdrawn = dead listing (muted). Neither is ever red — status never is, per the brand rule.
 export default async function ArchivePage() {
   const supabase = await createClient()
 
@@ -22,12 +21,14 @@ export default async function ArchivePage() {
   const typedCars = (cars ?? []) as unknown as CarWithSupplier[]
 
   return (
-    <div>
-      <h1 className="font-display font-black text-2xl text-ink mb-6">Archive</h1>
+    <div className="px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] md:p-0">
+      <h1 className="font-display font-extrabold text-[34px] leading-[1.05] tracking-display text-ink mb-6 md:text-2xl">
+        Archive
+      </h1>
 
-      <div className="border border-hairline rounded-xl overflow-hidden">
+      <div className="rounded-xl bg-surface overflow-x-auto">
         <table className="w-full text-left">
-          <thead className="bg-placeholder-b">
+          <thead className="bg-fill">
             <tr>
               <th className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3">
                 Car
@@ -57,7 +58,7 @@ export default async function ArchivePage() {
                   <span
                     className={
                       car.status === 'sold'
-                        ? 'inline-flex items-center rounded-full bg-ink text-white px-2.5 py-0.5 text-[10px] font-body font-semibold uppercase tracking-wide'
+                        ? 'inline-flex items-center rounded-full bg-surface-dark text-white px-2.5 py-0.5 text-[10px] font-body font-semibold uppercase tracking-wide'
                         : 'inline-flex items-center rounded-full border border-hairline text-text-muted px-2.5 py-0.5 text-[10px] font-body font-semibold uppercase tracking-wide'
                     }
                   >

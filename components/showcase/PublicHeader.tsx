@@ -12,7 +12,7 @@ interface PublicHeaderProps {
 
 export function PublicHeader({ showBackButton = false }: PublicHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 w-full bg-ink">
+    <header className="sticky top-0 z-50 w-full bg-surface-dark pt-[env(safe-area-inset-top)]">
       <div className="container-page h-header md:h-18 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           {showBackButton && (

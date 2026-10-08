@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import Image from 'next/image'
+import { Maximize2 } from 'lucide-react'
+import { PhotoViewer, type ViewerOrigin } from './PhotoViewer'
 import { cn } from '@/lib/utils'
 
 interface GalleryImage {
+  // The public URL of the stored file, the largest version there is.
   url: string
   sort_order: number
   is_cover: boolean
@@ -15,85 +18,121 @@ interface CarGalleryProps {
   carName: string
 }
 
+// The main photo (full width on phones, 4:3) with a thumbnail strip below.
+// A thumbnail makes its photo the main one; the main photo opens the
+// full-screen viewer, and when the viewer closes the main photo shows the
+// last photo viewed.
 export function CarGallery({ images, carName }: CarGalleryProps) {
   const ordered = [...images].sort((a, b) => {
     if (a.is_cover !== b.is_cover) return a.is_cover ? -1 : 1
     return a.sort_order - b.sort_order
   })
 
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [loaded, setLoaded] = useState(false)
+  const [active, setActive] = useState(0)
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const mainRef = useRef<HTMLButtonElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
 
-  function goTo(index: number) {
-    setLoaded(false)
-    setActiveIndex(index)
-  }
+  const getOrigin = useCallback((): ViewerOrigin | null => {
+    const button = mainRef.current
+    const img = imgRef.current
+    if (!button) return null
+    return {
+      rect: button.getBoundingClientRect(),
+      src: img?.currentSrc ?? '',
+      naturalWidth: img?.naturalWidth || 4,
+      naturalHeight: img?.naturalHeight || 3,
+    }
+  }, [])
+
+  // iOS doesn't focus a tapped button, so focus goes back to the main photo
+  // explicitly rather than to whatever the viewer found focused.
+  const closeViewer = useCallback(() => {
+    setViewerOpen(false)
+    mainRef.current?.focus({ preventScroll: true })
+  }, [])
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'ArrowLeft' && activeIndex > 0) {
+    if (e.key === 'ArrowLeft' && active > 0) {
       e.preventDefault()
-      goTo(activeIndex - 1)
-    } else if (e.key === 'ArrowRight' && activeIndex < ordered.length - 1) {
+      setActive(active - 1)
+    } else if (e.key === 'ArrowRight' && active < ordered.length - 1) {
       e.preventDefault()
-      goTo(activeIndex + 1)
+      setActive(active + 1)
     }
   }
 
   if (ordered.length === 0) {
     return (
-      <div className="relative w-full aspect-4/3 lg:aspect-16/10 rounded-lg overflow-hidden bg-surface flex items-center justify-center">
+      <div className="relative flex aspect-[4/3] w-full items-center justify-center bg-fill md:rounded-2xl lg:aspect-16/10">
         <span className="font-body text-small text-text-muted">Photo coming soon</span>
       </div>
     )
   }
 
+  const count = ordered.length
+
   return (
-    <div
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      aria-label={`${carName} photos. Use the left and right arrow keys to browse.`}
-      className="rounded-lg text-ink"
-    >
-      <div className="relative w-full aspect-4/3 lg:aspect-16/10 rounded-lg overflow-hidden bg-surface">
+    <div onKeyDown={handleKeyDown}>
+      <button
+        ref={mainRef}
+        type="button"
+        onClick={() => setViewerOpen(true)}
+        aria-label={`${carName}, photo ${active + 1} of ${count}. Open full screen`}
+        className="relative block aspect-[4/3] w-full cursor-zoom-in overflow-hidden bg-fill md:rounded-2xl lg:aspect-16/10"
+      >
         <Image
-          src={ordered[activeIndex]!.url}
-          alt={`${carName}, photo ${activeIndex + 1} of ${ordered.length}`}
+          ref={imgRef}
+          src={ordered[active]!.url}
+          alt=""
           fill
           quality={85}
           sizes="(max-width: 1024px) 100vw, 55vw"
           className="object-cover"
-          onLoad={() => setLoaded(true)}
-          style={{ opacity: loaded ? 1 : 0 }}
-          priority={activeIndex === 0}
+          // Hidden while the viewer is open: the viewer's copy is the photo
+          // that grows out of this spot and shrinks back into it.
+          style={{ opacity: viewerOpen ? 0 : 1 }}
+          priority={active === 0}
         />
-      </div>
+        <span className="glass absolute bottom-4 left-4 rounded-full px-2.5 py-1 font-body text-xs font-bold text-ink tabular-nums">
+          {active + 1} / {count}
+        </span>
+        <span className="glass absolute right-4 bottom-4 flex size-9 items-center justify-center rounded-full text-ink">
+          <Maximize2 size={16} strokeWidth={2} aria-hidden="true" />
+        </span>
+      </button>
 
-      {ordered.length > 1 && (
-        <div className="flex gap-2 mt-3 p-1 -m-1 overflow-x-auto overscroll-x-contain scrollbar-hide">
+      {count > 1 && (
+        <div className="mt-3 flex gap-2 overflow-x-auto overscroll-x-contain px-5 py-0.5 scrollbar-hide md:px-0.5">
           {ordered.map((image, i) => (
             <button
               key={`${image.url}-${i}`}
               type="button"
-              onClick={() => goTo(i)}
-              aria-label={`View photo ${i + 1}`}
-              aria-current={i === activeIndex}
+              onClick={() => setActive(i)}
+              aria-label={`Show photo ${i + 1}`}
+              aria-current={i === active ? 'true' : undefined}
               className={cn(
-                'relative shrink-0 w-18 h-14 rounded-lg overflow-hidden border-2 transition-colors',
-                i === activeIndex ? 'border-ink' : 'border-transparent'
+                'h-12 w-16 shrink-0 rounded-[10px] border-2 p-0.5 transition-colors',
+                i === active ? 'border-ink' : 'border-transparent'
               )}
             >
-              <Image
-                src={image.url}
-                alt=""
-                width={72}
-                height={56}
-                quality={70}
-                loading="lazy"
-                className="object-cover w-full h-full"
-              />
+              <span className="relative block size-full overflow-hidden rounded-[7px] bg-fill">
+                <Image src={image.url} alt="" fill sizes="64px" quality={70} className="object-cover" />
+              </span>
             </button>
           ))}
         </div>
+      )}
+
+      {viewerOpen && (
+        <PhotoViewer
+          images={ordered.map((image) => image.url)}
+          startIndex={active}
+          carName={carName}
+          getOrigin={getOrigin}
+          onIndexChange={setActive}
+          onClosed={closeViewer}
+        />
       )}
     </div>
   )

@@ -1,4 +1,4 @@
-import { formatMileage, toDisplayCase } from '@/lib/formatters'
+import { toDisplayCase } from '@/lib/formatters'
 import type { PublicCar } from '@/lib/showcase/types'
 
 interface SpecRow {
@@ -6,17 +6,15 @@ interface SpecRow {
   value: string | null
 }
 
+// Year, mileage, transmission and fuel type are the car page's spec tiles and
+// condition sits under the price, so this list carries the rest.
 function buildSpecRows(car: PublicCar): SpecRow[] {
   return [
-    { label: 'Mileage', value: formatMileage(car.mileage_km) },
-    { label: 'Transmission', value: toDisplayCase(car.transmission) || null },
-    { label: 'Fuel', value: toDisplayCase(car.fuel_type) || null },
     { label: 'Body type', value: toDisplayCase(car.body_type) || null },
     { label: 'Engine layout', value: car.engine_layout },
     { label: 'Drivetrain', value: toDisplayCase(car.drivetrain) || null },
     { label: 'Exterior', value: toDisplayCase(car.exterior_colour) || null },
     { label: 'Interior', value: toDisplayCase(car.interior_colour) || null },
-    { label: 'Condition', value: toDisplayCase(car.condition) || null },
     { label: 'Location', value: car.location_area },
   ].filter((row): row is SpecRow => Boolean(row.value))
 }

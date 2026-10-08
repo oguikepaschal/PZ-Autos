@@ -2,16 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Car, ClipboardList, Archive, Plus } from 'lucide-react'
+import { LayoutGrid, Archive, ExternalLink, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // Cars is the public showcase, a separate app outside the admin scope, so it
 // opens in its own context instead of replacing the admin app's window.
 const TABS = [
-  { href: '/admin', label: 'Inventory', Icon: ClipboardList, external: false },
-  { href: '/admin/inventory/new', label: 'Add', Icon: Plus, external: false },
+  { href: '/admin', label: 'Inventory', Icon: LayoutGrid, external: false },
   { href: '/admin/archive', label: 'Archive', Icon: Archive, external: false },
-  { href: '/cars', label: 'Cars', Icon: Car, external: true },
+  { href: '/cars', label: 'Cars', Icon: ExternalLink, external: true },
 ]
 
 // The add and edit forms hide the bar: it would ride above the on-screen
@@ -30,35 +29,42 @@ export function AdminTabBar() {
 
   return (
     <>
-      {/* In-flow spacer the height of the bar (h-14 + 1px border + inset), so
-          the last card is never under it. Renders on the same routes as the
-          bar, so the form routes get no dead space. */}
-      <div aria-hidden="true" className="h-[calc(3.5rem+1px+env(safe-area-inset-bottom))] md:hidden" />
+      {/* In-flow spacer: the bar's 62px, its 26px lift and a 16px gap, plus
+          the inset, so the last card is never under it. Renders on the same
+          routes as the bar, so the form routes get no dead space. */}
+      <div aria-hidden="true" className="h-[calc(104px+env(safe-area-inset-bottom))] md:hidden" />
       <nav
-      aria-label="Admin"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-white pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:hidden"
-    >
-      <ul className="grid grid-cols-4">
-        {TABS.map(({ href, label, Icon, external }) => {
-          const active = isActive(pathname, href)
-          return (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-current={active ? 'page' : undefined}
-                {...(external ? { target: '_blank', rel: 'noopener' } : {})}
-                className={cn(
-                  'flex h-14 flex-col items-center justify-center gap-0.5 font-body text-caption motion-safe:transition-colors',
-                  active ? 'font-semibold text-ink' : 'text-text-muted'
-                )}
-              >
-                <Icon size={20} aria-hidden="true" />
-                {label}
-              </Link>
-            </li>
-          )
-        })}
-      </ul>
+        aria-label="Admin"
+        className="fixed inset-x-0 bottom-[calc(26px+env(safe-area-inset-bottom))] z-40 flex items-center justify-center gap-3 pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:hidden"
+      >
+        <ul className="glass flex h-[62px] w-[262px] rounded-[31px] p-[5px]">
+          {TABS.map(({ href, label, Icon, external }) => {
+            const active = isActive(pathname, href)
+            return (
+              <li key={href} className="flex-1">
+                <Link
+                  href={href}
+                  aria-current={active ? 'page' : undefined}
+                  {...(external ? { target: '_blank', rel: 'noopener' } : {})}
+                  className={cn(
+                    'flex h-full flex-col items-center justify-center gap-0.5 rounded-[26px] font-body text-[11px] transition-transform active:scale-[0.97]',
+                    active ? 'bg-tab-highlight font-bold text-signal-red' : 'font-semibold text-ink'
+                  )}
+                >
+                  <Icon size={22} strokeWidth={active ? 2 : 1.8} aria-hidden="true" />
+                  {label}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+        <Link
+          href="/admin/inventory/new"
+          aria-label="Add car"
+          className="glass flex size-[62px] items-center justify-center rounded-full text-ink transition-transform active:scale-[0.97]"
+        >
+          <Plus size={26} strokeWidth={2} aria-hidden="true" />
+        </Link>
       </nav>
     </>
   )

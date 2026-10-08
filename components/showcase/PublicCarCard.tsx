@@ -1,85 +1,81 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { StatusBadge } from './StatusBadge'
+import { EnquireLink } from './WhatsAppButton'
 import { formatNGN, formatMileage, formatCarTitle, toDisplayCase } from '@/lib/formatters'
+import { generateCarEnquiryMessage } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import type { PublicCarCardData } from '@/lib/showcase/types'
 
 interface PublicCarCardProps {
   car: PublicCarCardData
+  // For the absolute car link inside the WhatsApp enquiry message.
+  siteOrigin: string
   // 'wide' is the single-featured-car layout: photo on one side, details on
   // the other from md up. It stacks like a normal card below md.
   layout?: 'card' | 'wide'
   sizes?: string
 }
 
+// The photo and the name each open the car's page; Enquire opens WhatsApp.
+// The photo link is a duplicate of the name link, so it stays out of the tab
+// order and the accessibility tree.
 export function PublicCarCard({
   car,
+  siteOrigin,
   layout = 'card',
-  sizes = '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 85vw',
+  sizes = '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 300px',
 }: PublicCarCardProps) {
   const title = formatCarTitle(car.make, car.model, car.year)
-  const specs = [
-    formatMileage(car.mileage_km),
-    toDisplayCase(car.transmission),
-    toDisplayCase(car.fuel_type),
-  ].filter(Boolean)
+  const href = `/cars/${car.slug}`
+  const price = formatNGN(car.asking_price_ngn)
+  const specs = [formatMileage(car.mileage_km), toDisplayCase(car.transmission), toDisplayCase(car.fuel_type)]
+    .filter(Boolean)
+    .join(' · ')
   const wide = layout === 'wide'
 
   return (
-    <Link
-      href={`/cars/${car.slug}`}
-      className={cn(
-        'group flex h-full flex-col overflow-hidden rounded-lg border border-hairline bg-bg-base text-ink',
-        'transition hover:border-text-muted active:scale-99',
-        wide && 'md:grid md:grid-cols-2'
-      )}
+    <article
+      className={cn('flex h-full flex-col overflow-hidden rounded-[22px] bg-surface text-ink', wide && 'md:grid md:grid-cols-2')}
     >
-      <div className="relative aspect-4/3 bg-surface">
+      <Link
+        href={href}
+        tabIndex={-1}
+        aria-hidden="true"
+        className={cn('relative block aspect-[10/7] bg-fill', wide && 'md:aspect-auto md:min-h-80')}
+      >
         {car.coverImageUrl ? (
-          <Image src={car.coverImageUrl} alt={title} fill sizes={sizes} className="object-cover" />
+          <Image src={car.coverImageUrl} alt="" fill sizes={sizes} className="object-cover" />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-body text-caption text-text-muted">Photo coming soon</span>
-          </div>
+          <span className="absolute inset-0 flex items-center justify-center font-body text-caption text-text-muted">
+            Photo coming soon
+          </span>
         )}
         {car.status !== 'available' && (
-          <div className="absolute top-3 left-3">
+          <span className="absolute top-3 left-3">
             <StatusBadge status={car.status} />
-          </div>
+          </span>
         )}
-      </div>
+      </Link>
 
-      <div className={cn('flex flex-1 flex-col p-4', wide && 'md:justify-center md:p-10')}>
-        <h3
-          className={cn(
-            'font-display font-bold tracking-display text-ink',
-            wide ? 'text-h3 md:text-h2' : 'text-body'
-          )}
-        >
-          {title}
+      <div className={cn('flex flex-1 flex-col px-4 pt-2 pb-1.5', wide && 'md:justify-center md:p-10')}>
+        <h3 className={cn('font-display font-bold tracking-[-0.01em]', wide ? 'text-h3 md:text-h2' : 'text-lg')}>
+          <Link href={href} className="inline-flex min-h-11 items-center">
+            {title}
+          </Link>
         </h3>
-        {specs.length > 0 && (
-          <ul className="mt-2 flex flex-wrap gap-2" aria-label="Key specs">
-            {specs.map((spec) => (
-              <li
-                key={spec}
-                className="rounded-sm bg-surface px-2 py-0.5 font-body text-caption text-text-muted"
-              >
-                {spec}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p
-          className={cn(
-            'mt-auto pt-4 font-body font-semibold text-h3 text-ink tabular-nums',
-            wide && 'md:mt-0 md:pt-6 md:text-h2'
+        {specs && <p className="font-body text-sm text-text-muted">{specs}</p>}
+        <div className="mt-auto flex items-center justify-between gap-3 pt-1.5">
+          <p className={cn('font-display text-lg font-bold tabular-nums', wide && 'md:text-h3')}>{price}</p>
+          {car.status !== 'sold' && (
+            <EnquireLink
+              carId={car.id}
+              carTitle={title}
+              message={generateCarEnquiryMessage(title, price, `${siteOrigin}${href}`)}
+            />
           )}
-        >
-          {formatNGN(car.asking_price_ngn)}
-        </p>
+        </div>
       </div>
-    </Link>
+    </article>
   )
 }

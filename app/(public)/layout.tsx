@@ -6,7 +6,7 @@ import { PublicFooter } from '@/components/showcase/PublicFooter'
 // landing page can offer the install too.
 export const metadata: Metadata = {
   manifest: '/manifest-cars.webmanifest',
-  appleWebApp: { capable: true, title: 'PZ Autos', statusBarStyle: 'black' },
+  appleWebApp: { capable: true, title: 'PZ Autos', statusBarStyle: 'default' },
 }
 
 // Each page renders its own <PublicHeader> (with or without the back

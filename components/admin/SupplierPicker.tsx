@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { AlertCircle, Plus } from 'lucide-react'
+import { Row, SelectRow, rowControlClass, rowSelectClass } from './FormRows'
 import { createClient } from '@/lib/supabase/client'
 import { normalizeNigerianPhone } from '@/lib/formatters'
 import type { Supplier } from '@/lib/supabase/types'
@@ -82,65 +84,72 @@ export function SupplierPicker({
     setPhone('')
   }
 
+  // Rows for the locked "Only you see this" group: the parent renders them
+  // straight into its RowGroup, so each one is a direct child of the group.
   if (creating) {
     return (
-      <div className="border border-hairline rounded-lg p-3 space-y-2">
-        <input
-          type="text"
-          placeholder="Supplier name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body"
-        />
-        <div className="flex gap-2">
+      <>
+        <Row label="New supplier">
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={rowControlClass}
+          />
+        </Row>
+        <SelectRow label="Type">
           <select
             value={type}
             onChange={(e) => setType(e.target.value as 'dealership' | 'individual')}
-            className="border border-hairline rounded-lg px-3 py-2 font-body"
+            className={rowSelectClass}
           >
             <option value="individual">Individual</option>
             <option value="dealership">Dealership</option>
           </select>
+        </SelectRow>
+        <Row label="Phone">
           <input
             type="tel"
-            placeholder="Phone (optional)"
+            inputMode="tel"
+            placeholder="Optional"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body"
+            className={rowControlClass}
           />
-        </div>
-        {error && <p className="font-body text-xs text-signal-red">{error}</p>}
-        <div className="flex gap-2">
+        </Row>
+        <div className="ml-4 flex min-h-[52px] flex-wrap items-center justify-end gap-2 border-t border-hairline py-1.5 pr-2">
+          {error && (
+            <p role="alert" className="mr-auto flex items-center gap-1.5 font-body text-sm text-ink">
+              <AlertCircle size={16} aria-hidden="true" className="shrink-0 text-signal-red" />
+              {error}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={() => setCreating(false)}
+            className="min-h-11 rounded-full px-4 font-body text-[15px] font-semibold text-ink active:bg-fill"
+          >
+            Cancel
+          </button>
           <button
             type="button"
             onClick={handleCreate}
             disabled={submitting}
-            className="min-h-11 rounded-lg bg-ink text-white font-body text-sm font-semibold px-4"
+            className="min-h-11 rounded-full bg-ink px-4 font-body text-[15px] font-semibold text-ink-inverse disabled:opacity-60"
           >
             {submitting ? 'Saving…' : 'Save supplier'}
           </button>
-          <button
-            type="button"
-            onClick={() => setCreating(false)}
-            className="min-h-11 px-3 font-body text-sm text-text-muted"
-          >
-            Cancel
-          </button>
         </div>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          required
-          className="flex-1 border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        >
-          <option value="">Select a supplier…</option>
+    <>
+      <SelectRow label="Supplier">
+        <select value={value} onChange={(e) => onChange(e.target.value)} required className={rowSelectClass}>
+          <option value="">Select</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name} ({s.supplier_type})
@@ -148,23 +157,26 @@ export function SupplierPicker({
           ))}
           <option value={CUSTOM_SUPPLIER}>Custom name (this car only)…</option>
         </select>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="min-h-11 rounded-lg border border-hairline font-body text-sm px-3 text-ink"
-        >
-          + New
-        </button>
-      </div>
+      </SelectRow>
       {value === CUSTOM_SUPPLIER && (
-        <input
-          type="text"
-          placeholder="Supplier name for this car"
-          value={customName}
-          onChange={(e) => onCustomNameChange(e.target.value)}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body"
-        />
+        <Row label="Supplier name">
+          <input
+            type="text"
+            placeholder="For this car only"
+            value={customName}
+            onChange={(e) => onCustomNameChange(e.target.value)}
+            className={rowControlClass}
+          />
+        </Row>
       )}
-    </div>
+      <button
+        type="button"
+        onClick={() => setCreating(true)}
+        className="ml-4 flex min-h-[52px] w-[calc(100%-1rem)] items-center gap-2 border-t border-hairline pr-4 text-left font-body text-base text-ink active:bg-fill"
+      >
+        <Plus size={18} strokeWidth={2.2} aria-hidden="true" />
+        Add a new supplier
+      </button>
+    </>
   )
 }

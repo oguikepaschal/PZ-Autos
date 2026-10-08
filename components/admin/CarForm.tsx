@@ -1,15 +1,28 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CUSTOM_SUPPLIER, SupplierPicker, createOneOffSupplier } from './SupplierPicker'
 import { ImageUploader, type PendingImage } from './ImageUploader'
 import { MakeModelFields } from './MakeModelFields'
 import { ConstrainedSelect } from './ConstrainedSelect'
 import { SuggestionChip } from './SuggestionChip'
-import { Field } from './FormField'
+import {
+  BottomBar,
+  FormError,
+  Row,
+  RowGroup,
+  SelectRow,
+  StackedRow,
+  bottomBarSpace,
+  primaryButtonClass,
+  rowControlClass,
+  rowSelectClass,
+  secondaryButtonClass,
+  stackedControlClass,
+} from './FormRows'
 import { createCarWithImages } from '@/lib/supabase/storage'
-import { createClient } from '@/lib/supabase/client'
 import { generateCarSlug } from '@/lib/slugify'
 import { buildCarFormSchema, formatCarFormErrors } from '@/lib/carFormSchema'
 import {
@@ -87,9 +100,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   // the FormData read did.
   const [exteriorColour, setExteriorColour] = useState('')
   const [interiorColour, setInteriorColour] = useState('')
-  const [status, setStatus] = useState<'draft' | 'available' | 'reserved'>('draft')
-  const [featureOnCreate, setFeatureOnCreate] = useState(false)
-  const canFeature = status !== 'draft'
+  // Which bottom-bar button is saving, for its label.
+  const [submitIntent, setSubmitIntent] = useState<'draft' | 'available' | null>(null)
 
   const [specSuggestions, setSpecSuggestions] = useState<SpecSuggestions>({})
   const [colourSuggestions, setColourSuggestions] = useState<ColourSuggestions>({})
@@ -190,6 +202,13 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
     e.preventDefault()
     setError(null)
 
+    // Save draft keeps the car private; Post car publishes it. Reserving and
+    // featuring happen from the edit screen once the car exists. Implicit
+    // submission (Enter in a field) uses the first button, Save draft, so it
+    // can never publish by accident.
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null
+    const status: 'draft' | 'available' = submitter?.value === 'available' ? 'available' : 'draft'
+
     const form = new FormData(e.currentTarget)
     const askingPrice = Number(form.get('asking_price_ngn'))
     const costPriceRaw = form.get('cost_price_ngn')
@@ -230,6 +249,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
     }
 
     setSubmitting(true)
+    setSubmitIntent(status)
 
     try {
       const slug = generateCarSlug(parsed.data.year, parsed.data.make, parsed.data.model)
@@ -237,7 +257,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       const resolvedSupplierId =
         supplierId === CUSTOM_SUPPLIER ? await createOneOffSupplier(customSupplierName) : supplierId
 
-      const carId = await createCarWithImages(
+      await createCarWithImages(
         folderId,
         {
           slug,
@@ -273,17 +293,6 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         }))
       )
 
-      if (featureOnCreate && canFeature) {
-        // The car row is already committed at this point — a failure here
-        // shouldn't undo the creation or block navigation, it just means
-        // the admin features it from /admin instead.
-        const { error: featureError } = await createClient().rpc('set_car_featured', {
-          p_car_id: carId,
-          p_featured: true,
-        })
-        if (featureError) console.error(featureError)
-      }
-
       router.push('/admin')
       router.refresh()
     } catch (err) {
@@ -291,225 +300,201 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       setError('Could not save this car. Nothing was created — check the fields and try again.')
     } finally {
       setSubmitting(false)
+      setSubmitIntent(null)
     }
   }
 
+  const suggestions = [
+    { label: 'Body', value: specSuggestions.body_type ?? null, current: bodyType, onAccept: setBodyType },
+    { label: 'Drivetrain', value: specSuggestions.drivetrain ?? null, current: drivetrain, onAccept: setDrivetrain },
+    { label: 'Engine', value: specSuggestions.engine_layout ?? null, current: engineLayout, onAccept: setEngineLayout },
+    {
+      label: 'Exterior',
+      value: colourSuggestions.exterior_colour ?? null,
+      current: exteriorColour,
+      onAccept: setExteriorColour,
+    },
+    {
+      label: 'Interior',
+      value: colourSuggestions.interior_colour ?? null,
+      current: interiorColour,
+      onAccept: setInteriorColour,
+    },
+  ].filter((s) => s.value)
+
   return (
-    <form onSubmit={handleSubmit} data-lock-overscroll className="space-y-6 max-w-2xl">
-      <Field label="Supplier">
-        <SupplierPicker
-          suppliers={suppliers}
-          value={supplierId}
-          onChange={setSupplierId}
-          onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
-          customName={customSupplierName}
-          onCustomNameChange={setCustomSupplierName}
-        />
-      </Field>
-
-      <Field label="Photos">
-        <ImageUploader folderId={folderId} images={images} onChange={setImages} />
-      </Field>
-
-      <div className="grid grid-cols-3 gap-3">
-        <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
-        <Field label="Year">
-          <select
-            name="year"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            required
-            className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-          >
-            <option value="">Select year…</option>
-            {YEAR_OPTIONS.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Asking price (₦)"><Input name="asking_price_ngn" type="number" min={1} required placeholder="e.g. ₦12,500,000" /></Field>
-        <Field label="Cost price (₦, admin only)"><Input name="cost_price_ngn" type="number" min={0} placeholder="e.g. ₦10,000,000" /></Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Body type">
-          <ConstrainedSelect
-            name="body_type"
-            options={BODY_TYPES}
-            value={bodyType}
-            onChange={setBodyType}
-            placeholder="Select body type…"
-          />
-          <SuggestionChip value={specSuggestions.body_type ?? null} onAccept={setBodyType} />
-        </Field>
-        <Field label="Condition">
-          <ConstrainedSelect
-            name="condition"
-            options={CONDITIONS}
-            value={condition}
-            onChange={setCondition}
-            placeholder="Select condition…"
-          />
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        <Field label="Transmission">
-          <ConstrainedSelect
-            name="transmission"
-            options={TRANSMISSIONS}
-            value={transmission}
-            onChange={setTransmission}
-            placeholder="Select transmission…"
-          />
-        </Field>
-        <Field label="Fuel type">
-          <ConstrainedSelect
-            name="fuel_type"
-            options={FUEL_TYPES}
-            value={fuelType}
-            onChange={setFuelType}
-            placeholder="Select fuel type…"
-          />
-        </Field>
-        <Field label="Mileage (km)"><Input name="mileage_km" type="number" min={0} placeholder="e.g. 50,000" /></Field>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        <Field label="Exterior colour">
-          <Input
-            name="exterior_colour"
-            placeholder="e.g. Beige"
-            value={exteriorColour}
-            onChange={(e) => setExteriorColour(e.target.value)}
-          />
-          <SuggestionChip
-            value={colourSuggestions.exterior_colour ?? null}
-            onAccept={setExteriorColour}
-          />
-        </Field>
-        <Field label="Interior colour">
-          <Input
-            name="interior_colour"
-            placeholder="e.g. White"
-            value={interiorColour}
-            onChange={(e) => setInteriorColour(e.target.value)}
-          />
-          <SuggestionChip
-            value={colourSuggestions.interior_colour ?? null}
-            onAccept={setInteriorColour}
-          />
-        </Field>
-        <Field label="Drivetrain">
-          <ConstrainedSelect
-            name="drivetrain"
-            options={DRIVETRAINS}
-            value={drivetrain}
-            onChange={setDrivetrain}
-            placeholder="Select drivetrain…"
-          />
-          <SuggestionChip value={specSuggestions.drivetrain ?? null} onAccept={setDrivetrain} />
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Engine layout">
-          <ConstrainedSelect
-            name="engine_layout"
-            options={ENGINE_LAYOUTS}
-            value={engineLayout}
-            onChange={setEngineLayout}
-            placeholder="Select engine layout…"
-          />
-          <SuggestionChip value={specSuggestions.engine_layout ?? null} onAccept={setEngineLayout} />
-        </Field>
-        <Field label="Location (LGA — never a street address)"><Input name="location_area" placeholder="Ikeja" /></Field>
-      </div>
-
-      <Field label="Key features (comma-separated)">
-        <Input name="key_features" placeholder="Reverse camera, Leather seats, Sunroof" />
-      </Field>
-
-      <Field label="Description">
-        <textarea
-          name="description"
-          rows={4}
-          placeholder="e.g. Clean, accident-free unit in beige with a white leather interior. 50,000 km on the clock, full service history, new tyres and cold AC. Duty fully paid."
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        />
-      </Field>
-
-      <Field label="VIN (admin only)"><Input name="vin" /></Field>
-
-      <details className="rounded-lg border border-hairline px-3 py-2">
-        <summary className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted cursor-pointer py-3.5">
-          Registration plate (optional, admin only)
-        </summary>
-        <div className="mt-2">
-          <Input name="registration_plate" />
+    <form onSubmit={handleSubmit} data-lock-overscroll className="md:max-w-2xl">
+      {/* Phone: a glass top bar. From md up the admin header is the top. */}
+      <header className="glass fixed inset-x-0 top-0 z-40 rounded-none border-x-0 border-t-0 pt-[env(safe-area-inset-top)] md:hidden">
+        <div className="flex h-[52px] items-center justify-between px-4">
+          <Link href="/admin" className="flex h-11 min-w-16 items-center font-body text-[17px] font-medium text-ink">
+            Cancel
+          </Link>
+          <h1 className="font-body text-[17px] font-bold text-ink">New car</h1>
+          <span className="min-w-16" aria-hidden="true" />
         </div>
-      </details>
+      </header>
 
-      <Field label="Acquisition notes (admin only)">
-        <textarea
-          name="acquisition_notes"
-          rows={2}
-          className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        />
-      </Field>
-
-      <Field label="Status">
-        <select
-          name="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as typeof status)}
-          className="border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-        >
-          <option value="draft">Draft (not public yet)</option>
-          <option value="available">Available</option>
-          <option value="reserved">Reserved</option>
-        </select>
-      </Field>
-
-      <label className="flex min-h-11 items-center gap-2 font-body text-sm text-ink">
-        <input
-          type="checkbox"
-          checked={featureOnCreate}
-          disabled={!canFeature}
-          onChange={(e) => setFeatureOnCreate(e.target.checked)}
-          className="disabled:opacity-40"
-        />
-        Feature on the homepage
-        {!canFeature && (
-          <span className="font-body text-xs text-text-muted">
-            (only available/reserved cars can be featured)
-          </span>
-        )}
-      </label>
-
-      {error && <p className="font-body text-sm text-signal-red">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-signal-red text-white font-body font-semibold text-sm px-6 py-3 disabled:opacity-60"
+      <div
+        className={`flex flex-col gap-[22px] px-4 pt-[calc(env(safe-area-inset-top)+68px)] md:px-0 md:pt-0 ${bottomBarSpace}`}
       >
-        {submitting ? 'Saving…' : 'Save car'}
-      </button>
-    </form>
-  )
-}
+        <h1 className="hidden font-display text-2xl font-extrabold tracking-display text-ink md:block">Add a car</h1>
 
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full border border-hairline rounded-lg px-3 py-2 font-body text-ink"
-    />
+        <ImageUploader folderId={folderId} images={images} onChange={setImages} />
+
+        {suggestions.length > 0 && (
+          <section className="flex flex-col gap-2">
+            <h2 className="px-1 font-body text-[13px] font-semibold uppercase tracking-[0.06em] text-text-muted">
+              Suggestions
+            </h2>
+            <div className="-my-0.5 flex flex-wrap gap-x-2">
+              {suggestions.map((s) => (
+                <SuggestionChip key={s.label} label={s.label} value={s.value} current={s.current} onAccept={s.onAccept} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <RowGroup title="Car">
+          <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
+          <SelectRow label="Year">
+            <select name="year" value={year} onChange={(e) => setYear(e.target.value)} required className={rowSelectClass}>
+              <option value="">Select</option>
+              {YEAR_OPTIONS.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </SelectRow>
+        </RowGroup>
+
+        <RowGroup title="Price">
+          <Row label="Asking price">
+            <input
+              name="asking_price_ngn"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              required
+              placeholder="₦ amount"
+              className={rowControlClass}
+            />
+          </Row>
+        </RowGroup>
+
+        <RowGroup title="Specs">
+          <SelectRow label="Body type">
+            <ConstrainedSelect name="body_type" options={BODY_TYPES} value={bodyType} onChange={setBodyType} placeholder="Select" />
+          </SelectRow>
+          <SelectRow label="Condition">
+            <ConstrainedSelect name="condition" options={CONDITIONS} value={condition} onChange={setCondition} placeholder="Select" />
+          </SelectRow>
+          <SelectRow label="Transmission">
+            <ConstrainedSelect
+              name="transmission"
+              options={TRANSMISSIONS}
+              value={transmission}
+              onChange={setTransmission}
+              placeholder="Select"
+            />
+          </SelectRow>
+          <SelectRow label="Fuel type">
+            <ConstrainedSelect name="fuel_type" options={FUEL_TYPES} value={fuelType} onChange={setFuelType} placeholder="Select" />
+          </SelectRow>
+          <Row label="Mileage">
+            <input name="mileage_km" type="number" inputMode="numeric" min={0} placeholder="km" className={rowControlClass} />
+          </Row>
+          <Row label="Exterior">
+            <input
+              name="exterior_colour"
+              placeholder="Colour"
+              value={exteriorColour}
+              onChange={(e) => setExteriorColour(e.target.value)}
+              className={rowControlClass}
+            />
+          </Row>
+          <Row label="Interior">
+            <input
+              name="interior_colour"
+              placeholder="Colour"
+              value={interiorColour}
+              onChange={(e) => setInteriorColour(e.target.value)}
+              className={rowControlClass}
+            />
+          </Row>
+          <SelectRow label="Drivetrain">
+            <ConstrainedSelect name="drivetrain" options={DRIVETRAINS} value={drivetrain} onChange={setDrivetrain} placeholder="Select" />
+          </SelectRow>
+          <SelectRow label="Engine layout">
+            <ConstrainedSelect
+              name="engine_layout"
+              options={ENGINE_LAYOUTS}
+              value={engineLayout}
+              onChange={setEngineLayout}
+              placeholder="Select"
+            />
+          </SelectRow>
+        </RowGroup>
+
+        <RowGroup title="Location">
+          <Row label="Area">
+            <input name="location_area" placeholder="LGA, never a street" className={rowControlClass} />
+          </Row>
+        </RowGroup>
+
+        <RowGroup title="Description">
+          <StackedRow label="Key features">
+            <input
+              name="key_features"
+              placeholder="Reverse camera, Leather seats, Sunroof"
+              className={stackedControlClass}
+            />
+          </StackedRow>
+          <StackedRow label="Description">
+            <textarea
+              name="description"
+              rows={4}
+              placeholder="Clean, accident-free unit. Full service history, new tyres and cold AC. Duty fully paid."
+              className={stackedControlClass}
+            />
+          </StackedRow>
+        </RowGroup>
+
+        <RowGroup title="Only you see this" locked footer="Supplier and cost price never appear on the public site.">
+          <SupplierPicker
+            suppliers={suppliers}
+            value={supplierId}
+            onChange={setSupplierId}
+            onSupplierCreated={(s) => setSuppliers((prev) => [...prev, s])}
+            customName={customSupplierName}
+            onCustomNameChange={setCustomSupplierName}
+          />
+          <Row label="Cost price">
+            <input name="cost_price_ngn" type="number" inputMode="numeric" min={0} placeholder="₦ amount" className={rowControlClass} />
+          </Row>
+          <Row label="VIN">
+            <input name="vin" autoCapitalize="characters" autoCorrect="off" className={rowControlClass} />
+          </Row>
+          <Row label="Plate">
+            <input name="registration_plate" autoCapitalize="characters" autoCorrect="off" placeholder="Optional" className={rowControlClass} />
+          </Row>
+          <StackedRow label="Acquisition notes">
+            <textarea name="acquisition_notes" rows={2} className={stackedControlClass} />
+          </StackedRow>
+        </RowGroup>
+
+        <FormError message={error} />
+      </div>
+
+      <BottomBar>
+        <button type="submit" value="draft" disabled={submitting} className={secondaryButtonClass}>
+          {submitIntent === 'draft' ? 'Saving…' : 'Save draft'}
+        </button>
+        <button type="submit" value="available" disabled={submitting} className={primaryButtonClass}>
+          {submitIntent === 'available' ? 'Posting…' : 'Post car'}
+        </button>
+      </BottomBar>
+    </form>
   )
 }
