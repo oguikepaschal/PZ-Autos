@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Wordmark } from '@/components/theme/Logo'
 import { SignOutButton } from '@/components/admin/SignOutButton'
 import { AdminTabBar } from '@/components/admin/AdminTabBar'
+import { CarDeletedNotice } from '@/components/admin/CarDeletedNotice'
 
 // The manifest lives in public/, outside /admin: the proxy redirects every
 // /admin/** request to /login when signed out, and a redirected manifest
@@ -50,6 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="mx-auto max-w-[1280px] md:px-8 md:py-8">{children}</main>
       </div>
       <AdminTabBar />
+      <CarDeletedNotice />
     </div>
   )
 }

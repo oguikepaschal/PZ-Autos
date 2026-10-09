@@ -165,7 +165,7 @@ export default async function AdminInventoryPage() {
                     <CarRowActions {...actionProps(row)} section="featured" />
                   </td>
                   <td className="px-4 py-2">
-                    <CarRowActions {...actionProps(row)} section="status" />
+                    <CarRowActions {...actionProps(row)} section="status" title={row.title} />
                   </td>
                 </tr>
               ))}

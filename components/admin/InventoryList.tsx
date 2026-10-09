@@ -227,6 +227,7 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
             featuredIndex={sheetRow.featuredIndex}
             featuredCount={featuredCount}
             section="status"
+            title={sheetRow.title}
             variant="sheet"
             onDone={() => setSheetOpen(false)}
           />

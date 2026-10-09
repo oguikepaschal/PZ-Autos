@@ -2,16 +2,20 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { StaleIndicator } from '@/components/admin/StaleIndicator'
 import { SaveStatus, useInstantSave } from '@/components/admin/useInstantSave'
 import { sheetRowClass } from '@/components/admin/ActionSheet'
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog'
+import { announceCarDeleted } from '@/components/admin/CarDeletedNotice'
 import {
   setCarFeatured,
   moveFeaturedUp,
   moveFeaturedDown,
   markVerified,
   updateCarStatus,
+  deleteCar,
 } from '@/app/admin/actions'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +34,9 @@ interface CarRowActionsProps {
   featuredIndex: number
   featuredCount: number
   section: 'verified' | 'featured' | 'status'
+  // "year make model", for the delete confirmation. The status section shows
+  // Delete only when it is given.
+  title?: string
   // 'sheet' renders the status actions as full-width rows for the phone's
   // More sheet; 'inline' is the desktop table cell.
   variant?: 'inline' | 'sheet'
@@ -188,7 +195,70 @@ export function RestoreAction({ carId }: { carId: string }) {
   )
 }
 
-function StatusActions({ car, hasPhoto, variant = 'inline', onDone }: CarRowActionsProps) {
+// Hard delete behind a confirmation. Withdraw is the way to hide a car and
+// keep its history, so the dialog points there.
+export function DeleteCarAction({
+  carId,
+  title,
+  className,
+  onDeleted,
+}: {
+  carId: string
+  title: string
+  className?: string
+  onDeleted?: () => void
+}) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [phase, setPhase] = useState<'idle' | 'deleting' | 'error'>('idle')
+
+  async function confirm() {
+    setPhase('deleting')
+    try {
+      const result = await deleteCar(carId)
+      if (!result.ok) {
+        setPhase('error')
+        return
+      }
+    } catch {
+      setPhase('error')
+      return
+    }
+    setOpen(false)
+    setPhase('idle')
+    announceCarDeleted()
+    onDeleted?.()
+    router.refresh()
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          setPhase('idle')
+          setOpen(true)
+        }}
+        className={className}
+      >
+        Delete
+      </button>
+      <ConfirmDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={confirm}
+        title={`Delete ${title}?`}
+        description="This removes the car, its photos and its tap history. This can't be undone."
+        hint="To hide it but keep its history, use Withdraw."
+        confirmLabel="Delete"
+        pending={phase === 'deleting'}
+        error={phase === 'error' ? "Couldn't delete this car. Try again." : null}
+      />
+    </>
+  )
+}
+
+function StatusActions({ car, hasPhoto, title, variant = 'inline', onDone }: CarRowActionsProps) {
   const { state, run, pending } = useInstantSave()
   const sheet = variant === 'sheet'
   const editHref = `/admin/inventory/${car.id}/edit`
@@ -229,6 +299,16 @@ function StatusActions({ car, hasPhoto, variant = 'inline', onDone }: CarRowActi
             Add a photo to publish
           </Link>
         )}
+        {title && (
+          <div className="border-t-[6px] border-fill">
+            <DeleteCarAction
+              carId={car.id}
+              title={title}
+              onDeleted={onDone}
+              className={cn(sheetRowClass, 'font-semibold text-signal-red')}
+            />
+          </div>
+        )}
         <div
           className={
             state === 'error' ? 'flex min-h-11 items-center justify-center border-t border-hairline' : 'sr-only'
@@ -255,6 +335,9 @@ function StatusActions({ car, hasPhoto, variant = 'inline', onDone }: CarRowActi
       >
         Edit
       </Link>
+      {title && (
+        <DeleteCarAction carId={car.id} title={title} className={cn(inlineLinkClass, 'text-signal-red no-underline')} />
+      )}
     </div>
   )
 }

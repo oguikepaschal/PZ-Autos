@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNGN, formatCarTitle, formatDate } from '@/lib/formatters'
 import type { CarWithSupplier } from '@/lib/supabase/types'
-import { RestoreAction } from '@/components/admin/CarRowActions'
+import { DeleteCarAction, RestoreAction } from '@/components/admin/CarRowActions'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,6 +83,11 @@ export default async function ArchivePage() {
                     >
                       View
                     </Link>
+                    <DeleteCarAction
+                      carId={car.id}
+                      title={formatCarTitle(car)}
+                      className="inline-flex min-h-11 items-center px-1 font-body text-sm text-signal-red"
+                    />
                   </div>
                 </td>
               </tr>
