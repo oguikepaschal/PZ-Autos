@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { AlertCircle, Plus, X, Star } from 'lucide-react'
-import { uploadCarImage, deleteCarImage } from '@/lib/supabase/storage'
+import { uploadCarImage, deleteCarImage, PhotoProcessingError } from '@/lib/supabase/storage'
 
 export interface PendingImage {
   storagePath: string
@@ -16,6 +16,14 @@ interface ImageUploaderProps {
   onChange: (images: PendingImage[]) => void
 }
 
+function processingMessage(positions: number[]): string {
+  if (positions.length === 1) {
+    return `Photo ${positions[0]} could not be processed. Try that photo again or export it as JPEG.`
+  }
+  const list = `${positions.slice(0, -1).join(', ')} and ${positions[positions.length - 1]}`
+  return `Photos ${list} could not be processed. Try those photos again or export them as JPEG.`
+}
+
 export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -26,26 +34,40 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
     setUploading(true)
     setError(null)
 
-    try {
-      const uploaded: PendingImage[] = []
-      for (const file of Array.from(files)) {
+    // Each photo is handled on its own so one bad photo never blocks the
+    // rest. Failed photos are reported by position in the selection — iOS
+    // often renames picked photos to a generic name, so filenames don't help.
+    const uploaded: PendingImage[] = []
+    const unprocessable: number[] = []
+    let uploadFailed = false
+    const selected = Array.from(files)
+    for (const [index, file] of selected.entries()) {
+      try {
         const { storagePath, publicUrl } = await uploadCarImage(folderId, file)
         uploaded.push({ storagePath, publicUrl, isCover: false })
+      } catch (err) {
+        if (err instanceof PhotoProcessingError) unprocessable.push(index + 1)
+        else uploadFailed = true
       }
+    }
 
+    if (uploaded.length > 0) {
       const next = [...images, ...uploaded]
       // First photo ever uploaded defaults to cover so a car is never left
       // without one.
-      if (!next.some((img) => img.isCover) && next.length > 0) {
+      if (!next.some((img) => img.isCover)) {
         next[0] = { ...next[0]!, isCover: true }
       }
       onChange(next)
-    } catch {
-      setError('Some photos failed to upload. Try again.')
-    } finally {
-      setUploading(false)
-      if (inputRef.current) inputRef.current.value = ''
     }
+
+    const messages: string[] = []
+    if (unprocessable.length > 0) messages.push(processingMessage(unprocessable))
+    if (uploadFailed) messages.push('Some photos failed to upload. Try again.')
+    setError(messages.length > 0 ? messages.join(' ') : null)
+
+    setUploading(false)
+    if (inputRef.current) inputRef.current.value = ''
   }
 
   async function handleRemove(index: number) {
