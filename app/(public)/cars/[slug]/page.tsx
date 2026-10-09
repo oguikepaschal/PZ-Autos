@@ -119,7 +119,6 @@ export default async function CarDetailPage({ params }: PageProps) {
 
           {canEnquire && (
             <WhatsAppButton
-              carId={car.id}
               label="WhatsApp about this car"
               message={generateCarEnquiryMessage(title, formatNGN(car.asking_price_ngn), pageUrl)}
             />
