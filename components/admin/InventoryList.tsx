@@ -20,7 +20,7 @@ export interface InventoryRow {
   }
   title: string
   price: number
-  whatsappTaps: number
+  cardTaps: number
   thumbUrl: string | null
   hasPhoto: boolean
   featuredIndex: number
@@ -179,7 +179,7 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
                       {STATUS_LABEL[row.car.status] ?? row.car.status}
                     </span>
                     <span className="tabular-nums">
-                      {row.whatsappTaps} WhatsApp {row.whatsappTaps === 1 ? 'tap' : 'taps'}
+                      {row.cardTaps} card {row.cardTaps === 1 ? 'tap' : 'taps'}
                     </span>
                     {row.car.is_featured && <span>Featured #{row.featuredIndex + 1}</span>}
                   </span>

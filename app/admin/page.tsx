@@ -19,7 +19,7 @@ export default async function AdminInventoryPage() {
   const { data: cars, error } = await supabase
     .from('cars')
     .select(
-      '*, supplier:suppliers(id, name, supplier_type), whatsapp_clicks(count), car_images(storage_path, is_cover)'
+      '*, supplier:suppliers(id, name, supplier_type), card_taps(count), car_images(storage_path, is_cover)'
     )
     .in('status', ['draft', 'available', 'reserved'])
     .order('is_featured', { ascending: false })
@@ -42,7 +42,7 @@ export default async function AdminInventoryPage() {
       featuredIndex: car.is_featured ? featuredIds.indexOf(car.id) : -1,
       hasPhoto: car.car_images.length > 0,
       thumbUrl: cover ? getCarImagePublicUrl(cover.storage_path) : null,
-      whatsappTaps: car.whatsapp_clicks[0]?.count ?? 0,
+      cardTaps: car.card_taps[0]?.count ?? 0,
     }
   })
   const actionCar = (car: AdminListCar) => ({
@@ -63,7 +63,7 @@ export default async function AdminInventoryPage() {
     car: actionCar(row.car),
     title: row.title,
     price: row.car.asking_price_ngn,
-    whatsappTaps: row.whatsappTaps,
+    cardTaps: row.cardTaps,
     thumbUrl: row.thumbUrl,
     hasPhoto: row.hasPhoto,
     featuredIndex: row.featuredIndex,
@@ -135,7 +135,7 @@ export default async function AdminInventoryPage() {
           <table className="w-full text-left">
             <thead className="bg-fill">
               <tr>
-                {['Car', 'Supplier', 'Status', 'Price', 'WhatsApp taps', 'Verified', 'Featured'].map((heading) => (
+                {['Car', 'Supplier', 'Status', 'Price', 'Card taps', 'Verified', 'Featured'].map((heading) => (
                   <th
                     key={heading}
                     className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3"
@@ -157,7 +157,7 @@ export default async function AdminInventoryPage() {
                   <td className="px-4 py-2 font-body text-sm text-ink tabular-nums">
                     {formatNGN(row.car.asking_price_ngn)}
                   </td>
-                  <td className="px-4 py-2 font-body text-sm text-ink tabular-nums">{row.whatsappTaps}</td>
+                  <td className="px-4 py-2 font-body text-sm text-ink tabular-nums">{row.cardTaps}</td>
                   <td className="px-4 py-2">
                     <CarRowActions {...actionProps(row)} section="verified" />
                   </td>

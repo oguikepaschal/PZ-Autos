@@ -66,6 +66,46 @@ export type Database = {
           },
         ]
       }
+      card_taps: {
+        Row: {
+          car_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_taps_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_taps_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "public_cars_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_taps_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "public_featured_cars_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cars: {
         Row: {
           acquisition_notes: string | null

@@ -17,7 +17,7 @@ export type Car = Omit<Tables<'cars'>, 'status'> & { status: CarStatus }
 export interface CarWithSupplier extends Car {
   supplier: Pick<Supplier, 'id' | 'name' | 'supplier_type'>
   // PostgREST relation count: one row holding the number of taps.
-  whatsapp_clicks: { count: number }[]
+  card_taps: { count: number }[]
 }
 
 export type CarImage = Tables<'car_images'>

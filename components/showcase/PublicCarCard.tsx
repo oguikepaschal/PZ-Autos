@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import Image from 'next/image'
+import { CarCardLink } from './CarCardLink'
 import { StatusBadge } from './StatusBadge'
 import { EnquireLink } from './WhatsAppButton'
 import { formatNGN, formatMileage, formatCarTitle, toDisplayCase } from '@/lib/formatters'
@@ -38,7 +38,8 @@ export function PublicCarCard({
     <article
       className={cn('flex h-full flex-col overflow-hidden rounded-[22px] bg-surface text-ink', wide && 'md:grid md:grid-cols-2')}
     >
-      <Link
+      <CarCardLink
+        carId={car.id}
         href={href}
         tabIndex={-1}
         aria-hidden="true"
@@ -56,13 +57,13 @@ export function PublicCarCard({
             <StatusBadge status={car.status} />
           </span>
         )}
-      </Link>
+      </CarCardLink>
 
       <div className={cn('flex flex-1 flex-col px-4 pt-2 pb-1.5', wide && 'md:justify-center md:p-10')}>
         <h3 className={cn('font-display font-bold tracking-[-0.01em]', wide ? 'text-h3 md:text-h2' : 'text-lg')}>
-          <Link href={href} className="inline-flex min-h-11 items-center">
+          <CarCardLink carId={car.id} href={href} className="inline-flex min-h-11 items-center">
             {title}
-          </Link>
+          </CarCardLink>
         </h3>
         {specs && <p className="font-body text-sm text-text-muted">{specs}</p>}
         <div className="mt-auto flex items-center justify-between gap-3 pt-1.5">
