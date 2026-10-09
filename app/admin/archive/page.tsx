@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatNGN, formatCarTitle, formatDate } from '@/lib/formatters'
 import type { CarWithSupplier } from '@/lib/supabase/types'
-import { updateCarStatus } from '../actions'
+import { RestoreAction } from '@/components/admin/CarRowActions'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,16 +76,7 @@ export default async function ArchivePage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-3 whitespace-nowrap">
-                    {/* The explicit undefined fills archiveReason so the form's
-                        FormData argument lands past it instead of in it. */}
-                    <form action={updateCarStatus.bind(null, car.id, 'available', undefined)}>
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-11 items-center px-1 font-body text-xs text-text-muted hover:text-ink underline"
-                      >
-                        Restore
-                      </button>
-                    </form>
+                    <RestoreAction carId={car.id} />
                     <Link
                       href={`/admin/inventory/${car.id}/edit`}
                       className="inline-flex min-h-11 items-center px-2 font-body text-sm font-semibold text-ink hover:underline"

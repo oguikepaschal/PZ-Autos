@@ -5,6 +5,10 @@ import compressImage from 'browser-image-compression'
 const BUCKET = 'car-images'
 const MAX_SIZE_MB = 1.5
 const MAX_WIDTH_PX = 1920
+const JPEG_TYPE = 'image/jpeg'
+// Must match the car-images bucket file_size_limit (see the
+// car_images_bucket_jpeg_only migration).
+const MAX_UPLOAD_BYTES = 2097152
 
 // Photos are taken on a supplier's premises — an embedded geotag or other
 // EXIF resolves to their address regardless of what the database returns.
@@ -17,6 +21,21 @@ const COMPRESSION_OPTIONS = {
   maxSizeMB: MAX_SIZE_MB,
   maxWidthOrHeight: MAX_WIDTH_PX,
   useWebWorker: true,
+  fileType: JPEG_TYPE,
+}
+
+const HEIC_BRANDS = new Set(['heic', 'heix', 'mif1'])
+
+const PHOTO_PROCESSING_MESSAGE =
+  'This photo could not be processed. Try another photo or export it as JPEG.'
+
+// Thrown when a photo cannot be turned into a compressed JPEG. Callers skip
+// that photo; nothing is stored for it.
+export class PhotoProcessingError extends Error {
+  constructor() {
+    super(PHOTO_PROCESSING_MESSAGE)
+    this.name = 'PhotoProcessingError'
+  }
 }
 
 export interface UploadedCarImage {
@@ -24,26 +43,76 @@ export interface UploadedCarImage {
   publicUrl: string
 }
 
+// iOS sometimes reports an empty or generic type for HEIC, so the MIME type
+// alone isn't enough: also check the extension and the ISO-BMFF `ftyp` header
+// (bytes 4-8 are "ftyp", bytes 8-12 the major brand).
+async function isHeicFile(file: File): Promise<boolean> {
+  if (/^image\/hei[cf]$/i.test(file.type)) return true
+  if (/\.hei[cf]$/i.test(file.name)) return true
+  try {
+    const header = new Uint8Array(await file.slice(0, 12).arrayBuffer())
+    const ascii = (from: number, to: number) => String.fromCharCode(...header.slice(from, to))
+    return ascii(4, 8) === 'ftyp' && HEIC_BRANDS.has(ascii(8, 12))
+  } catch {
+    return false
+  }
+}
+
+async function compressToJpeg(file: File): Promise<File> {
+  const compressed = await compressImage(file, COMPRESSION_OPTIONS)
+  // A browser that can't encode the requested type silently falls back to
+  // PNG, so the output is checked rather than assumed.
+  if (compressed.type !== JPEG_TYPE) throw new Error(`Unexpected output type: ${compressed.type}`)
+  return compressed
+}
+
+// Only a successfully compressed JPEG is ever returned — there is no
+// fall-back to the original file. Safari can usually decode HEIC natively, so
+// plain compression is tried first; other browsers get a HEIC -> JPEG
+// conversion first, with the decoder loaded only at that moment. The fallback
+// is for decode failures only: the size check runs once, on the final JPEG,
+// so an oversized photo is rejected without ever loading the decoder.
+async function processPhoto(file: File): Promise<File> {
+  let jpeg: File
+  try {
+    jpeg = await compressToJpeg(file)
+  } catch (compressionError) {
+    if (!(await isHeicFile(file))) {
+      console.warn('Image compression failed:', compressionError)
+      throw new PhotoProcessingError()
+    }
+    try {
+      const { heicTo } = await import('heic-to')
+      const converted = await heicTo({ blob: file, type: JPEG_TYPE })
+      jpeg = await compressToJpeg(new File([converted], 'photo.jpg', { type: JPEG_TYPE }))
+    } catch (conversionError) {
+      console.warn('HEIC conversion failed:', conversionError)
+      throw new PhotoProcessingError()
+    }
+  }
+
+  // Compression gives up after a few passes; a photo still over the bucket
+  // limit would only fail at upload with a generic error, so it's rejected here.
+  if (jpeg.size > MAX_UPLOAD_BYTES) {
+    console.warn(`Compressed photo too large: ${jpeg.size} bytes`)
+    throw new PhotoProcessingError()
+  }
+  return jpeg
+}
+
 // `folderId` namespaces the Storage path and isn't required to be a real
 // car id — the admin "Add car" flow uploads photos before the car row
 // exists, so it passes a temporary id (crypto.randomUUID()) per draft. The
 // path is never derived from the supplier or file name — see the schema
-// migration's note on why (a filename can itself be identifying).
+// migration's note on why (a filename can itself be identifying). The
+// extension and content type describe the compressed output, not the input.
 export async function uploadCarImage(folderId: string, file: File): Promise<UploadedCarImage> {
-  let compressed: File = file
-  try {
-    compressed = await compressImage(file, COMPRESSION_OPTIONS)
-  } catch (compressionError) {
-    console.warn('Image compression failed, uploading original file:', compressionError)
-  }
-
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-  const storagePath = `${folderId}/${crypto.randomUUID()}.${ext}`
-  const contentType = compressed.type || file.type || 'image/jpeg'
+  const jpeg = await processPhoto(file)
+  const storagePath = `${folderId}/${crypto.randomUUID()}.jpg`
 
   const supabase = createClient()
-  const { error } = await supabase.storage.from(BUCKET).upload(storagePath, compressed, {
-    contentType,
+  const { error } = await supabase.storage.from(BUCKET).upload(storagePath, jpeg, {
+    contentType: JPEG_TYPE,
     upsert: false,
   })
 
