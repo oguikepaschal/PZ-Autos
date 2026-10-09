@@ -31,7 +31,7 @@ interface WhatsAppButtonProps {
   // Present on a car's page: the tap is recorded against that car.
   carId?: string
   // 'inline' drops into the page flow from md up (a car's page); 'hidden'
-  // hides it there, where the footer already carries the WhatsApp action.
+  // hides it there, for a page whose own content already carries the action.
   desktop?: 'inline' | 'hidden'
 }
 

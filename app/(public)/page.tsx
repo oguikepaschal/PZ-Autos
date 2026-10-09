@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicCarCard } from '@/components/showcase/PublicCarCard'
 import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
+import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
 import { getFeaturedCars } from '@/lib/showcase/queries'
 import { generateWhatsAppLink, getOwnerPhone } from '@/lib/whatsapp'
 import { getSiteOrigin } from '@/lib/siteOrigin'
@@ -13,7 +14,7 @@ const OWNER_PHONE = getOwnerPhone()
 export const metadata: Metadata = {
   // absolute: this page now sits under the (public) group, so the root
   // layout's "%s | Pazogu Automobiles" template would otherwise apply twice.
-  title: { absolute: 'Pazogu Automobiles | Verified cars, direct from the owner' },
+  title: { absolute: 'Pazogu Automobiles | Verified cars, direct on WhatsApp' },
 }
 
 export const revalidate = 0
@@ -55,7 +56,7 @@ export default async function LandingPage() {
             </h1>
             <p className="mt-6 max-w-measure font-body text-lead text-white md:text-text-on-dark">
               Sourced from vetted dealerships and individuals across Lagos, checked before
-              listing and re-confirmed regularly. You talk to the owner directly on WhatsApp,
+              listing and re-confirmed regularly. You talk to us directly on WhatsApp,
               not a call centre.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -86,7 +87,7 @@ export default async function LandingPage() {
         <section className="container-page py-section">
           <div className="mb-8 flex items-end justify-between gap-4">
             <h2 className="font-display font-extrabold text-h2 tracking-display text-ink">
-              Handpicked by the owner
+              Handpicked and inspected
             </h2>
             <Link
               href="/cars"
@@ -124,6 +125,8 @@ export default async function LandingPage() {
           </Link>
         </section>
       )}
+
+      <WhatsAppButton message="Hi, I'd like to talk to you about a car." label="Chat on WhatsApp" desktop="hidden" />
     </>
   )
 }

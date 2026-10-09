@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: '%s | Pazogu Automobiles',
   },
   description:
-    'Verified cars sourced from vetted dealerships and individuals across Lagos, with direct WhatsApp access to the owner.',
+    'Verified cars sourced from vetted dealerships and individuals across Lagos, with direct WhatsApp access.',
   icons: {
     // No media query = default/fallback, also matches light mode explicitly.
     // Dark-mode browsers (tab bar, bookmarks, PWA icon) get the dark-bg mark

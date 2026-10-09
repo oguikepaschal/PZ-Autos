@@ -1,20 +1,13 @@
-import { MessageCircle } from 'lucide-react'
 import { Wordmark } from '@/components/theme/Logo'
 import { formatPhoneDisplay } from '@/lib/formatters'
-import { generateWhatsAppLink, getOwnerPhone } from '@/lib/whatsapp'
+import { getOwnerPhone } from '@/lib/whatsapp'
 
 const OWNER_PHONE = getOwnerPhone()
 const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'pzautomobiles@gmail.com'
 
-// The closing call to action for every public page, on the always-dark
-// surface in both themes. The WhatsApp button is white, not signal red: red
-// is kept for the few accents the design allows.
+// The closing contact block for every public page, on the always-dark
+// surface in both themes. WhatsApp lives in the pages' own button, not here.
 export function PublicFooter() {
-  const whatsappLink = generateWhatsAppLink(
-    OWNER_PHONE,
-    "Hi, I'd like to talk to you about a car."
-  )
-
   return (
     <footer className="bg-surface-dark">
       <div className="container-page py-section">
@@ -24,17 +17,8 @@ export function PublicFooter() {
               Serious about a car?
             </h2>
             <p className="mt-3 max-w-measure font-body text-body text-text-on-dark">
-              Message the owner directly. No forms, no call centre.
+              Call, message or email. No forms, no call centre.
             </p>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 font-body font-semibold text-body text-surface-dark transition active:scale-98 sm:w-auto"
-            >
-              <MessageCircle size={20} aria-hidden="true" />
-              Chat on WhatsApp
-            </a>
           </div>
 
           <ul className="flex flex-col gap-1 md:items-end">
