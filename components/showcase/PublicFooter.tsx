@@ -9,7 +9,8 @@ const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'pzautomobiles@gmail.
 // surface in both themes. WhatsApp lives in the pages' own button, not here.
 export function PublicFooter() {
   return (
-    <footer className="bg-surface-dark">
+    // Below md: clears the floating WhatsApp pill (62px high, 26px lift; see WhatsAppButton).
+    <footer className="bg-surface-dark pb-[calc(88px+env(safe-area-inset-bottom))] md:pb-0">
       <div className="container-page py-section">
         <div className="grid gap-12 md:grid-cols-2 md:items-end">
           <div>
