@@ -87,6 +87,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
 
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
+  const [variant, setVariant] = useState('')
+  const [trim, setTrim] = useState('')
   const [year, setYear] = useState('')
   const [bodyType, setBodyType] = useState('')
   const [transmission, setTransmission] = useState<string>(DEFAULT_TRANSMISSION)
@@ -226,6 +228,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
     const parsed = buildCarFormSchema().safeParse({
       make,
       model,
+      variant,
+      trim,
       year,
       body_type: bodyType,
       transmission,
@@ -252,7 +256,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
     setSubmitIntent(status)
 
     try {
-      const slug = generateCarSlug(parsed.data.year, parsed.data.make, parsed.data.model)
+      const slug = generateCarSlug(parsed.data)
 
       const resolvedSupplierId =
         supplierId === CUSTOM_SUPPLIER ? await createOneOffSupplier(customSupplierName) : supplierId
@@ -264,6 +268,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           supplier_id: resolvedSupplierId,
           make: parsed.data.make,
           model: parsed.data.model,
+          variant: parsed.data.variant,
+          trim: parsed.data.trim,
           year: parsed.data.year,
           body_type: parsed.data.body_type,
           transmission: parsed.data.transmission,
@@ -356,7 +362,16 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         )}
 
         <RowGroup title="Car">
-          <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
+          <MakeModelFields
+            make={make}
+            model={model}
+            variant={variant}
+            trim={trim}
+            onMakeChange={setMake}
+            onModelChange={setModel}
+            onVariantChange={setVariant}
+            onTrimChange={setTrim}
+          />
           <SelectRow label="Year">
             <select name="year" value={year} onChange={(e) => setYear(e.target.value)} required className={rowSelectClass}>
               <option value="">Select</option>

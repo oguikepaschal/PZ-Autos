@@ -155,6 +155,7 @@ export type NewCarPayload = {
   supplier_id: string
   make: string
   model: string
+  variant?: string | null
   year: number
   trim?: string | null
   body_type?: string | null

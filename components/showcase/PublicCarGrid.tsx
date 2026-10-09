@@ -23,7 +23,7 @@ export function PublicCarGrid({
   }
 
   return (
-    <CarRail labels={cars.map((car) => formatCarTitle(car.make, car.model, car.year))} autoAdvance={autoAdvance}>
+    <CarRail labels={cars.map((car) => formatCarTitle(car))} autoAdvance={autoAdvance}>
       {cars.map((car) => (
         <li key={car.id} className="w-[300px] shrink-0 snap-start md:w-auto">
           <PublicCarCard car={car} siteOrigin={siteOrigin} />
