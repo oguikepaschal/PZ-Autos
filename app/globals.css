@@ -239,10 +239,13 @@ button,
 }
 
 /* currentColor keeps the ring visible on both the white base and ink
-   surfaces without a per-component override. */
-:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
+   surfaces without a per-component override. In the base layer so an
+   outline utility (outline-none on a text field) can override it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
 }
 
 .scrollbar-hide {

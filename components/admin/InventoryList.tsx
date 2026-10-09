@@ -102,7 +102,7 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
 
       {notice}
 
-      <label className="flex h-11 items-center gap-2 rounded-xl bg-fill px-3 text-text-muted">
+      <label className="flex h-11 items-center gap-2 rounded-xl bg-fill px-3 text-text-muted transition-colors duration-200 ease-out focus-within:bg-signal-red/10 motion-reduce:transition-none">
         <Search size={18} strokeWidth={1.8} aria-hidden="true" />
         <span className="sr-only">Search inventory</span>
         <input
