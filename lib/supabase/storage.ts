@@ -63,34 +63,41 @@ async function compressToJpeg(file: File): Promise<File> {
   // A browser that can't encode the requested type silently falls back to
   // PNG, so the output is checked rather than assumed.
   if (compressed.type !== JPEG_TYPE) throw new Error(`Unexpected output type: ${compressed.type}`)
-  // Compression gives up after a few passes; a photo still over the bucket
-  // limit would only fail at upload with a generic error, so it's rejected here.
-  if (compressed.size > MAX_UPLOAD_BYTES) throw new Error(`Compressed output too large: ${compressed.size} bytes`)
   return compressed
 }
 
 // Only a successfully compressed JPEG is ever returned — there is no
 // fall-back to the original file. Safari can usually decode HEIC natively, so
 // plain compression is tried first; other browsers get a HEIC -> JPEG
-// conversion first, with the decoder loaded only at that moment.
+// conversion first, with the decoder loaded only at that moment. The fallback
+// is for decode failures only: the size check runs once, on the final JPEG,
+// so an oversized photo is rejected without ever loading the decoder.
 async function processPhoto(file: File): Promise<File> {
+  let jpeg: File
   try {
-    return await compressToJpeg(file)
+    jpeg = await compressToJpeg(file)
   } catch (compressionError) {
     if (!(await isHeicFile(file))) {
       console.warn('Image compression failed:', compressionError)
       throw new PhotoProcessingError()
     }
+    try {
+      const { heicTo } = await import('heic-to')
+      const converted = await heicTo({ blob: file, type: JPEG_TYPE })
+      jpeg = await compressToJpeg(new File([converted], 'photo.jpg', { type: JPEG_TYPE }))
+    } catch (conversionError) {
+      console.warn('HEIC conversion failed:', conversionError)
+      throw new PhotoProcessingError()
+    }
   }
 
-  try {
-    const { heicTo } = await import('heic-to')
-    const jpeg = await heicTo({ blob: file, type: JPEG_TYPE })
-    return await compressToJpeg(new File([jpeg], 'photo.jpg', { type: JPEG_TYPE }))
-  } catch (conversionError) {
-    console.warn('HEIC conversion failed:', conversionError)
+  // Compression gives up after a few passes; a photo still over the bucket
+  // limit would only fail at upload with a generic error, so it's rejected here.
+  if (jpeg.size > MAX_UPLOAD_BYTES) {
+    console.warn(`Compressed photo too large: ${jpeg.size} bytes`)
     throw new PhotoProcessingError()
   }
+  return jpeg
 }
 
 // `folderId` namespaces the Storage path and isn't required to be a real
