@@ -169,6 +169,25 @@ export function PositionArrows({
   )
 }
 
+// The archive's one action. Same instant save as the inventory's status
+// buttons, so a failed restore says so instead of failing silently.
+export function RestoreAction({ carId }: { carId: string }) {
+  const { state, run, pending } = useInstantSave()
+  return (
+    <>
+      <SaveStatus state={state} />
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() => run(() => updateCarStatus(carId, 'available', undefined))}
+        className={cn(inlineLinkClass, 'text-xs disabled:opacity-60')}
+      >
+        Restore
+      </button>
+    </>
+  )
+}
+
 function StatusActions({ car, hasPhoto, variant = 'inline', onDone }: CarRowActionsProps) {
   const { state, run, pending } = useInstantSave()
   const sheet = variant === 'sheet'
