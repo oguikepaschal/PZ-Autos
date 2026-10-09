@@ -26,7 +26,7 @@ export function PublicCarCard({
   layout = 'card',
   sizes = '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 300px',
 }: PublicCarCardProps) {
-  const title = formatCarTitle(car.make, car.model, car.year)
+  const title = formatCarTitle(car)
   const href = `/cars/${car.slug}`
   const price = formatNGN(car.asking_price_ngn)
   const specs = [formatMileage(car.mileage_km), toDisplayCase(car.transmission), toDisplayCase(car.fuel_type)]

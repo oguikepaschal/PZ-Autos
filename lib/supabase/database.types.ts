@@ -138,6 +138,7 @@ export type Database = {
           transmission: string | null
           trim: string | null
           updated_at: string
+          variant: string | null
           vin: string | null
           year: number
         }
@@ -172,6 +173,7 @@ export type Database = {
           transmission?: string | null
           trim?: string | null
           updated_at?: string
+          variant?: string | null
           vin?: string | null
           year: number
         }
@@ -206,6 +208,7 @@ export type Database = {
           transmission?: string | null
           trim?: string | null
           updated_at?: string
+          variant?: string | null
           vin?: string | null
           year?: number
         }
@@ -412,6 +415,7 @@ export type Database = {
           transmission: string | null
           trim: string | null
           updated_at: string | null
+          variant: string | null
           year: number | null
         }
         Insert: {
@@ -440,6 +444,7 @@ export type Database = {
           transmission?: string | null
           trim?: string | null
           updated_at?: string | null
+          variant?: string | null
           year?: number | null
         }
         Update: {
@@ -468,6 +473,7 @@ export type Database = {
           transmission?: string | null
           trim?: string | null
           updated_at?: string | null
+          variant?: string | null
           year?: number | null
         }
         Relationships: []
@@ -499,6 +505,7 @@ export type Database = {
           transmission: string | null
           trim: string | null
           updated_at: string | null
+          variant: string | null
           year: number | null
         }
         Relationships: []

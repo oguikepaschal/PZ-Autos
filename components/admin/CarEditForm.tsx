@@ -80,6 +80,8 @@ export function CarEditForm({
 
   const [make, setMake] = useState(car.make)
   const [model, setModel] = useState(car.model)
+  const [variant, setVariant] = useState(car.variant ?? '')
+  const [trim, setTrim] = useState(car.trim ?? '')
   // The year dropdown only spans MIN_YEAR..CURRENT_YEAR+1; a record saved
   // outside that window (or before this dropdown existed) still needs to
   // show its real value rather than silently falling back to blank.
@@ -134,6 +136,8 @@ export function CarEditForm({
     }).safeParse({
       make,
       model,
+      variant,
+      trim,
       year,
       body_type: bodyType,
       transmission,
@@ -168,6 +172,8 @@ export function CarEditForm({
         supplier_id: resolvedSupplierId,
         make: parsed.data.make,
         model: parsed.data.model,
+        variant: parsed.data.variant,
+        trim: parsed.data.trim,
         year: parsed.data.year,
         body_type: parsed.data.body_type,
         transmission: parsed.data.transmission,
@@ -240,7 +246,7 @@ export function CarEditForm({
   const isTerminal = status === 'sold' || status === 'withdrawn'
   const hasLegacyYear = !YEAR_OPTIONS.includes(car.year)
 
-  const title = formatCarTitle(car.make, car.model, car.year)
+  const title = formatCarTitle(car)
   const meta = [formatMileage(car.mileage_km), toDisplayCase(car.transmission), toDisplayCase(car.fuel_type)]
     .filter(Boolean)
     .join(' · ')
@@ -413,7 +419,16 @@ export function CarEditForm({
           </RowGroup>
 
           <RowGroup title="Details">
-            <MakeModelFields make={make} model={model} onMakeChange={setMake} onModelChange={setModel} />
+            <MakeModelFields
+              make={make}
+              model={model}
+              variant={variant}
+              trim={trim}
+              onMakeChange={setMake}
+              onModelChange={setModel}
+              onVariantChange={setVariant}
+              onTrimChange={setTrim}
+            />
             <SelectRow label="Year">
               <select name="year" value={year} onChange={(e) => setYear(e.target.value)} required className={rowSelectClass}>
                 <option value="">Select</option>

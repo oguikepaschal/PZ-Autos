@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const car = await getPublicCarBySlug(slug)
   if (!car) return { title: 'Car not found' }
 
-  const title = formatCarTitle(car.make, car.model, car.year)
+  const title = formatCarTitle(car)
   // The cover image, never images[0] — sort_order and is_cover are
   // independent, so the first-by-order photo is not reliably the cover.
   const cover = car.images.find((img) => img.is_cover) ?? car.images[0]
@@ -48,7 +48,7 @@ export default async function CarDetailPage({ params }: PageProps) {
   const car = await getPublicCarBySlug(slug)
   if (!car) notFound()
 
-  const title = formatCarTitle(car.make, car.model, car.year)
+  const title = formatCarTitle(car)
   const canEnquire = car.status !== 'sold'
   const pageUrl = `${await getSiteOrigin()}/cars/${car.slug}`
 

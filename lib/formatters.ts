@@ -152,9 +152,19 @@ export function toDisplayCase(input: string | null | undefined): string {
 
 // Make/model are shown exactly as entered — never re-cased. Real model
 // names carry acronyms, Roman numerals and mixed case ("III", "AMG", "SVJ",
-// "GT3 RS") that any title-case pass corrupts.
-export function formatCarTitle(make: string, model: string, year: number): string {
-  return `${year} ${make} ${model}`
+// "GT3 RS") that any title-case pass corrupts. The same goes for variant and
+// trim, which are optional and skipped when empty: "2019 Lexus RX 350 F Sport".
+export function formatCarTitle(car: {
+  year: number
+  make: string
+  model: string
+  variant?: string | null
+  trim?: string | null
+}): string {
+  return [String(car.year), car.make, car.model, car.variant, car.trim]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ')
 }
 
 // --- Verification freshness ---

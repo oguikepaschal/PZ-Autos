@@ -52,7 +52,7 @@ export default async function ArchivePage() {
             {typedCars.map((car) => (
               <tr key={car.id}>
                 <td className="px-4 py-3 font-body text-sm text-ink font-semibold">
-                  {formatCarTitle(car.make, car.model, car.year)}
+                  {formatCarTitle(car)}
                 </td>
                 <td className="px-4 py-3">
                   <span

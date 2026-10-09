@@ -37,6 +37,15 @@ function constrainedField<T extends readonly [string, ...string[]]>(
     : preprocessed
 }
 
+// Optional free text: trimmed, and an empty field saves as null.
+function optionalText(tooLongMessage: string) {
+  return z
+    .string()
+    .trim()
+    .max(60, tooLongMessage)
+    .transform((value) => value || null)
+}
+
 export interface CarFormLegacyValues {
   fuel_type?: string | null
   transmission?: string | null
@@ -50,6 +59,8 @@ export function buildCarFormSchema(legacy: CarFormLegacyValues = {}) {
   return z.object({
     make: z.string().trim().min(1, 'Make is required').max(60, 'Make is too long'),
     model: z.string().trim().min(1, 'Model is required').max(60, 'Model is too long'),
+    variant: optionalText('Variant is too long'),
+    trim: optionalText('Trim is too long'),
     year: z.coerce
       .number()
       .int('Year must be a whole number')

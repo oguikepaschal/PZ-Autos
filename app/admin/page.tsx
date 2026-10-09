@@ -38,7 +38,7 @@ export default async function AdminInventoryPage() {
     const cover = car.car_images.find((img) => img.is_cover) ?? car.car_images[0]
     return {
       car,
-      title: formatCarTitle(car.make, car.model, car.year),
+      title: formatCarTitle(car),
       featuredIndex: car.is_featured ? featuredIds.indexOf(car.id) : -1,
       hasPhoto: car.car_images.length > 0,
       thumbUrl: cover ? getCarImagePublicUrl(cover.storage_path) : null,
