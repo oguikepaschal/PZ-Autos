@@ -43,7 +43,7 @@ export function PublicFooter() {
         </div>
 
         <div className="mt-16 flex flex-col gap-4 border-t border-white/15 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <Wordmark tone="light" className="h-6 md:h-7" />
+          <Wordmark tone="onDark" className="h-6 md:h-7" />
           <p className="font-body text-caption text-text-on-dark">
             © {new Date().getFullYear()} Pazogu Automobiles. Sourced from vetted dealerships and
             individuals across Lagos.

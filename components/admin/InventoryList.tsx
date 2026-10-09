@@ -7,7 +7,7 @@ import { ArrowUpDown, Car, Check, MoreHorizontal, Search, Star, UserRound } from
 import { CarRowActions } from '@/components/admin/CarRowActions'
 import { ActionSheet, sheetRowClass } from '@/components/admin/ActionSheet'
 import { SignOutButton } from '@/components/admin/SignOutButton'
-import { WordmarkBadge } from '@/components/theme/Logo'
+import { Wordmark } from '@/components/theme/Logo'
 import { formatNGN, getFreshnessTier } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
@@ -102,7 +102,7 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
     <div className="flex flex-col gap-4 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <WordmarkBadge />
+          <Wordmark />
           <span className="font-body text-[13px] font-semibold tracking-[0.04em] text-text-muted">ADMIN</span>
         </div>
         <button
