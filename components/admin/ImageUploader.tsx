@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react'
 import { AlertCircle, Plus, X, Star } from 'lucide-react'
-import { uploadCarImage, deleteCarImage, PhotoProcessingError } from '@/lib/supabase/storage'
+import { uploadCarImage, PhotoProcessingError } from '@/lib/supabase/storage'
+import { removeCarImageFiles } from '@/app/admin/actions'
 
 export interface PendingImage {
   storagePath: string
@@ -13,6 +14,9 @@ export interface PendingImage {
 interface ImageUploaderProps {
   folderId: string
   images: PendingImage[]
+  // Paths that already have a car_images row. Removing one of these only drops
+  // it from the form; the edit form deletes its row and file on save.
+  savedPaths: ReadonlySet<string>
   onChange: (images: PendingImage[]) => void
 }
 
@@ -24,7 +28,7 @@ function processingMessage(positions: number[]): string {
   return `Photos ${list} could not be processed. Try those photos again or export them as JPEG.`
 }
 
-export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps) {
+export function ImageUploader({ folderId, images, savedPaths, onChange }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -76,11 +80,10 @@ export function ImageUploader({ folderId, images, onChange }: ImageUploaderProps
     const next = images.filter((_, i) => i !== index)
     if (target.isCover && next.length > 0) next[0] = { ...next[0]!, isCover: true }
     onChange(next)
-    try {
-      await deleteCarImage(target.storagePath)
-    } catch {
-      // Best-effort — an orphaned object here is cleaned up manually later;
-      // it's not linked to any car row either way.
+    // A photo uploaded in this session has no row, so nothing else will clean
+    // its file up. A saved one keeps its file until the row is deleted.
+    if (!savedPaths.has(target.storagePath)) {
+      void removeCarImageFiles([target.storagePath])
     }
   }
 

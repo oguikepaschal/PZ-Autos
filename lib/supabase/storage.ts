@@ -124,12 +124,6 @@ export async function uploadCarImage(folderId: string, file: File): Promise<Uplo
   return { storagePath, publicUrl: getCarImagePublicUrl(storagePath) }
 }
 
-export async function deleteCarImage(storagePath: string): Promise<void> {
-  const supabase = createClient()
-  const { error } = await supabase.storage.from(BUCKET).remove([storagePath])
-  if (error) throw error
-}
-
 // Deletes every object under a folder prefix. Used to clean up
 // already-uploaded photos when car creation fails after the upload step —
 // Storage writes aren't part of the DB transaction, so this compensating

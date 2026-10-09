@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { Camera, Car as CarIcon, ChevronLeft, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ImageUploader, type PendingImage } from './ImageUploader'
+import { useDiscardUnsavedPhotos } from './useDiscardUnsavedPhotos'
+import { removeCarImageFiles } from '@/app/admin/actions'
 import { MakeModelFields } from './MakeModelFields'
 import { CUSTOM_SUPPLIER, SupplierPicker, createOneOffSupplier } from './SupplierPicker'
 import { ConstrainedSelect } from './ConstrainedSelect'
@@ -68,6 +70,10 @@ export function CarEditForm({
       publicUrl: getCarImagePublicUrl(img.storage_path),
       isCover: img.is_cover,
     }))
+  )
+  const [savedPaths] = useState<ReadonlySet<string>>(() => new Set(initialImages.map((img) => img.storage_path)))
+  const markSaved = useDiscardUnsavedPhotos(
+    images.map((img) => img.storagePath).filter((path) => !savedPaths.has(path))
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -213,10 +219,17 @@ export function CarEditForm({
     const toUpdate = images.filter((img) => originalPaths.has(img.storagePath))
 
     if (toDelete.length > 0) {
-      await supabase
+      const { error: deleteError } = await supabase
         .from('car_images')
         .delete()
         .in('id', toDelete.map((img) => img.id))
+      // The files go only once their rows are gone. If the row delete failed
+      // the photos are still on the car, so their files must stay.
+      if (deleteError) {
+        console.error('[admin] car_images delete failed', deleteError)
+      } else {
+        void removeCarImageFiles(toDelete.map((img) => img.storage_path))
+      }
     }
 
     for (const img of toInsert) {
@@ -239,6 +252,7 @@ export function CarEditForm({
       }
     }
 
+    markSaved()
     router.push('/admin')
     router.refresh()
   }
@@ -317,7 +331,7 @@ export function CarEditForm({
         <div className="flex flex-col gap-[22px] px-4 md:px-0">
           {showPhotos && (
             <div id="edit-photos">
-              <ImageUploader folderId={`car-${car.id}`} images={images} onChange={setImages} />
+              <ImageUploader folderId={`car-${car.id}`} images={images} savedPaths={savedPaths} onChange={setImages} />
             </div>
           )}
 
