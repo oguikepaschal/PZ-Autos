@@ -70,7 +70,6 @@ export function PublicCarCard({
           <p className={cn('font-display text-lg font-bold tabular-nums', wide && 'md:text-h3')}>{price}</p>
           {car.status !== 'sold' && (
             <EnquireLink
-              carId={car.id}
               carTitle={title}
               message={generateCarEnquiryMessage(title, price, `${siteOrigin}${href}`)}
             />

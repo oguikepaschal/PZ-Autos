@@ -1,5 +1,4 @@
-// Best-effort in-memory rate limiter shared by the public WhatsApp click
-// endpoint and the admin API guard. This is a
+// Best-effort in-memory rate limiter used by the admin API guard. This is a
 // single-owner, low-traffic tool running on a small number of serverless
 // instances — an in-memory window is a real gap on a multi-instance
 // deployment (each instance counts independently) but is proportionate here;

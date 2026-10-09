@@ -143,7 +143,7 @@ export async function removeCarImageFiles(paths: string[]): Promise<void> {
   }
 }
 
-// Hard delete. car_images, card_taps and whatsapp_clicks go with the car
+// Hard delete. car_images and card_taps go with the car
 // through ON DELETE CASCADE, and enquiries keep their rows with car_id set to
 // null. The photo paths are read first because the cascade removes the rows
 // that name them; the files go afterwards, best effort, so a Storage failure

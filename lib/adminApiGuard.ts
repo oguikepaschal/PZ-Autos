@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { isRateLimited } from '@/lib/showcase/rateLimiter'
 
 // The proxy matcher (proxy.ts) only covers /admin/** and /login — /api/** is
-// deliberately outside it so the public WhatsApp click endpoint can stay
+// deliberately outside it so the public card tap endpoint can stay
 // unauthenticated. Any admin-only API route therefore has to check the caller
 // itself; skipping this leaves the route, and the Anthropic key behind it,
 // world-callable.
