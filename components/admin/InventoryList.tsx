@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Car, MoreHorizontal, Search, Star, UserRound } from 'lucide-react'
+import { ArrowUpDown, Car, Check, MoreHorizontal, Search, Star, UserRound } from 'lucide-react'
 import { CarRowActions } from '@/components/admin/CarRowActions'
 import { ActionSheet, sheetRowClass } from '@/components/admin/ActionSheet'
 import { SignOutButton } from '@/components/admin/SignOutButton'
@@ -20,6 +20,8 @@ export interface InventoryRow {
   }
   title: string
   price: number
+  year: number
+  createdAt: string
   cardTaps: number
   thumbUrl: string | null
   hasPhoto: boolean
@@ -32,6 +34,17 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'stale', label: 'Needs re-check' },
   { id: 'critical', label: 'Overdue' },
+]
+
+type Sort = 'newest' | 'oldest' | 'price-desc' | 'price-asc' | 'year-desc'
+
+// short is what the sort button shows; label is the sheet row.
+const SORTS: { id: Sort; label: string; short: string; compare: (a: InventoryRow, b: InventoryRow) => number }[] = [
+  { id: 'newest', label: 'Newest', short: 'Newest', compare: (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) },
+  { id: 'oldest', label: 'Oldest', short: 'Oldest', compare: (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt) },
+  { id: 'price-desc', label: 'Price high to low', short: 'Price ↓', compare: (a, b) => b.price - a.price },
+  { id: 'price-asc', label: 'Price low to high', short: 'Price ↑', compare: (a, b) => a.price - b.price },
+  { id: 'year-desc', label: 'Year newest first', short: 'Year', compare: (a, b) => b.year - a.year },
 ]
 
 const STATUS_LABEL: Record<string, string> = {
@@ -54,6 +67,10 @@ interface InventoryListProps {
 export function InventoryList({ rows, featuredCount, summary, notice, emptyMessage }: InventoryListProps) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
+  // Display order only: featuredIndex comes from the server's featured_order
+  // sequence, so Featured #n and the reorder arrows don't change with it.
+  const [sort, setSort] = useState<Sort>('newest')
+  const [sortOpen, setSortOpen] = useState(false)
   // The id outlives the open flag so the sheet keeps its content while it
   // animates closed.
   const [sheetCarId, setSheetCarId] = useState<string | null>(null)
@@ -71,11 +88,14 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
   }
 
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
-  const visible = rows.filter(
-    (row) =>
-      (filter === 'all' || tiers.get(row.car.id) === filter) &&
-      terms.every((term) => row.title.toLowerCase().includes(term))
-  )
+  const activeSort = SORTS.find((s) => s.id === sort)!
+  const visible = rows
+    .filter(
+      (row) =>
+        (filter === 'all' || tiers.get(row.car.id) === filter) &&
+        terms.every((term) => row.title.toLowerCase().includes(term))
+    )
+    .sort(activeSort.compare)
   const sheetRow = rows.find((row) => row.car.id === sheetCarId)
 
   return (
@@ -102,19 +122,30 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
 
       {notice}
 
-      <label className="flex h-11 items-center gap-2 rounded-xl bg-fill px-3 text-text-muted transition-colors duration-200 ease-out focus-within:bg-signal-red/10 motion-reduce:transition-none">
-        <Search size={18} strokeWidth={1.8} aria-hidden="true" />
-        <span className="sr-only">Search inventory</span>
-        <input
-          type="search"
-          enterKeyHint="search"
-          autoComplete="off"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search make, model or year"
-          className="min-h-0 min-w-0 flex-1 appearance-none bg-transparent font-body text-ink outline-none placeholder:text-text-muted"
-        />
-      </label>
+      <div className="flex gap-2">
+        <label className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-xl bg-fill px-3 text-text-muted transition-colors duration-200 ease-out focus-within:bg-signal-red/10 motion-reduce:transition-none">
+          <Search size={18} strokeWidth={1.8} aria-hidden="true" />
+          <span className="sr-only">Search inventory</span>
+          <input
+            type="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search make, model or year"
+            className="min-h-0 min-w-0 flex-1 appearance-none bg-transparent font-body text-ink outline-none placeholder:text-text-muted"
+          />
+        </label>
+        <button
+          type="button"
+          aria-label={`Sort: ${activeSort.label}`}
+          onClick={() => setSortOpen(true)}
+          className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-fill px-3 font-body text-sm font-semibold text-ink"
+        >
+          <ArrowUpDown size={18} strokeWidth={1.8} aria-hidden="true" />
+          {activeSort.short}
+        </button>
+      </div>
 
       <div role="group" aria-label="Filter by verification" className="-my-1 flex gap-2 overflow-x-auto scrollbar-hide">
         {FILTERS.map(({ id, label }) => {
@@ -232,6 +263,24 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
             onDone={() => setSheetOpen(false)}
           />
         )}
+      </ActionSheet>
+
+      <ActionSheet open={sortOpen} onClose={() => setSortOpen(false)} title="Sort by">
+        {SORTS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={sort === id}
+            onClick={() => {
+              setSort(id)
+              setSortOpen(false)
+            }}
+            className={cn(sheetRowClass, 'gap-2')}
+          >
+            {label}
+            {sort === id && <Check size={18} aria-hidden="true" />}
+          </button>
+        ))}
       </ActionSheet>
 
       <ActionSheet open={accountOpen} onClose={() => setAccountOpen(false)} title="Account">

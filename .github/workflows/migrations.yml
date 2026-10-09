@@ -1,0 +1,35 @@
+name: Migrations
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Applied migrations are immutable (CLAUDE.md): fix forward with a new
+      # file. Only .sql files are checked, so README.md and other notes are
+      # free to change. New files must be named <14-digit version>_<name>.sql.
+      - name: Check supabase/migrations
+        run: |
+          status=0
+          while IFS=$'\t' read -r change path renamed; do
+            case "$change" in
+              A)
+                if ! [[ "$(basename "$path")" =~ ^[0-9]{14}_[a-z0-9_]+\.sql$ ]]; then
+                  echo "::error file=$path::New migration name must match <version>_<name>.sql"
+                  status=1
+                fi
+                ;;
+              *)
+                echo "::error file=$path::Existing migration ${renamed:+renamed to $renamed }was changed ($change). Add a new migration instead."
+                status=1
+                ;;
+            esac
+          done < <(git diff --name-status "origin/${{ github.base_ref }}...HEAD" -- 'supabase/migrations/*.sql')
+          exit $status

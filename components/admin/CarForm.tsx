@@ -143,10 +143,15 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         const res = await fetch('/api/admin/suggest-specs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ make: trimmedMake, model: trimmedModel, year: Number(year) }),
+          body: JSON.stringify({ make: trimmedMake, model: trimmedModel, variant, trim, year: Number(year) }),
           signal: controller.signal,
         })
-        if (!res.ok) return
+        // A refused or failed request (429 included) clears the chips, so
+        // suggestions for the previous variant or trim never linger.
+        if (!res.ok) {
+          setSpecSuggestions({})
+          return
+        }
 
         const data = (await res.json()) as SpecSuggestions
         setSpecSuggestions({
@@ -164,7 +169,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [make, model, year])
+  }, [make, model, variant, trim, year])
 
   // Runs once an upload has settled — ImageUploader only calls onChange after
   // every file in the batch has finished uploading, so by the time this key
@@ -280,8 +285,8 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           transmission: parsed.data.transmission,
           fuel_type: parsed.data.fuel_type,
           mileage_km: form.get('mileage_km') ? Number(form.get('mileage_km')) : null,
-          exterior_colour: exteriorColour || null,
-          interior_colour: interiorColour || null,
+          exterior_colour: exteriorColour.trim() || null,
+          interior_colour: interiorColour.trim() || null,
           engine_layout: parsed.data.engine_layout,
           drivetrain: parsed.data.drivetrain,
           condition: parsed.data.condition,
@@ -464,7 +469,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
           </Row>
         </RowGroup>
 
-        <RowGroup title="Description">
+        <RowGroup title="Description" footer="Equipment only. Drivetrain, colour, mileage and trim have their own fields above. 4MATIC, xDrive and quattro are AWD.">
           <StackedRow label="Key features">
             <input
               name="key_features"

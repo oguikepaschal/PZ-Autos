@@ -63,6 +63,8 @@ export default async function AdminInventoryPage() {
     car: actionCar(row.car),
     title: row.title,
     price: row.car.asking_price_ngn,
+    year: row.car.year,
+    createdAt: row.car.created_at,
     cardTaps: row.cardTaps,
     thumbUrl: row.thumbUrl,
     hasPhoto: row.hasPhoto,
