@@ -41,3 +41,23 @@ export async function refuseUnlessAdmin(scope: string): Promise<NextResponse | n
 
   return null
 }
+
+// For public endpoints that should ignore the owner's own activity (card tap
+// counts). Fails open: no session, an auth error or a failed is_owner() call
+// all return false, so a real customer's tap is never dropped because of an
+// auth hiccup. Signed-out callers have no session cookie, so getUser() returns
+// without a network call.
+export async function isOwnerRequest(): Promise<boolean> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const { data: isOwner, error } = await supabase.rpc('is_owner')
+    return !error && isOwner === true
+  } catch {
+    return false
+  }
+}
