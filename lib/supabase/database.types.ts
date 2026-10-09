@@ -509,7 +509,6 @@ export type Database = {
         Args: { c: Database["public"]["Tables"]["cars"]["Row"] }
         Returns: boolean
       }
-      compact_featured_order: { Args: never; Returns: undefined }
       create_car_with_images: {
         Args: { p_car: Json; p_images: Json }
         Returns: string
