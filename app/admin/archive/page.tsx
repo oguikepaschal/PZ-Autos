@@ -13,7 +13,7 @@ export default async function ArchivePage() {
 
   const { data: cars, error } = await supabase
     .from('cars')
-    .select('*, supplier:suppliers(id, name, supplier_type), whatsapp_clicks(count)')
+    .select('*, supplier:suppliers(id, name, supplier_type), card_taps(count)')
     .in('status', ['sold', 'withdrawn'])
     .order('status_changed_at', { ascending: false })
 
@@ -40,7 +40,7 @@ export default async function ArchivePage() {
                 Price
               </th>
               <th className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3">
-                WhatsApp taps
+                Card taps
               </th>
               <th className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted px-4 py-3">
                 Date
@@ -69,7 +69,7 @@ export default async function ArchivePage() {
                   {formatNGN(car.asking_price_ngn)}
                 </td>
                 <td className="px-4 py-3 font-body text-sm text-ink tabular-nums">
-                  {car.whatsapp_clicks[0]?.count ?? 0}
+                  {car.card_taps[0]?.count ?? 0}
                 </td>
                 <td className="px-4 py-3 font-body text-sm text-text-muted">
                   {formatDate(car.status_changed_at)}

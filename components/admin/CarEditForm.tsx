@@ -35,7 +35,7 @@ interface CarEditFormProps {
   car: Car
   images: CarImage[]
   suppliers: Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]
-  whatsappTaps: number
+  cardTaps: number
   // This car's place in the home page order (-1 when not featured) and the
   // size of that order.
   featuredIndex: number
@@ -57,7 +57,7 @@ export function CarEditForm({
   car,
   images: initialImages,
   suppliers: initialSuppliers,
-  whatsappTaps,
+  cardTaps,
   featuredIndex,
   featuredCount,
 }: CarEditFormProps) {
@@ -341,8 +341,8 @@ export function CarEditForm({
 
           <div className="grid grid-cols-2 gap-2.5">
             <div className="flex flex-col gap-0.5 rounded-2xl bg-surface p-3.5">
-              <span className="font-body text-[13px] text-text-muted">WhatsApp taps</span>
-              <span className="font-display text-[22px] font-bold tabular-nums">{whatsappTaps}</span>
+              <span className="font-body text-[13px] text-text-muted">Card taps</span>
+              <span className="font-display text-[22px] font-bold tabular-nums">{cardTaps}</span>
             </div>
             <div className="flex flex-col gap-0.5 rounded-2xl bg-surface p-3.5">
               <span className="font-body text-[13px] text-text-muted">Home page</span>

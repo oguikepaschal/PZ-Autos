@@ -15,7 +15,7 @@ export default async function EditCarPage({ params }: PageProps) {
 
   const { data: car } = await supabase
     .from('cars')
-    .select('*, whatsapp_clicks(count)')
+    .select('*, card_taps(count)')
     .eq('id', id)
     .maybeSingle()
   if (!car) notFound()
@@ -31,7 +31,7 @@ export default async function EditCarPage({ params }: PageProps) {
     supabase.from('cars').select('id').eq('is_featured', true).order('featured_order', { ascending: true }),
   ])
 
-  const { whatsapp_clicks: clicks, ...typedCar } = car as Car & { whatsapp_clicks: { count: number }[] }
+  const { card_taps: taps, ...typedCar } = car as Car & { card_taps: { count: number }[] }
   const featuredIds = (featured ?? []).map((c) => c.id as string)
 
   return (
@@ -39,7 +39,7 @@ export default async function EditCarPage({ params }: PageProps) {
       car={typedCar}
       images={(images ?? []) as CarImage[]}
       suppliers={(suppliers ?? []) as Pick<Supplier, 'id' | 'name' | 'supplier_type'>[]}
-      whatsappTaps={clicks[0]?.count ?? 0}
+      cardTaps={taps[0]?.count ?? 0}
       featuredIndex={featuredIds.indexOf(typedCar.id)}
       featuredCount={featuredIds.length}
     />
