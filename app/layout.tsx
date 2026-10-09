@@ -2,9 +2,12 @@ import type { Metadata, Viewport } from 'next'
 import { Archivo, Barlow } from 'next/font/google'
 import './globals.css'
 
+// Variable, with the width axis: the /cars heading is set expanded. At the
+// default width every weight renders as the static files did.
 const archivo = Archivo({
   subsets: ['latin'],
-  weight: ['700', '800', '900'],
+  weight: 'variable',
+  axes: ['wdth'],
   variable: '--font-archivo',
   display: 'swap',
 })
