@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CUSTOM_SUPPLIER, SupplierPicker, createOneOffSupplier } from './SupplierPicker'
 import { ImageUploader, type PendingImage } from './ImageUploader'
+import { useDiscardUnsavedPhotos } from './useDiscardUnsavedPhotos'
 import { MakeModelFields } from './MakeModelFields'
 import { ConstrainedSelect } from './ConstrainedSelect'
 import { SuggestionChip } from './SuggestionChip'
@@ -46,6 +47,9 @@ interface CarFormProps {
 
 const YEAR_OPTIONS = getYearOptions()
 
+// A new car has no saved photos.
+const NO_SAVED_PATHS: ReadonlySet<string> = new Set()
+
 // Long enough that typing "Corolla" one letter at a time fires one request
 // rather than seven, short enough that the chip lands while the admin is still
 // looking at the field.
@@ -82,6 +86,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   const [supplierId, setSupplierId] = useState('')
   const [customSupplierName, setCustomSupplierName] = useState('')
   const [images, setImages] = useState<PendingImage[]>([])
+  const markSaved = useDiscardUnsavedPhotos(images.map((img) => img.storagePath))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -293,6 +298,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         }))
       )
 
+      markSaved()
       router.push('/admin')
       router.refresh()
     } catch (err) {
@@ -340,7 +346,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       >
         <h1 className="hidden font-display text-2xl font-extrabold tracking-display text-ink md:block">Add a car</h1>
 
-        <ImageUploader folderId={folderId} images={images} onChange={setImages} />
+        <ImageUploader folderId={folderId} images={images} savedPaths={NO_SAVED_PATHS} onChange={setImages} />
 
         {suggestions.length > 0 && (
           <section className="flex flex-col gap-2">

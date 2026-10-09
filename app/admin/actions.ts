@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export type ActionResult = { ok: true } | { ok: false; error: string }
 
@@ -101,4 +102,43 @@ export async function updateCarStatus(
   revalidatePath('/')
   revalidatePath('/cars')
   return { ok: true }
+}
+
+// `<folder>/<file>.<ext>`, e.g. `3f2a…/9c1b….jpeg`. Anything else is not a
+// car photo path and is ignored.
+const CAR_IMAGE_PATH = /^[\w-]+\/[\w-]+\.\w+$/
+
+// Removes photo files from Storage once nothing needs them. The caller deletes
+// the car_images row first (or never created one); a leftover file is harmless,
+// a broken image is not, so a failure here is logged and never thrown.
+// Storage writes use the service role, so the owner check is done here, and a
+// path any car_images row still points at is never removed.
+export async function removeCarImageFiles(paths: string[]): Promise<void> {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+    const { data: isOwner } = await supabase.rpc('is_owner')
+    if (isOwner !== true) return
+
+    const candidates = [...new Set(paths)].filter((path) => CAR_IMAGE_PATH.test(path))
+    if (candidates.length === 0) return
+
+    const { data: referenced, error: readError } = await supabase
+      .from('car_images')
+      .select('storage_path')
+      .in('storage_path', candidates)
+    if (readError) throw readError
+
+    const inUse = new Set(referenced.map((row) => row.storage_path))
+    const removable = candidates.filter((path) => !inUse.has(path))
+    if (removable.length === 0) return
+
+    const { error: removeError } = await createServiceClient().storage.from('car-images').remove(removable)
+    if (removeError) throw removeError
+  } catch (error) {
+    console.error('[admin] removeCarImageFiles failed', error)
+  }
 }
