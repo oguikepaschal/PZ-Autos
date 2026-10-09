@@ -17,10 +17,10 @@ const SuggestedSpecs = z.object({
 
 const SYSTEM_PROMPT = `You identify likely factory specifications for used cars listed by a Nigerian dealer.
 
-Given a make, model and year, return the single most likely value for each field.
+Given a make, model and year, and optionally a variant (e.g. "350") and trim (e.g. "XSE"), return the single most likely value for each field for that exact car.
 
 Rules:
-- Return null for a field whenever the answer genuinely varies across that model's trims or engine options in that year, or when you do not recognise the make/model. A null is a correct, useful answer — the admin fills that field in themselves.
+- Use the variant and trim when given. Return null for a field whenever the answer genuinely varies across the variants, trims or engine options that were not specified, or when you do not recognise the make/model. A null is a correct, useful answer — the admin fills that field in themselves.
 - Never guess to avoid returning null. A wrong value costs the dealer more than a blank one, because it looks authoritative.
 - engine_layout describes the cylinder or motor layout of the most common configuration for that model year. Use "Electric" for battery-electric vehicles.`
 
@@ -39,7 +39,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { make, model, year } = body as { make?: unknown; model?: unknown; year?: unknown }
+  const { make, model, year, variant, trim } = body as {
+    make?: unknown
+    model?: unknown
+    year?: unknown
+    variant?: unknown
+    trim?: unknown
+  }
 
   if (typeof make !== 'string' || typeof model !== 'string' || !make.trim() || !model.trim()) {
     return NextResponse.json({ error: 'make and model are required' }, { status: 400 })
@@ -48,6 +54,17 @@ export async function POST(request: NextRequest) {
   if (!Number.isInteger(parsedYear) || parsedYear < MIN_YEAR || parsedYear > CURRENT_YEAR + 1) {
     return NextResponse.json({ error: 'year is out of range' }, { status: 400 })
   }
+  // Optional: absent or blank adds nothing to the prompt.
+  if ((variant !== undefined && typeof variant !== 'string') || (trim !== undefined && typeof trim !== 'string')) {
+    return NextResponse.json({ error: 'variant and trim must be strings' }, { status: 400 })
+  }
+  const details = [
+    `Make: ${make.trim()}`,
+    `Model: ${model.trim()}`,
+    variant?.trim() && `Variant: ${variant.trim()}`,
+    trim?.trim() && `Trim: ${trim.trim()}`,
+    `Year: ${parsedYear}`,
+  ].filter(Boolean)
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({})
@@ -67,7 +84,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'user',
-          content: `Make: ${make.trim()}\nModel: ${model.trim()}\nYear: ${parsedYear}`,
+          content: details.join('\n'),
         },
       ],
     })

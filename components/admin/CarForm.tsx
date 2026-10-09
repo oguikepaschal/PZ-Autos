@@ -143,10 +143,15 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         const res = await fetch('/api/admin/suggest-specs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ make: trimmedMake, model: trimmedModel, year: Number(year) }),
+          body: JSON.stringify({ make: trimmedMake, model: trimmedModel, variant, trim, year: Number(year) }),
           signal: controller.signal,
         })
-        if (!res.ok) return
+        // A refused or failed request (429 included) clears the chips, so
+        // suggestions for the previous variant or trim never linger.
+        if (!res.ok) {
+          setSpecSuggestions({})
+          return
+        }
 
         const data = (await res.json()) as SpecSuggestions
         setSpecSuggestions({
@@ -164,7 +169,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       clearTimeout(timer)
       controller.abort()
     }
-  }, [make, model, year])
+  }, [make, model, variant, trim, year])
 
   // Runs once an upload has settled — ImageUploader only calls onChange after
   // every file in the batch has finished uploading, so by the time this key
