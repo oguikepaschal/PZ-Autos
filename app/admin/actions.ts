@@ -142,3 +142,41 @@ export async function removeCarImageFiles(paths: string[]): Promise<void> {
     console.error('[admin] removeCarImageFiles failed', error)
   }
 }
+
+// Hard delete. car_images, card_taps and whatsapp_clicks go with the car
+// through ON DELETE CASCADE, and enquiries keep their rows with car_id set to
+// null. The photo paths are read first because the cascade removes the rows
+// that name them; the files go afterwards, best effort, so a Storage failure
+// never undoes the delete.
+export async function deleteCar(carId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'Not authenticated' }
+  const { data: isOwner } = await supabase.rpc('is_owner')
+  if (isOwner !== true) return { ok: false, error: 'Not authorised' }
+
+  const { data: images, error: readError } = await supabase
+    .from('car_images')
+    .select('storage_path')
+    .eq('car_id', carId)
+  if (readError) return failed('deleteCar read', readError)
+
+  // select() so a delete that matched nothing is reported, not silent.
+  const { data: deleted, error: deleteError } = await supabase
+    .from('cars')
+    .delete()
+    .eq('id', carId)
+    .select('id')
+  if (deleteError) return failed('deleteCar', deleteError)
+  if (!deleted || deleted.length === 0) return failed('deleteCar', new Error(`No car deleted for ${carId}`))
+
+  await removeCarImageFiles(images.map((image) => image.storage_path))
+
+  revalidatePath('/admin')
+  revalidatePath('/admin/archive')
+  revalidatePath('/')
+  revalidatePath('/cars')
+  return { ok: true }
+}
