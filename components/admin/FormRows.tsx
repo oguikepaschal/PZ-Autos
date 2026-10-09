@@ -3,8 +3,12 @@ import { cn } from '@/lib/utils'
 
 // iOS-style grouped rows for the add and edit forms: a caption above a
 // rounded surface, then 52px rows with the label on the left and a native
-// control on the right. Rows are direct children of the group, so the inset
-// hairline between them is one first:/border rule.
+// control on the right. Rows are direct children of the group and run the
+// full card width; the hairline above each is drawn by a pseudo-element
+// inset 16px from the left, over a transparent border that keeps the
+// row's box unchanged. A focused row tints with the signal red token, and
+// the first and last rows carry the card's corner radius so the tint
+// follows it (the card can't clip: the Combobox list overflows it).
 
 export const rowControlClass =
   'min-h-0 w-full min-w-0 appearance-none bg-transparent text-right font-body text-ink outline-none placeholder:text-text-muted'
@@ -12,7 +16,7 @@ export const rowControlClass =
 export const rowSelectClass = cn(rowControlClass, 'pr-6 text-text-muted [text-align-last:right]')
 
 export const rowClass =
-  'ml-4 flex min-h-[52px] items-center gap-3 border-t border-hairline pr-4 first:border-t-0 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-ink'
+  'relative flex min-h-[52px] items-center gap-3 border-t border-transparent pl-4 pr-4 transition-colors duration-200 ease-out first:rounded-t-2xl first:border-t-0 last:rounded-b-2xl before:absolute before:-top-px before:left-4 before:right-0 before:h-px before:bg-hairline first:before:hidden focus-within:bg-signal-red/10 motion-reduce:transition-none'
 
 interface RowGroupProps {
   title: string

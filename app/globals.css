@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Tailwind's utilities live in a cascade layer, and any rule outside a layer
+   beats every layered rule regardless of specificity. Element-selector
+   defaults (a, button, input, body...) go in @layer base so a utility can
+   still override them. Leave a rule unlayered only when it must win over
+   utilities: the token blocks, scroll locks and the reduced-motion
+   override below. */
+
 /* This @theme block keeps `inline` (required for the next/font self
    references below to resolve). Colours map to var(--token) rather than
    literal hex so the semantic layer in :root stays the single source of
@@ -239,10 +246,13 @@ button,
 }
 
 /* currentColor keeps the ring visible on both the white base and ink
-   surfaces without a per-component override. */
-:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
+   surfaces without a per-component override. In the base layer so an
+   outline utility (outline-none on a text field) can override it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
 }
 
 .scrollbar-hide {
