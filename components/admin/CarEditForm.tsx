@@ -185,8 +185,8 @@ export function CarEditForm({
         transmission: parsed.data.transmission,
         fuel_type: parsed.data.fuel_type,
         mileage_km: form.get('mileage_km') ? Number(form.get('mileage_km')) : null,
-        exterior_colour: (form.get('exterior_colour') as string) || null,
-        interior_colour: (form.get('interior_colour') as string) || null,
+        exterior_colour: String(form.get('exterior_colour') ?? '').trim() || null,
+        interior_colour: String(form.get('interior_colour') ?? '').trim() || null,
         engine_layout: parsed.data.engine_layout,
         drivetrain: parsed.data.drivetrain,
         condition: parsed.data.condition,
@@ -552,7 +552,7 @@ export function CarEditForm({
             </Row>
           </RowGroup>
 
-          <RowGroup title="Description">
+          <RowGroup title="Description" footer="Equipment only. Drivetrain, colour, mileage and trim have their own fields above. 4MATIC, xDrive and quattro are AWD.">
             <StackedRow label="Key features">
               <input
                 name="key_features"
