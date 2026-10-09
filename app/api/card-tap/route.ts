@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { isOwnerRequest } from '@/lib/adminApiGuard'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -23,6 +24,9 @@ export async function POST(request: NextRequest) {
       .eq('id', carId)
       .maybeSingle()
     if (!car) return new NextResponse(null, { status: 400 })
+
+    // The owner browsing the site isn't a customer: skip the count.
+    if (await isOwnerRequest()) return new NextResponse(null, { status: 204 })
 
     const { error } = await supabase.from('card_taps').insert({ car_id: carId })
     if (error) {
