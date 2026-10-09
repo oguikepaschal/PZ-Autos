@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { ActionResult } from '@/app/admin/actions'
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -18,12 +19,16 @@ export function useInstantSave() {
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
-  function run(action: () => Promise<void>, onDone?: () => void) {
+  function run(action: () => Promise<ActionResult>, onDone?: () => void) {
     window.clearTimeout(timer.current)
     setState('saving')
     startTransition(async () => {
       try {
-        await action()
+        const result = await action()
+        if (!result.ok) {
+          setState('error')
+          return
+        }
         setState('saved')
         onDone?.()
         router.refresh()
