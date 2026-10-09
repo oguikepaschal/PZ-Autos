@@ -313,46 +313,6 @@ export type Database = {
         }
         Relationships: []
       }
-      whatsapp_clicks: {
-        Row: {
-          car_id: string
-          created_at: string
-          id: string
-        }
-        Insert: {
-          car_id: string
-          created_at?: string
-          id?: string
-        }
-        Update: {
-          car_id?: string
-          created_at?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "whatsapp_clicks_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "cars"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "whatsapp_clicks_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "public_cars_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "whatsapp_clicks_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "public_featured_cars_view"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       public_car_images_view: {
