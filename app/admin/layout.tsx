@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="mx-auto max-w-[1280px] px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/admin" className="flex h-11 items-center">
-              <Wordmark tone="light" />
+              <Wordmark tone="onDark" />
             </Link>
             <nav className="flex items-center gap-6 font-body text-sm">
               <Link href="/admin" className="inline-flex min-h-11 items-center text-text-on-dark hover:text-white transition-colors">

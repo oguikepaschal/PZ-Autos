@@ -4,7 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { AlertCircle } from 'lucide-react'
-import { WordmarkBadge } from '@/components/theme/Logo'
+import { Wordmark } from '@/components/theme/Logo'
 
 export default function LoginPage() {
   return (
@@ -44,7 +44,7 @@ function LoginForm() {
     <div className="min-h-svh flex items-center justify-center bg-bg-base px-4">
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-8">
-          <WordmarkBadge priority />
+          <Wordmark />
         </div>
         <form
           onSubmit={handleSubmit}

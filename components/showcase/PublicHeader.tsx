@@ -25,7 +25,7 @@ export function PublicHeader({ showBackButton = false }: PublicHeaderProps) {
             </Link>
           )}
           <Link href="/" className="flex h-11 items-center rounded-sm">
-            <Wordmark tone="light" priority className="h-6 md:h-7" />
+            <Wordmark tone="onDark" className="h-6 md:h-7" />
           </Link>
         </div>
 
