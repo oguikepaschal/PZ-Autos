@@ -6,6 +6,9 @@ const BUCKET = 'car-images'
 const MAX_SIZE_MB = 1.5
 const MAX_WIDTH_PX = 1920
 const JPEG_TYPE = 'image/jpeg'
+// Must match the car-images bucket file_size_limit (see the
+// car_images_bucket_jpeg_only migration).
+const MAX_UPLOAD_BYTES = 2097152
 
 // Photos are taken on a supplier's premises — an embedded geotag or other
 // EXIF resolves to their address regardless of what the database returns.
@@ -60,6 +63,9 @@ async function compressToJpeg(file: File): Promise<File> {
   // A browser that can't encode the requested type silently falls back to
   // PNG, so the output is checked rather than assumed.
   if (compressed.type !== JPEG_TYPE) throw new Error(`Unexpected output type: ${compressed.type}`)
+  // Compression gives up after a few passes; a photo still over the bucket
+  // limit would only fail at upload with a generic error, so it's rejected here.
+  if (compressed.size > MAX_UPLOAD_BYTES) throw new Error(`Compressed output too large: ${compressed.size} bytes`)
   return compressed
 }
 
