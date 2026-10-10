@@ -1,10 +1,25 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import Image from 'next/image'
 import { Maximize2 } from 'lucide-react'
 import { PhotoViewer, type ViewerOrigin } from './PhotoViewer'
 import { cn } from '@/lib/utils'
+
+const ADVANCE_MS = 2000
+
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
+
+function subscribeReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION)
+  query.addEventListener('change', onChange)
+  return () => query.removeEventListener('change', onChange)
+}
+
+function subscribeVisibility(onChange: () => void) {
+  document.addEventListener('visibilitychange', onChange)
+  return () => document.removeEventListener('visibilitychange', onChange)
+}
 
 interface GalleryImage {
   // The public URL of the stored file, the largest version there is.
@@ -21,7 +36,10 @@ interface CarGalleryProps {
 // The main photo (full width on phones, 4:3) with a thumbnail strip below.
 // A thumbnail makes its photo the main one; the main photo opens the
 // full-screen viewer, and when the viewer closes the main photo shows the
-// last photo viewed.
+// last photo viewed. The photos advance on their own every 2s and loop, and
+// hold while the gallery is hovered (mouse), touched, keyboard-focused, open
+// in the viewer or in a hidden tab. A manual change restarts the clock, and
+// reduced motion turns it off.
 export function CarGallery({ images, carName }: CarGalleryProps) {
   const ordered = [...images].sort((a, b) => {
     if (a.is_cover !== b.is_cover) return a.is_cover ? -1 : 1
@@ -30,6 +48,22 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
 
   const [active, setActive] = useState(0)
   const [viewerOpen, setViewerOpen] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const [touching, setTouching] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const stripRef = useRef<HTMLDivElement>(null)
+  const count = ordered.length
+  const reduceMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false
+  )
+  const tabHidden = useSyncExternalStore(
+    subscribeVisibility,
+    () => document.hidden,
+    () => false
+  )
+  const paused = hovered || touching || focused || viewerOpen || tabHidden
   const mainRef = useRef<HTMLButtonElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
 
@@ -52,7 +86,32 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
     mainRef.current?.focus({ preventScroll: true })
   }, [])
 
+  // Keyed on `active`, so any change, manual or automatic, restarts the 2s.
+  useEffect(() => {
+    if (count <= 1 || reduceMotion || paused) return
+    const timer = setTimeout(() => setActive((i) => (i + 1) % count), ADVANCE_MS)
+    return () => clearTimeout(timer)
+  }, [active, count, reduceMotion, paused])
+
+  // Keep the active thumbnail inside the strip. Sets the strip's scrollLeft
+  // rather than calling scrollIntoView, which could scroll the page too.
+  useEffect(() => {
+    const strip = stripRef.current
+    const thumb = strip?.children[active] as HTMLElement | undefined
+    if (!strip || !thumb) return
+    const stripRect = strip.getBoundingClientRect()
+    const thumbRect = thumb.getBoundingClientRect()
+    const gap = 8
+    if (thumbRect.left < stripRect.left + gap) {
+      strip.scrollLeft += thumbRect.left - stripRect.left - gap
+    } else if (thumbRect.right > stripRect.right - gap) {
+      strip.scrollLeft += thumbRect.right - stripRect.right + gap
+    }
+  }, [active])
+
   function handleKeyDown(e: React.KeyboardEvent) {
+    // A key press inside the gallery means keyboard use, which holds autoplay.
+    setFocused(true)
     if (e.key === 'ArrowLeft' && active > 0) {
       e.preventDefault()
       setActive(active - 1)
@@ -70,10 +129,19 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
     )
   }
 
-  const count = ordered.length
-
   return (
-    <div onKeyDown={handleKeyDown}>
+    <div
+      onKeyDown={handleKeyDown}
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered(false)}
+      onTouchStart={() => setTouching(true)}
+      onTouchEnd={(e) => e.touches.length === 0 && setTouching(false)}
+      onTouchCancel={(e) => e.touches.length === 0 && setTouching(false)}
+      onFocus={(e) => e.target.matches(':focus-visible') && setFocused(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false)
+      }}
+    >
       <button
         ref={mainRef}
         type="button"
@@ -94,6 +162,22 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
           style={{ opacity: viewerOpen ? 0 : 1 }}
           priority={active === 0}
         />
+        {count > 1 && (
+          // Warms the optimized URL of the next photo (same sizes and quality
+          // as the main one) so the swap never shows a blank frame.
+          <Image
+            src={ordered[(active + 1) % count]!.url}
+            alt=""
+            aria-hidden="true"
+            tabIndex={-1}
+            fill
+            quality={85}
+            sizes="(max-width: 1024px) 100vw, 55vw"
+            loading="eager"
+            className="pointer-events-none object-cover"
+            style={{ opacity: 0 }}
+          />
+        )}
         <span className="glass absolute bottom-4 left-4 rounded-full px-2.5 py-1 font-body text-xs font-bold text-ink tabular-nums">
           {active + 1} / {count}
         </span>
@@ -103,7 +187,10 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
       </button>
 
       {count > 1 && (
-        <div className="mt-3 flex gap-2 overflow-x-auto overscroll-x-contain px-5 py-0.5 scrollbar-hide md:px-0.5">
+        <div
+          ref={stripRef}
+          className="mt-3 flex gap-2 overflow-x-auto overscroll-x-contain px-5 py-0.5 scrollbar-hide md:px-0.5"
+        >
           {ordered.map((image, i) => (
             <button
               key={`${image.url}-${i}`}
