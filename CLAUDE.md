@@ -29,3 +29,6 @@ Keep PR descriptions short: a simple description of what the PR is about. No tes
   3. Never edit a migration after it is applied. Fix forward with a new one.
   4. Before opening a PR, compare `list_migrations` with `supabase/migrations` and report any mismatch.
 - After any migration, regenerate `lib/supabase/database.types.ts` from the live project with `generate_typescript_types` and commit it in the same PR.
+
+## Output rules
+- Never include model, effort or thinking-level recommendations in reports, plans or prompts. I set these myself.
