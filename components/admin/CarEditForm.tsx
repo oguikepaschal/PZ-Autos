@@ -161,13 +161,46 @@ export function CarEditForm({
 
     const supabase = createClient()
 
+    // Photos first, in one transaction: the RPC deletes rows missing from the
+    // payload, updates order for rows with an id and inserts the rest. If it
+    // fails nothing else is saved, and the unsaved-photo cleanup stays active
+    // (no markSaved) so the uploaded files are removed if the admin leaves.
+    const imageIds = new Map(initialImages.map((img) => [img.storage_path, img.id]))
+    const { data: deletedPaths, error: imagesError } = await supabase.rpc('save_car_images', {
+      p_car_id: car.id,
+      p_images: images.map((img, index) => {
+        const id = imageIds.get(img.storagePath)
+        return {
+          ...(id && { id }),
+          storage_path: img.storagePath,
+          is_cover: img.isCover,
+          sort_order: index,
+        }
+      }),
+    })
+
+    if (imagesError) {
+      console.error('[admin] save_car_images failed', imagesError)
+      setError('Photos not saved, try again.')
+      setSaving(false)
+      router.refresh()
+      return
+    }
+
+    // The photos are saved from here on. The refresh hands the form the new
+    // photo rows, so a retry matches them by id instead of inserting them again.
+    function detailsNotSaved() {
+      setError('Photos saved. Details not saved, try again.')
+      setSaving(false)
+      router.refresh()
+    }
+
     let resolvedSupplierId = supplierId
     if (supplierId === CUSTOM_SUPPLIER) {
       try {
         resolvedSupplierId = await createOneOffSupplier(customSupplierName)
       } catch {
-        setError('Could not save changes.')
-        setSaving(false)
+        detailsNotSaved()
         return
       }
     }
@@ -204,37 +237,11 @@ export function CarEditForm({
       .eq('id', car.id)
 
     if (updateError) {
-      setError('Could not save changes.')
-      setSaving(false)
+      detailsNotSaved()
       return
     }
 
-    // Reconcile car_images in one transaction: the RPC deletes rows missing
-    // from the payload, updates order for rows with an id and inserts the rest.
-    const imageIds = new Map(initialImages.map((img) => [img.storage_path, img.id]))
-    const { data: deletedPaths, error: imagesError } = await supabase.rpc('save_car_images', {
-      p_car_id: car.id,
-      p_images: images.map((img, index) => {
-        const id = imageIds.get(img.storagePath)
-        return {
-          ...(id && { id }),
-          storage_path: img.storagePath,
-          is_cover: img.isCover,
-          sort_order: index,
-        }
-      }),
-    })
-
-    // The unsaved-photo cleanup stays active (no markSaved) so the uploaded
-    // files are removed if the admin leaves instead of retrying.
-    if (imagesError) {
-      console.error('[admin] save_car_images failed', imagesError)
-      setError('Details saved. Photos not saved, try again.')
-      setSaving(false)
-      return
-    }
-
-    // The files go only once their rows are gone.
+    // The files go only once their rows are gone and the details are saved.
     if (deletedPaths.length > 0) {
       void removeCarImageFiles(deletedPaths)
     }
