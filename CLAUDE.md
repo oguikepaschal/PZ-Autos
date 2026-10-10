@@ -14,6 +14,7 @@ Where two installed skills disagree with each other (not with these tokens), sto
 - All UI animation stays at or under 300ms.
 - Exception: 500–800ms is allowed only for a rare focal entrance on a marketing surface, such as a listing page hero. It is never allowed on repeated interactions: hover, press, toggles, modals, menus, lists, or navigation.
 - A single easing curve applies everywhere: `cubic-bezier(0.23, 1, 0.32, 1)`.
+- Continuous ambient drift loops, such as the CarRail auto row, are exempt from the 300ms and easing rules, which apply to transitions.
 - This rule overrides any skill's timing guidance, including `impeccable/reference/animate.md`.
 
 ## Git
