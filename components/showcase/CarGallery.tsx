@@ -134,6 +134,7 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
       onKeyDown={handleKeyDown}
       onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
       onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered(false)}
+      onPointerDown={(e) => e.pointerType === 'mouse' && setFocused(false)}
       onTouchStart={() => setTouching(true)}
       onTouchEnd={(e) => e.touches.length === 0 && setTouching(false)}
       onTouchCancel={(e) => e.touches.length === 0 && setTouching(false)}
@@ -174,6 +175,7 @@ export function CarGallery({ images, carName }: CarGalleryProps) {
             quality={85}
             sizes="(max-width: 1024px) 100vw, 55vw"
             loading="eager"
+            fetchPriority="low"
             className="pointer-events-none object-cover"
             style={{ opacity: 0 }}
           />
