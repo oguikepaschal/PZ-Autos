@@ -485,6 +485,10 @@ export type Database = {
         Args: { p_ordered_ids: string[] }
         Returns: undefined
       }
+      save_car_images: {
+        Args: { p_car_id: string; p_images: Json }
+        Returns: string[]
+      }
       set_car_featured: {
         Args: { p_car_id: string; p_featured: boolean }
         Returns: undefined
