@@ -209,47 +209,34 @@ export function CarEditForm({
       return
     }
 
-    // Reconcile car_images against the current `images` state: delete rows
-    // no longer present, insert new ones, sync cover/order for the rest.
-    const currentPaths = new Set(images.map((img) => img.storagePath))
-    const originalPaths = new Set(initialImages.map((img) => img.storage_path))
+    // Reconcile car_images in one transaction: the RPC deletes rows missing
+    // from the payload, updates order for rows with an id and inserts the rest.
+    const imageIds = new Map(initialImages.map((img) => [img.storage_path, img.id]))
+    const { data: deletedPaths, error: imagesError } = await supabase.rpc('save_car_images', {
+      p_car_id: car.id,
+      p_images: images.map((img, index) => {
+        const id = imageIds.get(img.storagePath)
+        return {
+          ...(id && { id }),
+          storage_path: img.storagePath,
+          is_cover: img.isCover,
+          sort_order: index,
+        }
+      }),
+    })
 
-    const toDelete = initialImages.filter((img) => !currentPaths.has(img.storage_path))
-    const toInsert = images.filter((img) => !originalPaths.has(img.storagePath))
-    const toUpdate = images.filter((img) => originalPaths.has(img.storagePath))
-
-    if (toDelete.length > 0) {
-      const { error: deleteError } = await supabase
-        .from('car_images')
-        .delete()
-        .in('id', toDelete.map((img) => img.id))
-      // The files go only once their rows are gone. If the row delete failed
-      // the photos are still on the car, so their files must stay.
-      if (deleteError) {
-        console.error('[admin] car_images delete failed', deleteError)
-      } else {
-        void removeCarImageFiles(toDelete.map((img) => img.storage_path))
-      }
+    // The unsaved-photo cleanup stays active (no markSaved) so the uploaded
+    // files are removed if the admin leaves instead of retrying.
+    if (imagesError) {
+      console.error('[admin] save_car_images failed', imagesError)
+      setError('Details saved. Photos not saved, try again.')
+      setSaving(false)
+      return
     }
 
-    for (const img of toInsert) {
-      await supabase.from('car_images').insert({
-        car_id: car.id,
-        storage_path: img.storagePath,
-        is_cover: img.isCover,
-        sort_order: images.indexOf(img),
-      })
-    }
-
-    for (const img of toUpdate) {
-      const original = initialImages.find((o) => o.storage_path === img.storagePath)!
-      const newSortOrder = images.indexOf(img)
-      if (original.is_cover !== img.isCover || original.sort_order !== newSortOrder) {
-        await supabase
-          .from('car_images')
-          .update({ is_cover: img.isCover, sort_order: newSortOrder })
-          .eq('id', original.id)
-      }
+    // The files go only once their rows are gone.
+    if (deletedPaths.length > 0) {
+      void removeCarImageFiles(deletedPaths)
     }
 
     markSaved()
