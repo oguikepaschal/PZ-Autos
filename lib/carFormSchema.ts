@@ -6,9 +6,27 @@ import {
   DRIVETRAINS,
   ENGINE_LAYOUTS,
   FUEL_TYPES,
+  CAR_MAKES_WITH_MODELS,
   MIN_YEAR,
   TRANSMISSIONS,
 } from './carOptions'
+
+const collapseSpaces = (value: string) => value.trim().replace(/\s+/g, ' ')
+
+// Case-insensitive match against a canonical list; anything not on it is
+// kept as typed (already trimmed and collapsed).
+const snapTo = (candidates: readonly string[], value: string) =>
+  candidates.find((candidate) => candidate.toLowerCase() === value.toLowerCase()) ?? value
+
+// Free entry stays allowed, but "toyota" and "Toyota" must never become two
+// makes in the database, so a known make or model is saved in its canonical
+// spelling.
+function nameField(label: string) {
+  return z
+    .string()
+    .transform(collapseSpaces)
+    .pipe(z.string().min(1, `${label} is required`).max(60, `${label} is too long`))
+}
 
 // A car being edited may carry a value for one of these fields that predates
 // the dropdown (typed freely before this form was constrained, or imported
@@ -57,8 +75,8 @@ export interface CarFormLegacyValues {
 
 export function buildCarFormSchema(legacy: CarFormLegacyValues = {}) {
   return z.object({
-    make: z.string().trim().min(1, 'Make is required').max(60, 'Make is too long'),
-    model: z.string().trim().min(1, 'Model is required').max(60, 'Model is too long'),
+    make: nameField('Make').transform((make) => snapTo(Object.keys(CAR_MAKES_WITH_MODELS), make)),
+    model: nameField('Model'),
     variant: optionalText('Variant is too long'),
     trim: optionalText('Trim is too long'),
     year: z.coerce
@@ -76,6 +94,11 @@ export function buildCarFormSchema(legacy: CarFormLegacyValues = {}) {
     // new choices to NIGERIAN_STATES, and a car's stored value is never rejected.
     state: z.string().trim().min(1, 'State is required'),
   })
+    // The model snaps against the models of the (already canonical) make.
+    .transform((values) => ({
+      ...values,
+      model: snapTo(CAR_MAKES_WITH_MODELS[values.make] ?? [], values.model),
+    }))
 }
 
 export type CarFormValues = z.infer<ReturnType<typeof buildCarFormSchema>>
