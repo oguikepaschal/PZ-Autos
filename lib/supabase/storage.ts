@@ -164,6 +164,7 @@ export type NewCarPayload = {
   description?: string | null
   key_features?: string[] | null
   location_area?: string | null
+  state: string
   vin?: string | null
   registration_plate?: string | null
   cost_price_ngn?: number | null

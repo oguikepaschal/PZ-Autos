@@ -39,6 +39,18 @@ export const CONDITIONS = ['New', 'Foreign Used', 'Local Used'] as const
 export type Condition = (typeof CONDITIONS)[number]
 export const DEFAULT_CONDITION: Condition = 'Foreign Used'
 
+// Nigeria's 36 states plus the Federal Capital Territory, stored on cars.state
+// as these display names. Alphabetical; "FCT" stands for the Federal Capital
+// Territory. Deliberately a plain list, not a database enum or a type-level
+// union: the column is free text.
+export const NIGERIAN_STATES = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+  'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo',
+  'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa',
+  'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba',
+  'Yobe', 'Zamfara',
+] as const
+
 // Starter list of common Nigerian-market makes/models — not exhaustive.
 // Inventory is broker-sourced and not limited to these brands, so the
 // Make/Model combobox (components/admin/MakeModelFields.tsx) always allows

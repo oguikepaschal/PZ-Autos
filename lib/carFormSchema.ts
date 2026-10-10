@@ -72,6 +72,9 @@ export function buildCarFormSchema(legacy: CarFormLegacyValues = {}) {
     drivetrain: constrainedField(DRIVETRAINS, legacy.drivetrain),
     engine_layout: constrainedField(ENGINE_LAYOUTS, legacy.engine_layout),
     condition: constrainedField(CONDITIONS, legacy.condition, 'Condition is required'),
+    // Free text in the database, so not an enum: the form's select confines
+    // new choices to NIGERIAN_STATES, and a car's stored value is never rejected.
+    state: z.string().trim().min(1, 'State is required'),
   })
 }
 

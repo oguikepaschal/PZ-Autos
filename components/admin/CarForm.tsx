@@ -36,6 +36,7 @@ import {
   DRIVETRAINS,
   ENGINE_LAYOUTS,
   FUEL_TYPES,
+  NIGERIAN_STATES,
   TRANSMISSIONS,
   getYearOptions,
 } from '@/lib/carOptions'
@@ -101,6 +102,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
   const [drivetrain, setDrivetrain] = useState('')
   const [engineLayout, setEngineLayout] = useState<string>(DEFAULT_ENGINE_LAYOUT)
   const [condition, setCondition] = useState<string>(DEFAULT_CONDITION)
+  const [state, setState] = useState('')
   // Controlled like every other suggestible field. These two were read out of
   // FormData at submit time, which is fine for typing but leaves nothing for a
   // suggestion to write into. Empty string still submits as null, exactly as
@@ -247,6 +249,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
       drivetrain,
       engine_layout: engineLayout,
       condition,
+      state,
     })
     if (!parsed.success) {
       setError(formatCarFormErrors(parsed.error))
@@ -295,6 +298,7 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
             ? keyFeaturesRaw.split(',').map((s) => s.trim()).filter(Boolean)
             : undefined,
           location_area: (form.get('location_area') as string) || null,
+          state: parsed.data.state,
           vin: (form.get('vin') as string) || null,
           registration_plate: (form.get('registration_plate') as string) || null,
           cost_price_ngn: costPriceRaw ? Number(costPriceRaw) : null,
@@ -464,6 +468,9 @@ export function CarForm({ suppliers: initialSuppliers }: CarFormProps) {
         </RowGroup>
 
         <RowGroup title="Location">
+          <SelectRow label="State">
+            <ConstrainedSelect name="state" options={NIGERIAN_STATES} value={state} onChange={setState} placeholder="Select state" />
+          </SelectRow>
           <Row label="Area">
             <input name="location_area" placeholder="LGA, never a street" className={rowControlClass} />
           </Row>

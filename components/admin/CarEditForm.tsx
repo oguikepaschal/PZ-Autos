@@ -30,7 +30,7 @@ import {
 import { getCarImagePublicUrl } from '@/lib/images'
 import { formatCarTitle, formatMileage, formatNGN, toDisplayCase } from '@/lib/formatters'
 import { buildCarFormSchema, formatCarFormErrors } from '@/lib/carFormSchema'
-import { BODY_TYPES, CONDITIONS, DRIVETRAINS, ENGINE_LAYOUTS, FUEL_TYPES, TRANSMISSIONS, getYearOptions } from '@/lib/carOptions'
+import { BODY_TYPES, CONDITIONS, DRIVETRAINS, ENGINE_LAYOUTS, FUEL_TYPES, NIGERIAN_STATES, TRANSMISSIONS, getYearOptions } from '@/lib/carOptions'
 import type { Car, CarImage, Supplier } from '@/lib/supabase/types'
 
 interface CarEditFormProps {
@@ -98,6 +98,7 @@ export function CarEditForm({
   const [drivetrain, setDrivetrain] = useState(car.drivetrain ?? '')
   const [engineLayout, setEngineLayout] = useState(car.engine_layout ?? '')
   const [condition, setCondition] = useState(car.condition ?? '')
+  const [state, setState] = useState(car.state ?? '')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -151,6 +152,7 @@ export function CarEditForm({
       drivetrain,
       engine_layout: engineLayout,
       condition,
+      state,
     })
 
     if (!parsed.success) {
@@ -226,6 +228,7 @@ export function CarEditForm({
         description: (form.get('description') as string) || null,
         key_features: keyFeatures.length > 0 ? keyFeatures : null,
         location_area: (form.get('location_area') as string) || null,
+        state: parsed.data.state,
         vin: (form.get('vin') as string) || null,
         registration_plate: (form.get('registration_plate') as string) || null,
         cost_price_ngn: form.get('cost_price_ngn') ? Number(form.get('cost_price_ngn')) : null,
@@ -534,6 +537,16 @@ export function CarEditForm({
                 onChange={setEngineLayout}
                 placeholder="Select"
                 legacyValue={car.engine_layout}
+              />
+            </SelectRow>
+            <SelectRow label="State">
+              <ConstrainedSelect
+                name="state"
+                options={NIGERIAN_STATES}
+                value={state}
+                onChange={setState}
+                placeholder="Select state"
+                legacyValue={car.state}
               />
             </SelectRow>
             <Row label="Location">
