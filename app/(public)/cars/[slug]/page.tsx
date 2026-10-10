@@ -7,6 +7,7 @@ import { CarGallery } from '@/components/showcase/CarGallery'
 import { StatusBadge } from '@/components/showcase/StatusBadge'
 import { FreshnessBadge } from '@/components/showcase/FreshnessBadge'
 import { SpecList } from '@/components/showcase/SpecList'
+import { SpecGrid } from '@/components/shared/SpecGrid'
 import { ShareButton } from '@/components/showcase/ShareButton'
 import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
 import { getPublicCarBySlug } from '@/lib/showcase/queries'
@@ -58,11 +59,11 @@ export default async function CarDetailPage({ params }: PageProps) {
     is_cover: img.is_cover,
   }))
 
-  const specTiles = [
+  const specGridItems = [
     { label: 'Year', value: String(car.year) },
+    { label: 'Condition', value: toDisplayCase(car.condition) || 'Not listed' },
     { label: 'Mileage', value: formatMileage(car.mileage_km) },
-    { label: 'Transmission', value: toDisplayCase(car.transmission) || 'Not listed' },
-    { label: 'Fuel type', value: toDisplayCase(car.fuel_type) || 'Not listed' },
+    { label: 'State', value: car.location_area || 'Not listed' },
   ]
 
   return (
@@ -101,21 +102,11 @@ export default async function CarDetailPage({ params }: PageProps) {
           <p className="mt-1 font-display text-[22px] font-bold tracking-[-0.01em] text-ink tabular-nums md:text-h3">
             {formatNGN(car.asking_price_ngn)}
           </p>
-          {car.condition && (
-            <p className="mt-1 font-body text-[15px] text-text-muted">{toDisplayCase(car.condition)}</p>
-          )}
           <div className="mt-1">
             <FreshnessBadge lastVerifiedAt={car.last_verified_at} />
           </div>
 
-          <dl className="mt-5 grid grid-cols-2 gap-2.5">
-            {specTiles.map((tile) => (
-              <div key={tile.label} className="flex flex-col gap-0.5 rounded-2xl bg-surface p-3.5">
-                <dt className="font-body text-[13px] text-text-muted">{tile.label}</dt>
-                <dd className="font-body text-[17px] font-semibold text-ink">{tile.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <SpecGrid items={specGridItems} className="mt-5" />
 
           {canEnquire && (
             <WhatsAppButton

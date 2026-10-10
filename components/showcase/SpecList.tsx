@@ -6,16 +6,17 @@ interface SpecRow {
   value: string | null
 }
 
-// Year, mileage, transmission and fuel type are the car page's spec tiles and
-// condition sits under the price, so this list carries the rest.
+// Year, condition, mileage and state are the car page's spec grid, so this
+// list carries the rest.
 function buildSpecRows(car: PublicCar): SpecRow[] {
   return [
     { label: 'Body type', value: toDisplayCase(car.body_type) || null },
     { label: 'Engine layout', value: car.engine_layout },
+    { label: 'Transmission', value: toDisplayCase(car.transmission) || null },
     { label: 'Drivetrain', value: toDisplayCase(car.drivetrain) || null },
+    { label: 'Fuel type', value: toDisplayCase(car.fuel_type) || null },
     { label: 'Exterior', value: toDisplayCase(car.exterior_colour) || null },
     { label: 'Interior', value: toDisplayCase(car.interior_colour) || null },
-    { label: 'Location', value: car.location_area },
   ].filter((row): row is SpecRow => Boolean(row.value))
 }
 
