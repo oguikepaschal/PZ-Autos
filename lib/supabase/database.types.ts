@@ -132,6 +132,7 @@ export type Database = {
           model: string
           registration_plate: string | null
           slug: string
+          state: string | null
           status: string
           status_changed_at: string
           supplier_id: string
@@ -167,6 +168,7 @@ export type Database = {
           model: string
           registration_plate?: string | null
           slug: string
+          state: string | null
           status?: string
           status_changed_at?: string
           supplier_id: string
@@ -202,6 +204,7 @@ export type Database = {
           model?: string
           registration_plate?: string | null
           slug?: string
+          state?: string | null
           status?: string
           status_changed_at?: string
           supplier_id?: string
@@ -370,6 +373,7 @@ export type Database = {
           mileage_km: number | null
           model: string | null
           slug: string | null
+          state: string | null
           status: string | null
           status_changed_at: string | null
           transmission: string | null
@@ -399,6 +403,7 @@ export type Database = {
           mileage_km?: number | null
           model?: string | null
           slug?: string | null
+          state?: string | null
           status?: string | null
           status_changed_at?: string | null
           transmission?: string | null
@@ -428,6 +433,7 @@ export type Database = {
           mileage_km?: number | null
           model?: string | null
           slug?: string | null
+          state?: string | null
           status?: string | null
           status_changed_at?: string | null
           transmission?: string | null
@@ -460,6 +466,7 @@ export type Database = {
           mileage_km: number | null
           model: string | null
           slug: string | null
+          state: string | null
           status: string | null
           status_changed_at: string | null
           transmission: string | null
