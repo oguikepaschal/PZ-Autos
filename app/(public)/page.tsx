@@ -54,6 +54,9 @@ export default async function LandingPage() {
             <h1 className="font-display font-extrabold text-h1 tracking-display text-white">
               Cars worth trusting, verified before they reach you.
             </h1>
+            <p className="mt-4 font-display text-lead font-bold tracking-display text-white">
+              Japanese. German. Chinese.
+            </p>
             <p className="mt-6 max-w-measure font-body text-lead text-white md:text-text-on-dark">
               Sourced from vetted dealerships and individuals across Lagos, checked before
               listing and re-confirmed regularly. You talk to us directly on WhatsApp,
