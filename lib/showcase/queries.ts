@@ -1,5 +1,5 @@
 import { createPublicClient } from '@/lib/supabase/publicClient'
-import { getCarImagePublicUrl } from '@/lib/images'
+import { getShowcaseImageUrl } from '@/lib/images'
 import type { PublicCar, PublicCarImage, PublicCarCardData, PublicCarWithImages } from './types'
 
 // Every read here goes through the anon-key client against the public_*
@@ -27,7 +27,7 @@ export async function getPublicCars(): Promise<PublicCarCardData[]> {
 
   const coverByCarId = new Map<string, string>()
   for (const image of (images ?? []) as PublicCarImage[]) {
-    coverByCarId.set(image.car_id, getCarImagePublicUrl(image.storage_path))
+    coverByCarId.set(image.car_id, getShowcaseImageUrl(image.storage_path))
   }
 
   return (cars as PublicCar[]).map((car) => ({
@@ -58,7 +58,7 @@ export async function getFeaturedCars(): Promise<PublicCarCardData[]> {
 
   const coverByCarId = new Map<string, string>()
   for (const image of (images ?? []) as PublicCarImage[]) {
-    coverByCarId.set(image.car_id, getCarImagePublicUrl(image.storage_path))
+    coverByCarId.set(image.car_id, getShowcaseImageUrl(image.storage_path))
   }
 
   return (cars as PublicCar[]).map((car) => ({

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
-import { getCarImagePublicUrl } from '@/lib/images'
+import { getAdminImageUrl } from '@/lib/images'
 import compressImage from 'browser-image-compression'
 
 const BUCKET = 'car-images'
@@ -40,7 +40,7 @@ export class PhotoProcessingError extends Error {
 
 export interface UploadedCarImage {
   storagePath: string
-  publicUrl: string
+  previewUrl: string
 }
 
 // iOS sometimes reports an empty or generic type for HEIC, so the MIME type
@@ -121,7 +121,7 @@ export async function uploadCarImage(folderId: string, file: File): Promise<Uplo
     throw error
   }
 
-  return { storagePath, publicUrl: getCarImagePublicUrl(storagePath) }
+  return { storagePath, previewUrl: getAdminImageUrl(storagePath) }
 }
 
 // Deletes every object under a folder prefix. Used to clean up

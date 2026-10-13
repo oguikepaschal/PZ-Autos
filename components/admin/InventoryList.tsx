@@ -186,7 +186,7 @@ export function InventoryList({ rows, featuredCount, summary, notice, emptyMessa
               >
                 <span className="relative flex size-[72px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-fill text-text-muted">
                   {row.thumbUrl ? (
-                    <Image src={row.thumbUrl} alt="" fill sizes="72px" className="object-cover" />
+                    <Image src={row.thumbUrl} alt="" fill unoptimized sizes="72px" className="object-cover" />
                   ) : (
                     <Car size={28} strokeWidth={1.5} aria-hidden="true" />
                   )}
