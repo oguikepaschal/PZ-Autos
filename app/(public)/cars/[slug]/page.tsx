@@ -12,7 +12,7 @@ import { ShareButton } from '@/components/showcase/ShareButton'
 import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
 import { ProcessSteps } from '@/components/showcase/ProcessSteps'
 import { getPublicCarBySlug } from '@/lib/showcase/queries'
-import { getCarImagePublicUrl } from '@/lib/images'
+import { getShowcaseImageUrl } from '@/lib/images'
 import { getSiteOrigin } from '@/lib/siteOrigin'
 import { formatNGN, formatCarTitle, formatMileage } from '@/lib/formatters'
 import { generateCarEnquiryMessage } from '@/lib/whatsapp'
@@ -40,7 +40,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description,
-      images: cover ? [{ url: getCarImagePublicUrl(cover.storage_path) }] : [],
+      // Crawlers need an absolute URL; /img is served without a session.
+      images: cover ? [{ url: `${await getSiteOrigin()}${getShowcaseImageUrl(cover.storage_path)}` }] : [],
     },
   }
 }
@@ -55,7 +56,7 @@ export default async function CarDetailPage({ params }: PageProps) {
   const pageUrl = `${await getSiteOrigin()}/cars/${car.slug}`
 
   const galleryImages = car.images.map((img) => ({
-    url: getCarImagePublicUrl(img.storage_path),
+    url: getShowcaseImageUrl(img.storage_path),
     sort_order: img.sort_order,
     is_cover: img.is_cover,
   }))

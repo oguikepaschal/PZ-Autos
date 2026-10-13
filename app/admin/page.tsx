@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { CarRowActions } from '@/components/admin/CarRowActions'
 import { InventoryList, type InventoryRow } from '@/components/admin/InventoryList'
 import { formatNGN, formatCarTitle, getFreshnessTier } from '@/lib/formatters'
-import { getCarImagePublicUrl } from '@/lib/images'
+import { getAdminImageUrl } from '@/lib/images'
 import type { CarWithSupplier } from '@/lib/supabase/types'
 
 export const dynamic = 'force-dynamic'
@@ -41,7 +41,7 @@ export default async function AdminInventoryPage() {
       title: formatCarTitle(car),
       featuredIndex: car.is_featured ? featuredIds.indexOf(car.id) : -1,
       hasPhoto: car.car_images.length > 0,
-      thumbUrl: cover ? getCarImagePublicUrl(cover.storage_path) : null,
+      thumbUrl: cover ? getAdminImageUrl(cover.storage_path) : null,
       cardTaps: car.card_taps[0]?.count ?? 0,
     }
   })

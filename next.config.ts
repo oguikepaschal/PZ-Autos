@@ -1,16 +1,14 @@
 import type { NextConfig } from 'next'
 
-const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
-  : undefined
-
 const nextConfig: NextConfig = {
   // Don't auto-generate AGENTS.md/CLAUDE.md into the repo on every build.
   agentRules: false,
   images: {
-    remotePatterns: supabaseHost
-      ? [{ protocol: 'https', hostname: supabaseHost, pathname: '/storage/v1/object/public/**' }]
-      : [],
+    // Car photos are same-origin (/img/**), so there are no remote patterns.
+    // The optimizer keeps a transformed copy for at least this long, which is
+    // also how long a car that went non-visible can still be served from it,
+    // so it matches the /img s-maxage rather than the 4h default.
+    minimumCacheTTL: 900,
   },
 }
 

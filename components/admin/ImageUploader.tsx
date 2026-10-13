@@ -7,7 +7,7 @@ import { removeCarImageFiles } from '@/app/admin/actions'
 
 export interface PendingImage {
   storagePath: string
-  publicUrl: string
+  previewUrl: string
   isCover: boolean
 }
 
@@ -47,8 +47,8 @@ export function ImageUploader({ folderId, images, savedPaths, onChange }: ImageU
     const selected = Array.from(files)
     for (const [index, file] of selected.entries()) {
       try {
-        const { storagePath, publicUrl } = await uploadCarImage(folderId, file)
-        uploaded.push({ storagePath, publicUrl, isCover: false })
+        const { storagePath, previewUrl } = await uploadCarImage(folderId, file)
+        uploaded.push({ storagePath, previewUrl, isCover: false })
       } catch (err) {
         if (err instanceof PhotoProcessingError) unprocessable.push(index + 1)
         else uploadFailed = true
@@ -103,7 +103,7 @@ export function ImageUploader({ folderId, images, savedPaths, onChange }: ImageU
         {images.map((image, index) => (
           <li key={image.storagePath} className="relative aspect-square overflow-hidden rounded-[14px] bg-fill">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image.publicUrl} alt={`Photo ${index + 1}`} className="size-full object-cover" />
+            <img src={image.previewUrl} alt={`Photo ${index + 1}`} className="size-full object-cover" />
             {/* Each 44px button is the hit area; the glass circle is the visual. */}
             <button
               type="button"

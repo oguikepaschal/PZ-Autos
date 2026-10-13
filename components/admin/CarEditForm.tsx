@@ -27,7 +27,7 @@ import {
   rowSelectClass,
   stackedControlClass,
 } from './FormRows'
-import { getCarImagePublicUrl } from '@/lib/images'
+import { getAdminImageUrl } from '@/lib/images'
 import { formatCarTitle, formatMileage, formatNGN, toDisplayCase } from '@/lib/formatters'
 import { buildCarFormSchema, formatCarFormErrors } from '@/lib/carFormSchema'
 import { BODY_TYPES, CONDITIONS, DRIVETRAINS, ENGINE_LAYOUTS, FUEL_TYPES, NIGERIAN_STATES, TRANSMISSIONS, getYearOptions } from '@/lib/carOptions'
@@ -67,7 +67,7 @@ export function CarEditForm({
   const [images, setImages] = useState<PendingImage[]>(
     initialImages.map((img) => ({
       storagePath: img.storage_path,
-      publicUrl: getCarImagePublicUrl(img.storage_path),
+      previewUrl: getAdminImageUrl(img.storage_path),
       isCover: img.is_cover,
     }))
   )
@@ -279,7 +279,8 @@ export function CarEditForm({
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-fill md:rounded-2xl">
             {cover ? (
               <Image
-                src={cover.publicUrl}
+                src={cover.previewUrl}
+                unoptimized
                 alt={`${title}, cover photo`}
                 fill
                 priority

@@ -41,3 +41,13 @@ Keep PR descriptions short: a simple description of what the PR is about. No tes
 
 ## Output rules
 - Never include model, effort or thinking-level recommendations in reports, plans or prompts. I set these myself.
+
+## Image serving
+
+- `car-images` is a private bucket. Nothing builds a `/storage/v1/object/...` URL for a car photo; use `getShowcaseImageUrl` or `getAdminImageUrl` from `lib/images.ts`.
+- The public showcase serves photos from `/img/<path>` (`app/(public)/img`), which downloads with the anon client. The `car_images_anon_read_visible` policy on `storage.objects` decides visibility through `car_is_publicly_visible`; the route does no status checks of its own and returns one identical 404 for missing and not-visible photos.
+- Admin screens serve photos from `/admin/img/<path>` on the owner's session (`car_images_owner_read`). Admin `<Image>` uses `unoptimized`, because the optimizer fetches without cookies and would cache private photos.
+- External services (Anthropic in suggest-colours) get a 60-second signed URL minted with the owner session.
+- The service role never touches an image read path. It is used only for deleting files in `removeCarImageFiles`.
+- Photo paths are validated by `lib/carImagePath.ts` before any Storage lookup.
+- A car that goes non-visible can still be served from caches for up to 15 minutes (`/img` `s-maxage=900`, `images.minimumCacheTTL: 900`). There is no on-demand purge.
