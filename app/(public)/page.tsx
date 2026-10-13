@@ -5,6 +5,7 @@ import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicCarCard } from '@/components/showcase/PublicCarCard'
 import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
 import { AboutBand } from '@/components/showcase/AboutBand'
+import { Testimonials } from '@/components/showcase/Testimonials'
 import { SectionHeading } from '@/components/showcase/SectionHeading'
 import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
 import { getFeaturedCars } from '@/lib/showcase/queries'
@@ -130,6 +131,8 @@ export default async function LandingPage() {
       )}
 
       <AboutBand divided={featured.length > 0} />
+
+      <Testimonials />
 
       <WhatsAppButton message="Hi, I'd like to talk to you about a car." label="Chat on WhatsApp" desktop="hidden" />
     </>
