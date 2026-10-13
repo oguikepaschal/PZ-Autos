@@ -84,3 +84,17 @@ export const PROCESS: ProcessContent = {
     { title: 'See the car yourself', text: 'Look it over in person. I am there to answer any question.' },
   ],
 }
+
+export type TestimonialRelation = 'customer' | 'trade_partner'
+
+export interface Testimonial {
+  id: string
+  quote: string
+  name: string
+  relation: TestimonialRelation
+  detail?: string
+}
+
+// Real quotes only, each with the person's permission. Leave the array empty
+// until there are some: the section renders nothing without entries.
+export const TESTIMONIALS: readonly Testimonial[] = []

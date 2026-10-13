@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { ProcessSteps } from '@/components/showcase/ProcessSteps'
 import { SectionHeading } from '@/components/showcase/SectionHeading'
+import { Testimonials } from '@/components/showcase/Testimonials'
 import { ABOUT } from '@/lib/siteContent'
 
 export const metadata: Metadata = {
@@ -60,6 +61,7 @@ export default function AboutPage() {
       </div>
       {/* The sections above already end in a hairline, so no second divider. */}
       <ProcessSteps hairline={false} />
+      <Testimonials />
     </>
   )
 }
