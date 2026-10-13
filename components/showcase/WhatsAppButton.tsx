@@ -12,8 +12,8 @@ interface WhatsAppButtonProps {
   desktop?: 'inline' | 'hidden'
 }
 
-// Below md: a floating glass pill above the home indicator (the page adds
-// matching bottom padding so it never covers content). The WhatsApp glyph is
+// Below md: a floating glass pill above the home indicator (the footer's
+// bottom padding keeps the end of the page clear of it). The WhatsApp glyph is
 // one of signal red's allowed uses.
 export function WhatsAppButton({ message, label, desktop = 'inline' }: WhatsAppButtonProps) {
   return (

@@ -62,3 +62,25 @@ export const ABOUT: AboutContent = {
     ],
   },
 }
+
+export interface ProcessStep {
+  title: string
+  text: string
+}
+
+export interface ProcessContent {
+  eyebrow: string
+  heading: string
+  steps: readonly ProcessStep[]
+}
+
+export const PROCESS: ProcessContent = {
+  eyebrow: 'How buying works',
+  heading: 'From first message to handover',
+  steps: [
+    { title: 'Find a car', text: 'Browse the listings. Each car is verified clean by me.' },
+    { title: 'Message me on WhatsApp', text: 'Ask anything about the car.' },
+    { title: 'Pick an inspection date', text: 'Choose a day that works for you.' },
+    { title: 'See the car yourself', text: 'Look it over in person. I am there to answer any question.' },
+  ],
+}

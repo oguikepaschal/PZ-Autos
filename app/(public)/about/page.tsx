@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
+import { ProcessSteps } from '@/components/showcase/ProcessSteps'
 import { SectionHeading } from '@/components/showcase/SectionHeading'
 import { ABOUT } from '@/lib/siteContent'
 
@@ -13,7 +14,7 @@ export default function AboutPage() {
   return (
     <>
       <PublicHeader />
-      <div className="container-page pt-12 pb-section md:pt-section">
+      <div className="container-page pt-12 md:pt-section">
         <SectionHeading as="h1" size="h1" title={page.heading} />
 
         <div className="mt-12 border-t border-hairline md:mt-16">
@@ -57,6 +58,8 @@ export default function AboutPage() {
           })}
         </div>
       </div>
+      {/* The sections above already end in a hairline, so no second divider. */}
+      <ProcessSteps hairline={false} />
     </>
   )
 }
