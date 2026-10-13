@@ -4,6 +4,7 @@ import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
 import { CarFilterSheet } from '@/components/showcase/CarFilterSheet'
 import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
+import { ProcessSteps } from '@/components/showcase/ProcessSteps'
 import { getPublicCars } from '@/lib/showcase/queries'
 import { applyCarFilters, countActiveFilters } from '@/lib/showcase/carFilters'
 import type { SearchParams } from '@/lib/showcase/carFilters'
@@ -25,10 +26,10 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
   return (
     <>
       <PublicHeader />
-      {/* Below md the floating WhatsApp pill needs its height plus its lift
-          and the home-indicator inset kept clear at the end of the page. From
-          md up the button sits in the flow under the list. */}
-      <div className="container-page pt-8 pb-[calc(112px+env(safe-area-inset-bottom))] md:py-section">
+      {/* Below md the WhatsApp button floats, and the footer's own bottom
+          padding keeps the end of the page clear of it. From md up the button
+          sits in the flow under the list, with the process block below it. */}
+      <div className="container-page pt-8 pb-section md:py-section">
         <p className="font-body text-xs font-bold tracking-[0.24em] text-signal-red">INVENTORY</p>
         <h1 className="mt-2 text-balance font-display text-[clamp(2.5rem,1.17rem+5.93vw,6.5rem)] font-black font-stretch-[118%] uppercase leading-[0.9] tracking-display text-ink">
           Every car currently on offer
@@ -68,6 +69,7 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
         </div>
         <WhatsAppButton message="Hi, I'd like to talk to you about a car." label="Chat on WhatsApp" />
       </div>
+      <ProcessSteps />
     </>
   )
 }

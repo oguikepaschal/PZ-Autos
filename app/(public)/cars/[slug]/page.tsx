@@ -10,6 +10,7 @@ import { SpecList } from '@/components/showcase/SpecList'
 import { CarSpecGrid } from '@/components/shared/CarSpecGrid'
 import { ShareButton } from '@/components/showcase/ShareButton'
 import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
+import { ProcessSteps } from '@/components/showcase/ProcessSteps'
 import { getPublicCarBySlug } from '@/lib/showcase/queries'
 import { getCarImagePublicUrl } from '@/lib/images'
 import { getSiteOrigin } from '@/lib/siteOrigin'
@@ -66,13 +67,9 @@ export default async function CarDetailPage({ params }: PageProps) {
       <div className="hidden md:contents">
         <PublicHeader showBackButton />
       </div>
-      {/* Below md the floating WhatsApp pill needs its height, its lift and
-          the home-indicator inset kept clear. */}
-      <div
-        className={`grid gap-6 md:container-page md:pt-12 lg:grid-cols-5 lg:gap-12 ${
-          canEnquire ? 'pb-[calc(112px+env(safe-area-inset-bottom))] md:pb-section' : 'pb-12 md:pb-section'
-        }`}
-      >
+      {/* Below md the WhatsApp pill floats; the footer's own bottom padding
+          keeps the end of the page clear of it. */}
+      <div className="grid gap-6 pb-12 md:container-page md:pt-12 md:pb-section lg:grid-cols-5 lg:gap-12">
         <div className="relative min-w-0 lg:col-span-3 lg:sticky lg:top-24 lg:self-start">
           <CarGallery images={galleryImages} carName={title} />
           <div className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+8px)] z-40 flex justify-between md:absolute md:top-4">
@@ -135,6 +132,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           )}
         </div>
       </div>
+      <ProcessSteps />
     </>
   )
 }
