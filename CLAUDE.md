@@ -31,5 +31,13 @@ Keep PR descriptions short: a simple description of what the PR is about. No tes
   4. Before opening a PR, compare `list_migrations` with `supabase/migrations` and report any mismatch.
 - After any migration, regenerate `lib/supabase/database.types.ts` from the live project with `generate_typescript_types` and commit it in the same PR.
 
+## Public data exposure
+
+- Public showcase reads go through `public_cars_view`, `public_car_images_view` and `public_featured_cars_view`. All three are `security_invoker=true`.
+- anon has column-level SELECT grants only on `cars` and `car_images`, plus RLS policies `anon_select_visible_cars` and `anon_select_visible_car_images` (TO anon only).
+- Exposing a new column through a public view requires `grant select (<col>) on <table> to anon` in the same migration, or anon gets permission denied on that view.
+- Never grant table-level SELECT to anon on `cars` or `car_images`, and never add visibility policies TO authenticated. authenticated holds table-level grants, so such a policy would expose `supplier_id`, `cost_price_ngn`, `vin`, `acquisition_notes`, `archive_reason` and `registration_plate` to any non-owner session.
+- Visibility logic lives in `car_is_publicly_visible(p_status text)`. Change it there, not in individual views or policies.
+
 ## Output rules
 - Never include model, effort or thinking-level recommendations in reports, plans or prompts. I set these myself.
