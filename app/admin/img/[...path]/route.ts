@@ -1,4 +1,4 @@
-import { carImagePathFromSegments } from '@/lib/carImagePath'
+import { carImagePathFromRequest } from '@/lib/carImagePath'
 import { createClient } from '@/lib/supabase/server'
 
 // Admin photo previews: any photo, including drafts, withdrawn cars and photos
@@ -11,9 +11,9 @@ function notFound() {
   return new Response(null, { status: 404, headers: { 'Cache-Control': 'private, no-store' } })
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ path: string[] }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const { path: segments } = await params
-  const path = carImagePathFromSegments(segments)
+  const path = carImagePathFromRequest(request.url, segments)
   if (!path) return notFound()
 
   try {

@@ -1,4 +1,4 @@
-import { carImagePathFromSegments } from '@/lib/carImagePath'
+import { carImagePathFromRequest } from '@/lib/carImagePath'
 import { createPublicClient } from '@/lib/supabase/publicClient'
 
 // Showcase photos. car-images is private; the anon SELECT policy on
@@ -15,9 +15,9 @@ function notFound() {
   return new Response(null, { status: 404, headers: { 'Cache-Control': NOT_FOUND_CACHE } })
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ path: string[] }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const { path: segments } = await params
-  const path = carImagePathFromSegments(segments)
+  const path = carImagePathFromRequest(request.url, segments)
   if (!path) return notFound()
 
   try {

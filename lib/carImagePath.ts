@@ -17,3 +17,11 @@ export function carImagePathFromSegments(segments: string[]): string | null {
   const path = segments.join('/')
   return isCarImagePath(path) ? path : null
 }
+
+// An encoded slash or backslash in the URL is refused outright, even where
+// the platform would decode it into a valid two-segment path: photo URLs have
+// exactly one spelling, so no variant gets through the check.
+export function carImagePathFromRequest(requestUrl: string, segments: string[]): string | null {
+  if (/%(?:2f|5c)/i.test(new URL(requestUrl).pathname)) return null
+  return carImagePathFromSegments(segments)
+}
