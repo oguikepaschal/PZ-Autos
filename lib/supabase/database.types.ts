@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -168,7 +168,7 @@ export type Database = {
           model: string
           registration_plate?: string | null
           slug: string
-          state: string | null
+          state?: string | null
           status?: string
           status_changed_at?: string
           supplier_id: string
@@ -479,10 +479,7 @@ export type Database = {
       }
     }
     Functions: {
-      car_is_publicly_visible: {
-        Args: { c: Database["public"]["Tables"]["cars"]["Row"] }
-        Returns: boolean
-      }
+      car_is_publicly_visible: { Args: { p_status: string }; Returns: boolean }
       create_car_with_images: {
         Args: { p_car: Json; p_images: Json }
         Returns: string
