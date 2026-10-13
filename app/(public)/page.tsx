@@ -4,6 +4,8 @@ import type { Metadata } from 'next'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicCarCard } from '@/components/showcase/PublicCarCard'
 import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
+import { AboutBand } from '@/components/showcase/AboutBand'
+import { SectionHeading } from '@/components/showcase/SectionHeading'
 import { WhatsAppButton } from '@/components/showcase/WhatsAppButton'
 import { getFeaturedCars } from '@/lib/showcase/queries'
 import { generateWhatsAppLink, getOwnerPhone } from '@/lib/whatsapp'
@@ -89,9 +91,7 @@ export default async function LandingPage() {
       {featured.length > 0 && (
         <section className="container-page py-section">
           <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="font-display font-extrabold text-h2 tracking-display text-ink">
-              Handpicked and inspected
-            </h2>
+            <SectionHeading title="Handpicked and inspected" />
             <Link
               href="/cars"
               className="hidden h-11 shrink-0 items-center font-body font-semibold text-small text-ink underline-offset-4 hover:underline md:inline-flex"
@@ -128,6 +128,8 @@ export default async function LandingPage() {
           </Link>
         </section>
       )}
+
+      <AboutBand divided={featured.length > 0} />
 
       <WhatsAppButton message="Hi, I'd like to talk to you about a car." label="Chat on WhatsApp" desktop="hidden" />
     </>
