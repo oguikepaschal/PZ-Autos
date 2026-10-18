@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import type { Metadata } from 'next'
+import { SpeedmarkHero } from '@/components/hero/SpeedmarkHero'
+import { SpeedmarkMotion } from '@/components/hero/SpeedmarkMotion'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
 import { PublicCarCard } from '@/components/showcase/PublicCarCard'
 import { PublicCarGrid } from '@/components/showcase/PublicCarGrid'
@@ -35,31 +36,20 @@ export default async function LandingPage() {
       <PublicHeader />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      {/* Below md the photo sits behind the text under an ink overlay, and
-          the section fills the small viewport (svh: never cut off by the
-          URL bar, no resize while scrolling). From md up the photo fills
-          the right half edge to edge and the section takes content height. */}
+      {/* The Speedmark light trail piece fills the right half from md up. Below
+          md the section fills the small viewport (svh: never cut off by the
+          URL bar, no resize while scrolling) and a 160px band of it sits
+          under the CTAs. From md up the section takes content height. */}
       <section className="relative isolate overflow-hidden bg-surface-dark">
-        <div className="absolute inset-0 -z-10 md:left-1/2">
-          <Image
-            src="/hero.jpg"
-            alt=""
-            fill
-            preload
-            sizes="(min-width: 768px) 50vw, 100vw"
-            className="object-cover object-[70%_center] md:object-center"
-          />
-          <div className="absolute inset-0 bg-surface-dark/80 md:hidden" />
-        </div>
+        <SpeedmarkMotion className="absolute inset-0 -z-10 hidden md:left-1/2 md:block">
+          <SpeedmarkHero mode="desktop" />
+        </SpeedmarkMotion>
 
-        <div className="container-page flex min-h-[calc(100svh-var(--spacing-header))] flex-col justify-end py-16 md:min-h-0 md:justify-center md:py-section">
+        <div className="container-page flex min-h-[calc(100svh-var(--spacing-header))] flex-col justify-end pt-16 max-md:pb-0 md:min-h-0 md:justify-center md:py-section">
           <div className="md:w-1/2 md:pr-12">
             <h1 className="font-display font-extrabold text-h1 tracking-display text-white">
               Cars worth trusting, verified before they reach you.
             </h1>
-            <p className="mt-4 font-display text-lead font-bold tracking-display text-white">
-              Japanese. German. Chinese.
-            </p>
             <p className="mt-6 max-w-measure font-body text-lead text-white md:text-text-on-dark">
               Sourced from vetted dealerships and individuals across Lagos, checked before
               listing and re-confirmed regularly. You talk to us directly on WhatsApp,
@@ -82,6 +72,10 @@ export default async function LandingPage() {
               </a>
             </div>
           </div>
+
+          <SpeedmarkMotion className="-mx-5 mt-10 h-40 md:hidden">
+            <SpeedmarkHero mode="mobile" />
+          </SpeedmarkMotion>
         </div>
       </section>
 
