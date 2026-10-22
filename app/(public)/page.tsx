@@ -37,25 +37,38 @@ export default async function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       {/* The Speedmark light trail piece fills the right half from md up. Below
-          md the section fills the small viewport (svh: never cut off by the
-          URL bar, no resize while scrolling) and a 160px band of it sits
-          under the CTAs. From md up the section takes content height. */}
+          md it sits right under the nav as the backdrop of the headline, then
+          comes a compact car rail and the CTAs, so all three share the first
+          screen; the paragraph follows. From md up the section takes content
+          height and the rail lives in the featured section below. */}
       <section className="relative isolate overflow-hidden bg-surface-dark">
         <SpeedmarkMotion className="absolute inset-0 -z-10 hidden md:left-1/2 md:block">
           <SpeedmarkHero mode="desktop" />
         </SpeedmarkMotion>
 
-        <div className="container-page flex min-h-[calc(100svh-var(--spacing-header))] flex-col justify-end pt-16 max-md:pb-0 md:min-h-0 md:justify-center md:py-section">
-          <div className="md:w-1/2 md:pr-12">
-            <h1 className="font-display font-extrabold text-h1 tracking-display text-white">
-              Cars worth trusting, verified before they reach you.
-            </h1>
-            <p className="mt-6 max-w-measure font-body text-lead text-white md:text-text-on-dark">
-              Sourced from vetted dealerships and individuals across Lagos, checked before
-              listing and re-confirmed regularly. You talk to us directly on WhatsApp,
+        <div className="container-page flex flex-col max-md:pb-6 md:justify-center md:py-section">
+          <div className="max-md:contents md:w-1/2 md:pr-12">
+            <div className="relative isolate max-md:order-1 max-md:-mx-5 max-md:px-5 max-md:py-8">
+              <SpeedmarkMotion className="absolute inset-0 -z-10 opacity-70 md:hidden">
+                <SpeedmarkHero mode="mobile" />
+              </SpeedmarkMotion>
+              <h1 className="font-display font-extrabold text-h1 tracking-display text-white">
+                Cars worth trusting, verified before they reach you.
+              </h1>
+            </div>
+
+            {featured.length > 0 && (
+              <div className="order-2 mt-2 md:hidden">
+                <PublicCarGrid cars={featured} siteOrigin={siteOrigin} compact />
+              </div>
+            )}
+
+            <p className="order-4 mt-6 max-w-measure font-body text-lead text-white md:order-none md:mt-6 md:text-text-on-dark">
+              Sourced from vetted dealerships across Lagos, checked before
+              listing and re-confirmed regularly. You talk to me directly on WhatsApp,
               not a call centre.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="order-3 mt-5 flex flex-wrap gap-3 md:order-none md:mt-8">
               <Link
                 href="/cars"
                 className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full bg-white px-6 font-body font-semibold text-body text-surface-dark transition active:scale-98"
@@ -72,24 +85,20 @@ export default async function LandingPage() {
               </a>
             </div>
           </div>
-
-          <SpeedmarkMotion className="-mx-5 mt-10 h-40 md:hidden">
-            <SpeedmarkHero mode="mobile" />
-          </SpeedmarkMotion>
         </div>
       </section>
 
       {/* ── Featured (owner-curated, at most 6) ─────────────────────── */}
-      {/* Adapts to the count: 0 hides the section, 1 is a wide single
-          feature, 2 is two-up, 3 or more is a swipe row on phones and the
-          grid from md up. */}
+      {/* From md up only: phones get the compact rail inside the hero. Adapts
+          to the count: 0 hides the section, 1 is a wide single feature, 2 is
+          two-up, 3 or more is the grid. */}
       {featured.length > 0 && (
-        <section className="container-page py-section">
+        <section className="container-page hidden py-section md:block">
           <div className="mb-8 flex items-end justify-between gap-4">
             <SectionHeading title="Handpicked and inspected" />
             <Link
               href="/cars"
-              className="hidden h-11 shrink-0 items-center font-body font-semibold text-small text-ink underline-offset-4 hover:underline md:inline-flex"
+              className="inline-flex h-11 shrink-0 items-center font-body font-semibold text-small text-ink underline-offset-4 hover:underline"
             >
               See all cars
             </Link>
@@ -111,16 +120,8 @@ export default async function LandingPage() {
               ))}
             </ul>
           ) : (
-            // 3 or more: the same swipe row as /cars below md, grid from md up.
             <PublicCarGrid cars={featured} siteOrigin={siteOrigin} />
           )}
-
-          <Link
-            href="/cars"
-            className="mt-6 inline-flex h-11 items-center font-body font-semibold text-body text-ink underline underline-offset-4 md:hidden"
-          >
-            See all cars
-          </Link>
         </section>
       )}
 

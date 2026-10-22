@@ -18,7 +18,7 @@ export function PublicFooter() {
               Serious about a car?
             </h2>
             <p className="mt-3 max-w-measure font-body text-body text-text-on-dark">
-              Call, message or email. No forms, no call centre.
+              Call, message or email.
             </p>
           </div>
 

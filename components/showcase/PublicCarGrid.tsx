@@ -8,6 +8,8 @@ interface PublicCarGridProps {
   cars: PublicCarCardData[]
   siteOrigin: string
   autoAdvance?: boolean
+  // 220px cards instead of 300px, for the landing hero. Phone rail only.
+  compact?: boolean
   emptyMessage?: string
 }
 
@@ -19,6 +21,7 @@ export function PublicCarGrid({
   cars,
   siteOrigin,
   autoAdvance = false,
+  compact = false,
   emptyMessage = 'No cars listed right now.',
 }: PublicCarGridProps) {
   if (cars.length === 0) {
@@ -28,8 +31,11 @@ export function PublicCarGrid({
   return (
     <CarRail labels={cars.map((car) => formatCarTitle(car))} autoAdvance={autoAdvance}>
       {cars.map((car) => (
-        <li key={car.id} className={cn('w-[300px] shrink-0 md:w-auto', !autoAdvance && 'snap-start')}>
-          <PublicCarCard car={car} siteOrigin={siteOrigin} />
+        <li
+          key={car.id}
+          className={cn(compact ? 'w-[220px]' : 'w-[300px]', 'shrink-0 md:w-auto', !autoAdvance && 'snap-start')}
+        >
+          <PublicCarCard car={car} siteOrigin={siteOrigin} compact={compact} />
         </li>
       ))}
       {autoAdvance &&
