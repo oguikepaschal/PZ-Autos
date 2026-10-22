@@ -14,6 +14,8 @@ interface PublicCarCardProps {
   // 'wide' is the single-featured-car layout: photo on one side, details on
   // the other from md up. It stacks like a normal card below md.
   layout?: 'card' | 'wide'
+  // Shorter photo and no spec line, for the landing hero's phone rail.
+  compact?: boolean
   sizes?: string
 }
 
@@ -24,7 +26,8 @@ export function PublicCarCard({
   car,
   siteOrigin,
   layout = 'card',
-  sizes = '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 300px',
+  compact = false,
+  sizes = compact ? '220px' : '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 300px',
 }: PublicCarCardProps) {
   const title = formatCarTitle(car)
   const href = `/cars/${car.slug}`
@@ -43,7 +46,11 @@ export function PublicCarCard({
         href={href}
         tabIndex={-1}
         aria-hidden="true"
-        className={cn('relative block aspect-[10/7] bg-fill', wide && 'md:aspect-auto md:min-h-80')}
+        className={cn(
+          'relative block bg-fill',
+          compact ? 'aspect-[16/10]' : 'aspect-[10/7]',
+          wide && 'md:aspect-auto md:min-h-80'
+        )}
       >
         {car.coverImageUrl ? (
           <Image src={car.coverImageUrl} alt="" fill sizes={sizes} className="object-cover" />
@@ -60,12 +67,12 @@ export function PublicCarCard({
       </CarCardLink>
 
       <div className={cn('flex flex-1 flex-col px-4 pt-2 pb-1.5', wide && 'md:justify-center md:p-10')}>
-        <h3 className={cn('font-display font-bold tracking-[-0.01em]', wide ? 'text-h3 md:text-h2' : 'text-lg')}>
+        <h3 className={cn('font-display font-bold tracking-[-0.01em]', wide ? 'text-h3 md:text-h2' : compact ? 'text-base' : 'text-lg')}>
           <CarCardLink carId={car.id} href={href} className="inline-flex min-h-11 items-center">
             {title}
           </CarCardLink>
         </h3>
-        {specs && <p className="font-body text-sm text-text-muted">{specs}</p>}
+        {specs && !compact && <p className="font-body text-sm text-text-muted">{specs}</p>}
         <div className="mt-auto flex items-center justify-between gap-3 pt-1.5">
           <p className={cn('font-display text-lg font-bold tabular-nums', wide && 'md:text-h3')}>{price}</p>
           {car.status !== 'sold' && (
