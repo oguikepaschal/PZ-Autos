@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { ArrowRight } from 'lucide-react'
 import { SpeedmarkHero } from '@/components/hero/SpeedmarkHero'
 import { SpeedmarkMotion } from '@/components/hero/SpeedmarkMotion'
 import { PublicHeader } from '@/components/showcase/PublicHeader'
@@ -68,20 +69,24 @@ export default async function LandingPage() {
               listing and re-confirmed regularly. You talk to me directly on WhatsApp,
               not a call centre.
             </p>
-            <div className="order-3 mt-5 flex flex-wrap gap-3 md:order-none md:mt-8">
+            <div className="order-3 mt-5 flex gap-3 max-md:flex-nowrap md:order-none md:mt-8 md:flex-wrap">
               <Link
                 href="/cars"
-                className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full bg-white px-6 font-body font-semibold text-body text-surface-dark transition active:scale-98"
+                className="group inline-flex h-12 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-white px-4 font-body font-semibold text-body text-surface-dark transition active:scale-98 max-md:flex-1 md:px-6"
               >
                 Browse cars
+                <span className="cta-arrow inline-flex transition-[translate] duration-200 ease-out group-hover:translate-x-[3px]">
+                  <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
+                </span>
               </Link>
               <a
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full border border-white/40 px-6 font-body font-semibold text-body text-white transition hover:border-white active:scale-98"
+                className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-full border border-white/40 px-4 font-body font-semibold text-body text-white transition hover:border-white active:scale-98 max-md:flex-1 md:px-6"
               >
-                Chat on WhatsApp
+                <span className="md:hidden">WhatsApp me</span>
+                <span className="max-md:hidden">Chat on WhatsApp</span>
               </a>
             </div>
           </div>

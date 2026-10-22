@@ -263,7 +263,40 @@ button,
   display: none;
 }
 
+/* Hero "Browse cars" arrow: two short nudges, then it rests. Each leg is
+   250ms of the 4s cycle; the delay applies once, before the first cycle, and
+   three cycles run in all. */
+@keyframes cta-nudge {
+  0%,
+  12.5%,
+  25%,
+  100% {
+    transform: translateX(0);
+  }
+  6.25%,
+  18.75% {
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cta-arrow svg {
+    animation: cta-nudge 4s var(--ease-out) 1.5s 3;
+  }
+
+  /* On desktop the speedmark release runs until 2.7s; start after it. */
+  @media (width >= 48rem) {
+    .cta-arrow svg {
+      animation-delay: 3s;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .cta-arrow {
+    translate: none !important;
+    transition: none;
+  }
   a:active,
   button:active,
   [role="button"]:active {
