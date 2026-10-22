@@ -40,8 +40,13 @@ export function PublicCarGrid({
       ))}
       {autoAdvance &&
         cars.map((car) => (
-          <li key={`${car.id}-loop`} data-loop-copy aria-hidden="true" className="w-[300px] shrink-0 md:hidden">
-            <PublicCarCard car={car} siteOrigin={siteOrigin} />
+          <li
+            key={`${car.id}-loop`}
+            data-loop-copy
+            aria-hidden="true"
+            className={cn(compact ? 'w-[220px]' : 'w-[300px]', 'shrink-0 md:hidden')}
+          >
+            <PublicCarCard car={car} siteOrigin={siteOrigin} compact={compact} />
           </li>
         ))}
     </CarRail>
