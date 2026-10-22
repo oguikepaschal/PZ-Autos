@@ -60,7 +60,7 @@ export default async function LandingPage() {
 
             {featured.length > 0 && (
               <div className="order-2 mt-2 md:hidden">
-                <PublicCarGrid cars={featured} siteOrigin={siteOrigin} compact />
+                <PublicCarGrid cars={featured} siteOrigin={siteOrigin} compact autoAdvance />
               </div>
             )}
 
@@ -70,15 +70,6 @@ export default async function LandingPage() {
               not a call centre.
             </p>
             <div className="order-3 mt-5 flex gap-3 max-md:flex-nowrap md:order-none md:mt-8 md:flex-wrap">
-              <Link
-                href="/cars"
-                className="group inline-flex h-12 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-white px-4 font-body font-semibold text-body text-surface-dark transition active:scale-98 max-md:flex-1 md:px-6"
-              >
-                Browse cars
-                <span className="cta-arrow inline-flex transition-[translate] duration-200 ease-out group-hover:translate-x-[3px]">
-                  <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
-                </span>
-              </Link>
               <a
                 href={whatsappLink}
                 target="_blank"
@@ -88,6 +79,15 @@ export default async function LandingPage() {
                 <span className="md:hidden">WhatsApp me</span>
                 <span className="max-md:hidden">Chat on WhatsApp</span>
               </a>
+              <Link
+                href="/cars"
+                className="group inline-flex h-12 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-white px-4 font-body font-semibold text-body text-surface-dark transition active:scale-98 max-md:flex-1 md:px-6"
+              >
+                Browse cars
+                <span className="cta-arrow inline-flex transition-[translate] duration-200 ease-out group-hover:translate-x-[3px]">
+                  <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
+                </span>
+              </Link>
             </div>
           </div>
         </div>
